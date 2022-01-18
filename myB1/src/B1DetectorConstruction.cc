@@ -143,14 +143,16 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   
   G4Box * solid_sipm = new G4Box("solid_sipm", 0.5*sipmXY, 0.5*sipmXY, 0.5*sipmZ);
   
-  G4Material * sipmSilicon = nist->FindOrBuildMaterial("G4_SI");
+  G4Material * sipmSilicon = nist->FindOrBuildMaterial("G4_Si");
+  
+  sipmSilicon->GetMaterialTable();
   
   G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, sipmSilicon, "logic_sipm");
   new G4PVPlacement(0,
                     G4ThreeVector(0, 0, sipmHeight),
                     logic_sipm,
                     "phys_sipm",
-                    logicWorld,         // mother volume
+                    logic_cf4,         // mother volume
                     false, 
                     0,
                     checkOverlaps);

@@ -40,6 +40,10 @@
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 
+#include "g4root.hh"
+
+// #include <TRandom3.h>
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 B1RunAction::B1RunAction()
@@ -81,6 +85,15 @@ void B1RunAction::BeginOfRunAction(const G4Run*)
   G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
   accumulableManager->Reset();
 
+  // TRandom * rand = new TRandom3();
+  G4AnalysisManager *man = G4AnalysisManager::Instance();
+  man->OpenFile("b1Output.root");
+  
+  man->CreateNtuple("Hits", "Hits");
+  man->CreateNtupleIColumn("fEvent");
+  man->CreateNtupleFColumn("fEdepInCyl");
+  man->FinishNtuple(0);
+  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -148,6 +161,12 @@ void B1RunAction::EndOfRunAction(const G4Run* run)
      << "------------------------------------------------------------"
      << G4endl
      << G4endl;
+     
+     
+     // TRandom * rand = new TRandom3();
+     G4AnalysisManager *man = G4AnalysisManager::Instance();
+     man->Write();
+     man->CloseFile("b1Output.root");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
