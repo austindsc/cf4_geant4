@@ -31,6 +31,7 @@
 #define B1ActionInitialization_h 1
 
 #include "G4VUserActionInitialization.hh"
+#include "B1RunAction.hh"
 
 /// Action initialization class.
 

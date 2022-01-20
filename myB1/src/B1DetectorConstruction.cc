@@ -123,11 +123,21 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   cf4Gas->AddElement(elCarbon, 1);
   cf4Gas->AddElement(elFluorine, 4);
   
+  // do dispersion function and fill arrays in loop
+  G4double photonE[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
+  G4double cf4n[2] = {1.02, 1.01};
+  
+  // add scintillation here
+  
+  G4MaterialPropertiesTable *mpt_gascf4 = new G4MaterialPropertiesTable();
+  mpt_gascf4->AddProperty("RINDEX", photonE, cf4n, 2); //2 is for length of arrays
+  cf4Gas->SetMaterialPropertiesTable(mpt_gascf4);
+  
   G4Tubs * solid_cf4 = new G4Tubs("solid_cf4", 0., innerCyl_r, 0.5*innerCyl_z, 0, 360.*deg);
   G4LogicalVolume * logic_cf4 = new G4LogicalVolume(solid_cf4, cf4Gas, "logic_cf4");
-  new G4PVPlacement(
-                    0,                    //no rotation
-                    G4ThreeVector(0, 0, innerCyl_z/2),      //at (0,0,0)
+  
+  new G4PVPlacement(0,                    //no rotation
+                    G4ThreeVector(0, 0, 0),      //at (0,0,0)
                     logic_cf4,            //its logical volume
                     "phys_cf4",           //its name
                     logicWorld,           //its mother  volume
@@ -139,7 +149,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   /////////////////// SiPM volume (Box) ///////////////////
   G4double sipmXY = 15*mm;
   G4double sipmZ = 5*mm;
-  G4double sipmHeight = 10*cm;
+  G4double sipmPosition = -innerCyl_z/2 + 4*cm;
   
   G4Box * solid_sipm = new G4Box("solid_sipm", 0.5*sipmXY, 0.5*sipmXY, 0.5*sipmZ);
   
@@ -149,7 +159,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   
   G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, sipmSilicon, "logic_sipm");
   new G4PVPlacement(0,
-                    G4ThreeVector(0, 0, sipmHeight),
+                    G4ThreeVector(0, 0, sipmPosition),
                     logic_sipm,
                     "phys_sipm",
                     logic_cf4,         // mother volume
