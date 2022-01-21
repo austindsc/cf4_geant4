@@ -49,7 +49,6 @@
 #include "G4PVPlacement.hh"
 #include "G4SystemOfUnits.hh"
 
-
 #include "G4Element.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -82,6 +81,13 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
 
   G4Box* solidWorld = new G4Box("World", 0.5*world_sizeXY, 0.5*world_sizeXY, 0.5*world_sizeZ);
       
+  // do dispersion function and fill arrays in loop
+  G4double photonEWorld[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
+  G4double nWorld[2] = {1.00, 1.00};   
+  G4MaterialPropertiesTable *mptWorld = new G4MaterialPropertiesTable();
+  mptWorld->AddProperty("RINDEX", photonEWorld, nWorld, 2); //2 is for length of arrays
+  world_mat->SetMaterialPropertiesTable(mptWorld);
+  
   G4LogicalVolume* logicWorld =                         
     new G4LogicalVolume(solidWorld,          //its solid
                         world_mat,           //its material
@@ -108,11 +114,6 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   // G4LogicalVolume * logicOuterWorld = new G4LogicalVolume(solidOuterCyl, world_mat)       
   
   /////////////////// CF4 volume (Cylinder) ///////////////////
-  // centered on XY place, goes from 0 to innerCyl_z on z axis
-  // volume of CF4 held in cylinder
-  G4double innerCyl_r = 4*cm;
-  // G4double innerCyl_t = 1*cm; //thickness
-  G4double innerCyl_z = 15*cm;
   
   G4Element * elCarbon = new G4Element("Carbon", "C", 6, 12.01 * g/mole);
   G4Element * elFluorine = new G4Element("Fluorine", "F", 9,  19. * g/mole);
@@ -125,18 +126,24 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   
   // do dispersion function and fill arrays in loop
   G4double photonE[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
-  G4double cf4n[2] = {1.02, 1.01};
-  
+  G4double cf4n[2] = {1.0, 1.0};
   // add scintillation here
   
   G4MaterialPropertiesTable *mpt_gascf4 = new G4MaterialPropertiesTable();
   mpt_gascf4->AddProperty("RINDEX", photonE, cf4n, 2); //2 is for length of arrays
   cf4Gas->SetMaterialPropertiesTable(mpt_gascf4);
   
+  // centered on XY place, goes from 0 to innerCyl_z on z axis
+  // volume of CF4 held in cylinder
+  G4double innerCyl_r = 4*cm;
+  // G4double innerCyl_t = 1*cm; //thickness
+  G4double innerCyl_z = 15*cm;
+  
   G4Tubs * solid_cf4 = new G4Tubs("solid_cf4", 0., innerCyl_r, 0.5*innerCyl_z, 0, 360.*deg);
+  
   G4LogicalVolume * logic_cf4 = new G4LogicalVolume(solid_cf4, cf4Gas, "logic_cf4");
   
-  new G4PVPlacement(0,                    //no rotation
+  G4VPhysicalVolume* phys_cf4 = new G4PVPlacement(0,                    //no rotation
                     G4ThreeVector(0, 0, 0),      //at (0,0,0)
                     logic_cf4,            //its logical volume
                     "phys_cf4",           //its name
@@ -149,7 +156,8 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   /////////////////// SiPM volume (Box) ///////////////////
   G4double sipmXY = 15*mm;
   G4double sipmZ = 5*mm;
-  G4double sipmPosition = -innerCyl_z/2 + 4*cm;
+  // G4double sipmPosition = -innerCyl_z/2 + 4*cm;
+  G4double sipmPosition = -sipmZ/2;
   
   G4Box * solid_sipm = new G4Box("solid_sipm", 0.5*sipmXY, 0.5*sipmXY, 0.5*sipmZ);
   
@@ -158,7 +166,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   sipmSilicon->GetMaterialTable();
   
   G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, sipmSilicon, "logic_sipm");
-  new G4PVPlacement(0,
+  G4VPhysicalVolume* phys_sipm = new G4PVPlacement(0,
                     G4ThreeVector(0, 0, sipmPosition),
                     logic_sipm,
                     "phys_sipm",
@@ -168,6 +176,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     checkOverlaps);
   //
   fScoringVolume = logic_cf4;
+  fsipmVolume = logic_sipm;
 
   //
   //always return the physical World

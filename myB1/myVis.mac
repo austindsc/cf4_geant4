@@ -29,3 +29,5 @@
 /vis/viewer/set/viewpointThetaPhi 120 150
 
 /vis/viewer/set/autoRefresh true
+
+/vis/scene/endOfEventAction accumulate

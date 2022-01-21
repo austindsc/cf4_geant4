@@ -71,7 +71,7 @@ int main(int argc,char** argv)
   // Physics list
   G4VModularPhysicsList* physicsList = new QBBC;
   physicsList->SetVerboseLevel(0);
-  physicsList->SetDefaultCutValue(0.5 * mm);
+  physicsList->SetDefaultCutValue(0.01 * mm);
   runManager->SetUserInitialization(physicsList);
     
   // User action initialization
@@ -95,7 +95,7 @@ int main(int argc,char** argv)
     G4String fileName = argv[1];
     UImanager->ApplyCommand(command+fileName);
   }
-  else { 
+  else {
     // interactive mode
     UImanager->ApplyCommand("/control/execute init_vis.mac");
     ui->SessionStart();

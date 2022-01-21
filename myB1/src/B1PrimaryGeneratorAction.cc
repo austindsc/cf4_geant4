@@ -31,13 +31,15 @@
 
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
-#include "G4Box.hh"
 #include "G4RunManager.hh"
 #include "G4ParticleGun.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4SystemOfUnits.hh"
 #include "Randomize.hh"
+
+#include "G4Tubs.hh"
+#include <stdlib.h>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -46,17 +48,24 @@ B1PrimaryGeneratorAction::B1PrimaryGeneratorAction()
   fParticleGun(0), 
   fCF4_volume(0)
 {
-  G4int n_particle = 1;
+  G4int n_particle = 100;
   fParticleGun  = new G4ParticleGun(n_particle);
 
   // default particle kinematic
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4String particleName;
   G4ParticleDefinition* particle
-    = particleTable->FindParticle(particleName="alpha");
+                = particleTable->FindParticle(particleName="alpha");
   fParticleGun->SetParticleDefinition(particle);
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
-  fParticleGun->SetParticleEnergy(5.*MeV);
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,-1.));
+  fParticleGun->SetParticleEnergy(5.4 * MeV);
+  
+  // G4double size = 0.8;
+  G4double x0 = 0.;
+  G4double y0 = 0.;
+  G4double z0 = 5. * cm;
+  
+  fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -77,28 +86,28 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // on DetectorConstruction class we get Envelope volume
   // from G4LogicalVolumeStore.
   
-  // G4double cf4Top = 0;
-  // G4double cf4Bottom = 0;
+  G4double cf4Top = 0;
+  G4double cf4Bottom = 0;
 
-  // if (!fCF4_volume)
-  // {
-  //   G4LogicalVolume* cf4
-  //     = G4LogicalVolumeStore::GetInstance()->GetVolume("logic_cf4");
-  //   if ( cf4 ) fCF4_volume = dynamic_cast<G4Tubs*>(cf4->GetSolid());
-  // }
+  if (!fCF4_volume)
+  {
+    G4LogicalVolume* cf4 = G4LogicalVolumeStore::GetInstance()->GetVolume("logic_cf4");
+    if ( cf4 ) fCF4_volume = dynamic_cast<G4Tubs*>(cf4->GetSolid());
+  }
+  
   // 
-  // if ( fCF4_volume ) {
-  //   cf4Top = fCF4_volume->GetXHalfLength()*2.;
-  //   cf4Bottom = fCF4_volume->GetZHalfLength()*2.;
-  // }  
-  // else  {
-  //   G4ExceptionDescription msg;
-  //   msg << "Envelope volume of box shape not found.\n"; 
-  //   msg << "Perhaps you have changed geometry.\n";
-  //   msg << "The gun will be place at the center.";
-  //   G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()",
-  //    "MyCode0002",JustWarning,msg);
-  // }
+  if ( fCF4_volume ) {
+    // cf4Top = fCF4_volume->GetXHalfLength()*2.;
+    cf4Bottom = fCF4_volume->GetZHalfLength()*2.;
+  }  
+  else  {
+    G4ExceptionDescription msg;
+    msg << "Envelope volume of box shape not found.\n"; 
+    msg << "Perhaps you have changed geometry.\n";
+    msg << "The gun will be place at the center.";
+    G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()",
+     "MyCode0002",JustWarning,msg);
+  }
   
   
 
@@ -107,13 +116,8 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // G4double y0 = size * envSizeXY * (G4UniformRand()-0.5);
   // G4double z0 = -0.5 * envSizeZ;
   
-  // G4double size = 0.8;
-  G4double x0 = 0.;
-  G4double y0 = 0.;
-  G4double z0 = 0.;
-  
-  fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
 
+  // 
   fParticleGun->GeneratePrimaryVertex(anEvent);
 }
 

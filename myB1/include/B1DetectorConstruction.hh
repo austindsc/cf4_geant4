@@ -49,7 +49,8 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
 
   protected:
     G4LogicalVolume*  fScoringVolume;
-    G4LogicalVolume* fsipmVolume;
+    G4LogicalVolume*  fsipmVolume;
+    
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
