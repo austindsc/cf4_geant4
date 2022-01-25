@@ -33,6 +33,12 @@
 #include "G4Event.hh"
 #include "G4RunManager.hh"
 
+#include "G4UnitsTable.hh"
+#include "G4SystemOfUnits.hh"
+#include "g4root.hh"
+#include "G4RunManager.hh"
+
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 B1EventAction::B1EventAction(B1RunAction* runAction)
@@ -59,6 +65,17 @@ void B1EventAction::EndOfEventAction(const G4Event*)
 {   
   // accumulate statistics in run action
   fRunAction->AddEdep(fEdep);
+  
+  G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+  
+  G4AnalysisManager *man = G4AnalysisManager::Instance();
+  man->FillNtupleIColumn(0, evt);
+  man->FillNtupleDColumn(1, fEdep/keV);
+  man->AddNtupleRow(0);
+  
+  G4cout << "b1eventAction::EOEA fEdep = " << fEdep/keV << " keV" << G4endl;
 }
+
+ void B1EventAction::AddEdep(G4double edep){ fEdep += edep; }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

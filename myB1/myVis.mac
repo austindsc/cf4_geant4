@@ -2,6 +2,7 @@
 
 /vis/verbose warnings
 /vis/verbose errors
+/vis/verbose 0
 
 /vis/viewer/set/autoRefresh false
 

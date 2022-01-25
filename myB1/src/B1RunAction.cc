@@ -49,7 +49,8 @@
 B1RunAction::B1RunAction()
 : G4UserRunAction(),
   fEdep(0.),
-  fEdep2(0.)
+  fEdep2(0.),
+  favgEdep(0.)
 { 
   // add new units for dose
   // 
@@ -66,7 +67,7 @@ B1RunAction::B1RunAction()
   // Register accumulable to the accumulable manager
   G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
   accumulableManager->RegisterAccumulable(fEdep);
-  accumulableManager->RegisterAccumulable(fEdep2); 
+  accumulableManager->RegisterAccumulable(fEdep2);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -90,8 +91,8 @@ void B1RunAction::BeginOfRunAction(const G4Run*)
   man->OpenFile("b1Output.root");
   
   man->CreateNtuple("Edep", "Edep");
-  man->CreateNtupleIColumn("fEvent");
-  man->CreateNtupleFColumn("fEdepInCyl");
+  man->CreateNtupleIColumn("fNEvent");
+  man->CreateNtupleDColumn("fEdepInCyl_kev");
   man->FinishNtuple(0);
   
 }
