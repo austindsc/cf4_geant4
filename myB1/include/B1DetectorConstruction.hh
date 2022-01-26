@@ -48,8 +48,19 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
 
   protected:
-    G4LogicalVolume*  fScoringVolume;
+    G4LogicalVolume*  fScoringVolume; //(this is the cf4)
     G4LogicalVolume*  fsipmVolume;
+    
+    G4LogicalVolume*  fpcb;
+    G4LogicalVolume*  fchamberWalls;
+    
+    // adding source assembly
+    G4LogicalVolume*  fAlBackPlate;
+    G4LogicalVolume*  fScrew1;
+    G4LogicalVolume*  fScrew2;
+    G4LogicalVolume*  fScrew3;
+    
+    G4LogicalVolume*  fSourceBody;
     
 };
 

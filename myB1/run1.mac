@@ -18,6 +18,10 @@
 #/gun/energy 0.511 MeV
 #/gun/direction 0 0 -1
 #
-/gun/position 0 0 2 cm
+#/gun/position 0 0 2 cm
 
-/run/beamOn 1000
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/centre 0 0 5 cm
+
+/run/beamOn 1

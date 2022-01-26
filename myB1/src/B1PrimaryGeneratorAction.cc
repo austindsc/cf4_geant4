@@ -39,40 +39,49 @@
 #include "Randomize.hh"
 
 #include "G4Tubs.hh"
+#include "G4GeneralParticleSource.hh"
+#include "G4UImanager.hh"
 #include <stdlib.h>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 B1PrimaryGeneratorAction::B1PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),
-  fParticleGun(0), 
   fCF4_volume(0)
 {
   G4int n_particle = 1;
-  fParticleGun  = new G4ParticleGun(n_particle);
+  fGun = new G4GeneralParticleSource();
+  fGun->SetNumberOfParticles(n_particle);
 
-  // default particle kinematic
+  // default particle kinematic is straight alpha
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4String particleName;
-  G4ParticleDefinition* particle
-                = particleTable->FindParticle(particleName="alpha");
-  fParticleGun->SetParticleDefinition(particle);
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,-1.));
-  fParticleGun->SetParticleEnergy(5.4 * MeV);
+  G4ParticleDefinition* particle = particleTable->FindParticle(particleName="alpha");
+  
+  fGun->SetParticleDefinition(particle); 
+  // 
+  // fGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,-1.));
+  // fGun->SetParticleEnergy(5.4 * MeV);
+  
+  // Get the pointer to the User Interface manager
+  G4UImanager* UImanager = G4UImanager::GetUIpointer();
+  UImanager->ApplyCommand("/gps/energy 5.4 MeV");
+  UImanager->ApplyCommand("/gps/pos/centre 0 0 5 cm");
+  UImanager->ApplyCommand("/gps/pos/direction 0 0 -1");
   
   // G4double size = 0.8;
   G4double x0 = 0.;
   G4double y0 = 0.;
-  G4double z0 = 5. * cm;
+  G4double z0 = 10. * cm;
   
-  fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
+  // fGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 B1PrimaryGeneratorAction::~B1PrimaryGeneratorAction()
 {
-  delete fParticleGun;
+  delete fGun;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -118,7 +127,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   
 
   // 
-  fParticleGun->GeneratePrimaryVertex(anEvent);
+  fGun->GeneratePrimaryVertex(anEvent);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
