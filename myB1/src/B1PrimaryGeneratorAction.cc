@@ -42,12 +42,13 @@
 #include "G4GeneralParticleSource.hh"
 #include "G4UImanager.hh"
 #include <stdlib.h>
+#include "G4PhysicalVolumeStore.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 B1PrimaryGeneratorAction::B1PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),
-  fCF4_volume(0)
+  fCF4_volume(0), famo2_volume(0)
 {
   G4int n_particle = 1;
   fGun = new G4GeneralParticleSource();
@@ -63,11 +64,13 @@ B1PrimaryGeneratorAction::B1PrimaryGeneratorAction()
   // fGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,-1.));
   // fGun->SetParticleEnergy(5.4 * MeV);
   
-  // Get the pointer to the User Interface manager
-  G4UImanager* UImanager = G4UImanager::GetUIpointer();
-  UImanager->ApplyCommand("/gps/energy 5.4 MeV");
-  UImanager->ApplyCommand("/gps/pos/centre 0 0 5 cm");
-  UImanager->ApplyCommand("/gps/pos/direction 0 0 -1");
+  // G4VPhysicalVolume * phys_alphaVolume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_amo2");
+  // G4LogicalVolume * logic_alphaVolume = phys_alphaVolume->GetLogicalVolume();
+  // 
+  // //   if ( cf4 ) fCF4_volume = dynamic_cast<G4Tubs*>(cf4->GetSolid());
+  // 
+  // // G4cout << "phys_amo2 has position " << phys_alphaVolume->GetObjectTranslation().getZ() << G4endl;
+  // // exit(0);
   
   // G4double size = 0.8;
   G4double x0 = 0.;
@@ -88,6 +91,7 @@ B1PrimaryGeneratorAction::~B1PrimaryGeneratorAction()
 
 void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
+  
   //this function is called at the begining of ecah event
   //
 
@@ -98,24 +102,40 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4double cf4Top = 0;
   G4double cf4Bottom = 0;
 
-  if (!fCF4_volume)
+  if (!famo2_volume) // first time it runs, we go here and apply all our 'default' behaviour
   {
-    G4LogicalVolume* cf4 = G4LogicalVolumeStore::GetInstance()->GetVolume("logic_cf4");
-    if ( cf4 ) fCF4_volume = dynamic_cast<G4Tubs*>(cf4->GetSolid());
+    G4VPhysicalVolume * phys_alphaVolume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_amo2");
+    famo2_volume = phys_alphaVolume;
+    // G4LogicalVolume * logic_alphaVolume = phys_alphaVolume->GetLogicalVolume();
+    G4cout << "phys_amo2 has position " << famo2_volume->GetObjectTranslation().getZ()/mm << " mm" << G4endl;
+    // exit(0);
   }
   
-  // 
-  if ( fCF4_volume ) {
-    // cf4Top = fCF4_volume->GetXHalfLength()*2.;
-    cf4Bottom = fCF4_volume->GetZHalfLength()*2.;
+  // got the source physical volume. Now we do our gun stuff
+  if ( famo2_volume ) {
+    
+    G4String posdistype("Plane");
+    fGun->GetCurrentSource()->GetPosDist()->SetPosDisType("Volume");
+    fGun->GetCurrentSource()->GetPosDist()->
+    G4cout << fGun->GetCurrentSource()->GetPosDist()->GetPosDisType() << G4endl;
+    exit(0);
+    // // Get the pointer to the User Interface manager
+    // G4UImanager* UImanager = G4UImanager::GetUIpointer();
+    // UImanager->ApplyCommand("/gps/energy 5.4 MeV");
+    // UImanager->ApplyCommand("/gps/pos/direction 0 0 -1");
+    // 
+    // // these defaults should remain, until simulating gammas
+    // UImanager->ApplyCommand("/gps/pos/type Plane");
+    // UImanager->ApplyCommand("/gps/pos/shape Circle");
+    // UImanager->ApplyCommand("/gps/pos/centre 0 0 5 cm");
+    // UImanager->ApplyCommand("/gps/pos/radius 2 mm");
+    // UImanager->ApplyCommand("/gps/pos/confine phys_amo2");
   }  
   else  {
     G4ExceptionDescription msg;
-    msg << "Envelope volume of box shape not found.\n"; 
-    msg << "Perhaps you have changed geometry.\n";
-    msg << "The gun will be place at the center.";
-    G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()",
-     "MyCode0002",JustWarning,msg);
+    msg << "Cannot find amo2 volume\n"; 
+    G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()", "MyCode0002",JustWarning,msg);
+
   }
   
   

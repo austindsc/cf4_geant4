@@ -46,6 +46,9 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     virtual G4VPhysicalVolume* Construct();
     
     G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
+    
+    G4double getSourceHeight(){ return fHeightSource; }
+    void setSourceHeight(G4double h){ fHeightSource = h; }
 
   protected:
     G4LogicalVolume*  fScoringVolume; //(this is the cf4)
@@ -61,6 +64,10 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     G4LogicalVolume*  fScrew3;
     
     G4LogicalVolume*  fSourceBody;
+    G4LogicalVolume*  fSource;
+    
+    // tracking things that change in geometry
+    G4double fHeightSource;
     
 };
 

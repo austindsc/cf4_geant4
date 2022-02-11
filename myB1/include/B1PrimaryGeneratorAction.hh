@@ -38,6 +38,7 @@
 class G4GeneralParticleSource;
 class G4Event;
 class G4Tubs;
+class G4VPhysicalVolume;
 
 /// The primary generator action class with particle gun.
 ///
@@ -59,6 +60,7 @@ class B1PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
   private:
     G4GeneralParticleSource* fGun;
     G4Tubs* fCF4_volume;
+    G4VPhysicalVolume* famo2_volume;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

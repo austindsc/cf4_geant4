@@ -73,7 +73,7 @@ int main(int argc,char** argv)
   physicsList->SetVerboseLevel(0);
   physicsList->SetDefaultCutValue(0.01 * mm);
   runManager->SetUserInitialization(physicsList);
-    
+  
   // User action initialization
   runManager->SetUserInitialization(new B1ActionInitialization());
   

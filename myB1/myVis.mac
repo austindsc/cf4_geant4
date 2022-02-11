@@ -14,6 +14,16 @@
 /vis/geometry/set/forceWireframe World 0 1
 /vis/geometry/set/colour logic_cf4 0 0 0 1 .3
 
+# drawing the source #
+/vis/geometry/set/colour logic_palladium 0 0 0 0 1
+/vis/geometry/set/colour logic_gold 0 255 215 0 1
+/vis/geometry/set/colour logic_amo2 0 255 0 0 1
+/vis/geometry/set/colour logic_Ag 0 .75 .75 .75 1
+
+/vis/geometry/set/colour logic_sipm 0 .2 .2 .2 1
+/vis/geometry/set/colour logic_CaseSides 0 .41 .41 .41 1
+
+
 # trajectories #
 /vis/scene/add/trajectories smooth
 /vis/modeling/trajectories/create/drawByCharge
@@ -32,3 +42,5 @@
 /vis/viewer/set/autoRefresh true
 
 /vis/scene/endOfEventAction accumulate
+
+/vis/ogl/set/displayListLimit 100000

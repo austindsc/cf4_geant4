@@ -56,7 +56,9 @@ void B1ActionInitialization::BuildForMaster() const
 
 void B1ActionInitialization::Build() const
 {
+  G4cout << " here1" << G4endl;
   SetUserAction(new B1PrimaryGeneratorAction);
+G4cout << " here2" << G4endl;
 
   B1RunAction* runAction = new B1RunAction;
   SetUserAction(runAction);

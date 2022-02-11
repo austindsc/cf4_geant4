@@ -20,8 +20,5 @@
 #
 #/gun/position 0 0 2 cm
 
-/gps/pos/type Plane
-/gps/pos/shape Circle
-/gps/pos/centre 0 0 5 cm
 
-/run/beamOn 1
+/run/beamOn 100
