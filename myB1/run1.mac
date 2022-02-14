@@ -4,12 +4,13 @@
 # or interactively: Idle> /control/execute run1.mac
 
 # Initialize kernel
-/run/initialize
 
-/control/verbose 0
-/run/verbose 0
-/event/verbose 0
+/control/verbose 2
+/run/verbose 2
+/event/verbose 2
 /tracking/verbose 0
+
+/run/initialize
 
 # 
 # Shoot something
@@ -21,4 +22,4 @@
 #/gun/position 0 0 2 cm
 
 
-/run/beamOn 100
+/run/beamOn 10000

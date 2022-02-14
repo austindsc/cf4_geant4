@@ -312,6 +312,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
   //
   //always return the physical World
   //
+  G4cout << "XXZZ end of B1Detector" << G4endl;
   return physWorld;
 }
 

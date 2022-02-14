@@ -41,8 +41,10 @@
 #include "G4Tubs.hh"
 #include "G4GeneralParticleSource.hh"
 #include "G4UImanager.hh"
-#include <stdlib.h>
 #include "G4PhysicalVolumeStore.hh"
+#include "G4SingleParticleSource.hh"
+
+#include <stdlib.h>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -62,7 +64,7 @@ B1PrimaryGeneratorAction::B1PrimaryGeneratorAction()
   fGun->SetParticleDefinition(particle); 
   // 
   // fGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,-1.));
-  // fGun->SetParticleEnergy(5.4 * MeV);
+  // fGun->SetParticleEnergy(10.8 * MeV);
   
   // G4VPhysicalVolume * phys_alphaVolume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_amo2");
   // G4LogicalVolume * logic_alphaVolume = phys_alphaVolume->GetLogicalVolume();
@@ -92,7 +94,7 @@ B1PrimaryGeneratorAction::~B1PrimaryGeneratorAction()
 void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   
-  //this function is called at the begining of ecah event
+  //this function is called at the begining of each event
   //
 
   // In order to avoid dependence of PrimaryGeneratorAction
@@ -102,28 +104,52 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4double cf4Top = 0;
   G4double cf4Bottom = 0;
 
-  if (!famo2_volume) // first time it runs, we go here and apply all our 'default' behaviour
-  {
-    G4VPhysicalVolume * phys_alphaVolume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_amo2");
-    famo2_volume = phys_alphaVolume;
+  // first time it runs, we go here and apply all our 'default' behaviour
+  if (!famo2_volume) {
+    famo2_volume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_amo2");
+    
+    // getting the solid
+    famo2_tubs = dynamic_cast<G4Tubs*>(famo2_volume->GetLogicalVolume()->GetSolid());
+    
     // G4LogicalVolume * logic_alphaVolume = phys_alphaVolume->GetLogicalVolume();
-    G4cout << "phys_amo2 has position " << famo2_volume->GetObjectTranslation().getZ()/mm << " mm" << G4endl;
-    // exit(0);
+    // G4cout << "phys_amo2 has position " << famo2_volume->GetObjectTranslation().getZ()/mm << " mm" << G4endl;
+    
+    if(!famo2_tubs || !famo2_volume) {
+      G4ExceptionDescription msg;
+      msg << "Can't find famo2_tubs (source solid volume)\n"; 
+      G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()",
+      "Austin's warning message", FatalException, msg);
+    }
+    
   }
   
   // got the source physical volume. Now we do our gun stuff
   if ( famo2_volume ) {
     
-    G4String posdistype("Plane");
-    fGun->GetCurrentSource()->GetPosDist()->SetPosDisType("Volume");
-    fGun->GetCurrentSource()->GetPosDist()->
-    G4cout << fGun->GetCurrentSource()->GetPosDist()->GetPosDisType() << G4endl;
-    exit(0);
+    // position distribution
+    G4SingleParticleSource * tSource = fGun->GetCurrentSource();
+    tSource->GetPosDist()->SetPosDisType("Volume");
+    tSource->GetPosDist()->SetPosDisShape("Cylinder");
+    tSource->GetPosDist()->SetCentreCoords(famo2_volume->GetObjectTranslation());
+    tSource->GetPosDist()->SetRadius(famo2_tubs->GetOuterRadius());
+    tSource->GetPosDist()->SetHalfZ(famo2_tubs->GetZHalfLength());
+    tSource->GetPosDist()->ConfineSourceToVolume("phys_amo2"); //redundant?
+    
+    // angular distribution
+    tSource->GetAngDist()->SetAngDistType("iso");
+    tSource->GetAngDist()->SetMaxTheta(90. * deg);
+    
+    tSource->GetEneDist()->SetMonoEnergy(5.39 * MeV);
+  
+    
+    // fGun->GetCurrentSource()->GetEneDist()->SetEmax(10.0 * MeV);
+    // G4cout << fGun->GetCurrentSource()->GetPosDist()->GetPosDisType() << G4endl;
+    // exit(0);
     // // Get the pointer to the User Interface manager
     // G4UImanager* UImanager = G4UImanager::GetUIpointer();
     // UImanager->ApplyCommand("/gps/energy 5.4 MeV");
     // UImanager->ApplyCommand("/gps/pos/direction 0 0 -1");
-    // 
+   
     // // these defaults should remain, until simulating gammas
     // UImanager->ApplyCommand("/gps/pos/type Plane");
     // UImanager->ApplyCommand("/gps/pos/shape Circle");
