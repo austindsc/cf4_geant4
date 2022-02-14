@@ -5,9 +5,9 @@
 
 # Initialize kernel
 
-/control/verbose 2
-/run/verbose 2
-/event/verbose 2
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
 /tracking/verbose 0
 
 /run/initialize
@@ -22,4 +22,4 @@
 #/gun/position 0 0 2 cm
 
 
-/run/beamOn 10000
+/run/beamOn 100000

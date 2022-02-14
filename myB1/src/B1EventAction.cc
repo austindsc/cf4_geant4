@@ -59,14 +59,12 @@ B1EventAction::~B1EventAction()
 void B1EventAction::BeginOfEventAction(const G4Event*)
 {    
   fEdep = 0.;
-  G4cout << "start even action" << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void B1EventAction::EndOfEventAction(const G4Event*)
 {   
-  G4cout << "top OF END OF EVENT ACTION" << G4endl;
 
   // accumulate statistics in run action
   fRunAction->AddEdep(fEdep);

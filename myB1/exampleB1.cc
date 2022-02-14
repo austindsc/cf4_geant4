@@ -95,7 +95,6 @@ int main(int argc,char** argv)
     G4String fileName = argv[1];
     G4cout << command+fileName << G4endl;
     UImanager->ApplyCommand(command+fileName);
-    G4cout << "main here" << G4endl;
   }
   else {
     // interactive mode

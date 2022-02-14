@@ -121,10 +121,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       "Austin's warning message", FatalException, msg);
     }
     
-  }
-  
-  // got the source physical volume. Now we do our gun stuff
-  if ( famo2_volume ) {
+    // all good, found gun. Now set 'default' properties (do one time hopefully)
     
     // position distribution
     G4SingleParticleSource * tSource = fGun->GetCurrentSource();
@@ -139,40 +136,13 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     tSource->GetAngDist()->SetAngDistType("iso");
     tSource->GetAngDist()->SetMaxTheta(90. * deg);
     
+    // energy distribution
     tSource->GetEneDist()->SetMonoEnergy(5.39 * MeV);
-  
-    
-    // fGun->GetCurrentSource()->GetEneDist()->SetEmax(10.0 * MeV);
-    // G4cout << fGun->GetCurrentSource()->GetPosDist()->GetPosDisType() << G4endl;
-    // exit(0);
-    // // Get the pointer to the User Interface manager
-    // G4UImanager* UImanager = G4UImanager::GetUIpointer();
-    // UImanager->ApplyCommand("/gps/energy 5.4 MeV");
-    // UImanager->ApplyCommand("/gps/pos/direction 0 0 -1");
-   
-    // // these defaults should remain, until simulating gammas
-    // UImanager->ApplyCommand("/gps/pos/type Plane");
-    // UImanager->ApplyCommand("/gps/pos/shape Circle");
-    // UImanager->ApplyCommand("/gps/pos/centre 0 0 5 cm");
-    // UImanager->ApplyCommand("/gps/pos/radius 2 mm");
-    // UImanager->ApplyCommand("/gps/pos/confine phys_amo2");
-  }  
-  else  {
-    G4ExceptionDescription msg;
-    msg << "Cannot find amo2 volume\n"; 
-    G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()", "MyCode0002",JustWarning,msg);
-
   }
   
-  
+  // don't need to do anything, already done
+  if ( famo2_volume ) {}
 
-  // G4double size = 0.8; 
-  // G4double x0 = size * envSizeXY * (G4UniformRand()-0.5);
-  // G4double y0 = size * envSizeXY * (G4UniformRand()-0.5);
-  // G4double z0 = -0.5 * envSizeZ;
-  
-
-  // 
   fGun->GeneratePrimaryVertex(anEvent);
 }
 
