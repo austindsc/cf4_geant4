@@ -35,6 +35,7 @@
 
 class G4VPhysicalVolume;
 class G4LogicalVolume;
+class B1DetectorConstructionMessenger;
 
 /// Detector construction class to define materials and geometry.
 class B1DetectorConstruction : public G4VUserDetectorConstruction
@@ -47,8 +48,8 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     
     G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
     
-    G4double getSourceHeight(){ return fHeightSource; }
-    void setSourceHeight(G4double h){ fHeightSource = h; }
+    G4double getSourceHeight(){ return fSourceHeight; }
+    void setSourceHeight(G4double h){ fSourceHeight = h; }
 
   protected:
     G4LogicalVolume*  fScoringVolume; //(this is the cf4)
@@ -67,7 +68,11 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     G4LogicalVolume*  fSource;
     
     // tracking things that change in geometry
-    G4double fHeightSource;
+    G4double fSourceHeight;
+    
+  private:
+    B1DetectorConstructionMessenger* fDetMessenger;
+    
     
 };
 

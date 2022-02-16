@@ -36,6 +36,7 @@
 */
 
 #include "B1DetectorConstruction.hh"
+#include "B1DetectorConstructionMessenger.hh"
 
 #include "G4RunManager.hh"
 #include "G4NistManager.hh"
@@ -57,7 +58,11 @@
 B1DetectorConstruction::B1DetectorConstruction()
 : G4VUserDetectorConstruction(),
   fScoringVolume(0)
-{ }
+{
+  fDetMessenger = new B1DetectorConstructionMessenger(this);
+  
+  fSourceHeight = 5.0 * cm;
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -69,7 +74,7 @@ B1DetectorConstruction::~B1DetectorConstruction()
 G4VPhysicalVolume* B1DetectorConstruction::Construct()
 { 
   // important position variables // 
-  G4double sourceToSipm = 5. * cm;
+  G4double sourceToSipm = fSourceHeight;
   
   
   // Get nist material manager
@@ -106,7 +111,8 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   // add scintillation here
   
   G4MaterialPropertiesTable *mpt_gascf4 = new G4MaterialPropertiesTable();
-  mpt_gascf4->AddProperty("RINDEX", photonE, cf4n, 2); //2 is for length of arrays
+  mpt_gascf4->AddProperty("RINDEX", photonE, cf4n, 2);    //2 is for length of arrays
+  mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", 10./MeV); 
   cf4Gas->SetMaterialPropertiesTable(mpt_gascf4);
   
   // ---------- Silicon PM ----------//
@@ -132,6 +138,8 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   G4Material * mSteel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
   G4Material * mSilver = nist->FindOrBuildMaterial("G4_Ag");
   G4Material * mPalladium = nist->FindOrBuildMaterial("G4_Pd");
+  
+  
   
   ////////////////////------------ Building Detector ------------////////////////////
   // (lab space where gamma sources live)
