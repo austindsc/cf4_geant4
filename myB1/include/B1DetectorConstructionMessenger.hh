@@ -7,12 +7,8 @@
 
 class B1DetectorConstruction;
 class G4UIdirectory;
-class G4UIcmdWithAString;
-class G4UIcmdWithAnInteger;
 class G4UIcmdWithADouble;
-class G4UIcmdWithoutParameter;
 class G4UIcmdWithADoubleAndUnit;
-class G4UIcmdWith3VectorAndUnit;
 
 class B1DetectorConstructionMessenger : public G4UImessenger{
 public:
@@ -24,19 +20,20 @@ public:
 private:
   
   B1DetectorConstruction * Detector;
-  
   G4UIdirectory          * Dir;
-  G4UIcmdWithAString     * SetSomething;
+  
   G4UIcmdWithADouble     * SetAlphaDistanceCmd;
   // -1 no source (<0 in code)
   // other values are cm distance
   
-  G4UIcmdWithAnInteger   * SetGammaLocationCmd;
-  // 0 no source
-  // 1...3 different positions
-  
   G4UIcmdWithADoubleAndUnit * SetCF4DensityCmd;
   // liqiuid or gas haha
+  
+  G4UIcmdWithADoubleAndUnit * SetLYCmd;
+  
+  // G4UIcmdWithAnInteger   * SetGammaLocationCmd;
+  // 0 no source
+  // 1...3 different positions
   
 };
 

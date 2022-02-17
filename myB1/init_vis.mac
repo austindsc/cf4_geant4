@@ -10,7 +10,8 @@
 #/run/numberOfThreads 4
 
 /setDetector/alphaPosition 2
-/setDetector/cf4Density 1 g/cm3
+/setDetector/cf4Density 0.002 g/cm3
+/setDetector/cf4LY 69 MeVLY
 
 
 # Initialize kernel

@@ -62,6 +62,7 @@ B1DetectorConstruction::B1DetectorConstruction()
   // default values here
   fSourceHeight = 5.0 * cm; // default distance
   fcf4Density = 0.002*g/cm3; // slightly denser than STP air
+  fLY = 100./MeV; // default arbitrary LY
 
   fDetMessenger = new B1DetectorConstructionMessenger(this);
     
@@ -77,10 +78,12 @@ B1DetectorConstruction::~B1DetectorConstruction()
 G4VPhysicalVolume* B1DetectorConstruction::Construct()
 { 
   G4double sourceToSipm = fSourceHeight;
+  G4cout << "---------------------- Detector Params in Construct() ----------------------\n" << G4endl;
+  G4cout << " alpha height = " << fSourceHeight/cm << " cm" << G4endl;
+  G4cout << " CF4Density = " << fcf4Density/(g/cm3) << " g/cm3" << G4endl;
+  G4cout << " cf4LY = " << fLY/(1/MeV) << " /MeV" << G4endl;
   
-  G4cout << "Construct() height = " << fSourceHeight/cm << G4endl;
-  G4cout << "CF4Density = " << fcf4Density/(g/cm3) << G4endl;
-  // exit(0);
+  G4cout << "\n---------------------- Detector Params ----------------------" << G4endl;
   
   
   // Get nist material manager
@@ -116,7 +119,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   
   G4MaterialPropertiesTable *mpt_gascf4 = new G4MaterialPropertiesTable();
   mpt_gascf4->AddProperty("RINDEX", photonE, cf4n, 2);    //2 is for length of arrays
-  mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", 10./MeV); 
+  mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", fLY); 
   cf4Gas->SetMaterialPropertiesTable(mpt_gascf4);
   
   // ---------- Silicon PM ----------//
