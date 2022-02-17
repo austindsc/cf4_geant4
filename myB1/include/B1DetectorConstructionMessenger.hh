@@ -27,15 +27,15 @@ private:
   
   G4UIdirectory          * Dir;
   G4UIcmdWithAString     * SetSomething;
-  G4UIcmdWithADouble     * SetAlphaDistance;
-  // 0 no source
+  G4UIcmdWithADouble     * SetAlphaDistanceCmd;
+  // -1 no source (<0 in code)
   // other values are cm distance
   
-  G4UIcmdWithAnInteger   * SetGammaLocation;
+  G4UIcmdWithAnInteger   * SetGammaLocationCmd;
   // 0 no source
   // 1...3 different positions
   
-  G4UIcmdWithADouble     * SetCF4Density;
+  G4UIcmdWithADoubleAndUnit * SetCF4DensityCmd;
   // liqiuid or gas haha
   
 };

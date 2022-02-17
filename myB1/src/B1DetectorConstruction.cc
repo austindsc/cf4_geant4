@@ -59,9 +59,12 @@ B1DetectorConstruction::B1DetectorConstruction()
 : G4VUserDetectorConstruction(),
   fScoringVolume(0)
 {
+  // default values here
+  fSourceHeight = 5.0 * cm; // default distance
+  fcf4Density = 0.002*g/cm3; // slightly denser than STP air
+
   fDetMessenger = new B1DetectorConstructionMessenger(this);
-  
-  fSourceHeight = 5.0 * cm;
+    
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -73,8 +76,11 @@ B1DetectorConstruction::~B1DetectorConstruction()
 
 G4VPhysicalVolume* B1DetectorConstruction::Construct()
 { 
-  // important position variables // 
   G4double sourceToSipm = fSourceHeight;
+  
+  G4cout << "Construct() height = " << fSourceHeight/cm << G4endl;
+  G4cout << "CF4Density = " << fcf4Density/(g/cm3) << G4endl;
+  // exit(0);
   
   
   // Get nist material manager
@@ -99,9 +105,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   G4Element * elCarbon = new G4Element("Carbon", "C", 6, 12.01 * g/mole);
   G4Element * elFluorine = new G4Element("Fluorine", "F", 9,  19. * g/mole);
   
-  G4double densityCF4 = 0.002*g/cm3; // slightly denser than STP air
-
-  G4Material * cf4Gas = new G4Material("cf4Gas", densityCF4, 2);
+  G4Material * cf4Gas = new G4Material("cf4Gas", fcf4Density, 2);
   cf4Gas->AddElement(elCarbon, 1);
   cf4Gas->AddElement(elFluorine, 4);
   

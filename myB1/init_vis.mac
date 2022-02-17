@@ -8,7 +8,11 @@
 #
 # Change the default number of threads (in multi-threaded mode)
 #/run/numberOfThreads 4
-#
+
+/setDetector/alphaPosition 2
+/setDetector/cf4Density 1 g/cm3
+
+
 # Initialize kernel
 /run/initialize
 #
