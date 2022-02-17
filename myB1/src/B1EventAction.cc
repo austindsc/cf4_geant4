@@ -66,8 +66,8 @@ void B1EventAction::BeginOfEventAction(const G4Event*)
 void B1EventAction::EndOfEventAction(const G4Event*)
 {   
 
-  // accumulate statistics in run action
-  fRunAction->AddEdep(fEdep);
+  G4cout << fEdep / keV << G4endl;
+  if(fEdep <= 100 * eV) return;
   
   G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
   
