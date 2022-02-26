@@ -48,6 +48,8 @@
 #include "G4Trd.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
+
+#include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 
 #include "G4Element.hh"
@@ -114,13 +116,28 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   
   // do dispersion function and fill arrays in loop
   G4double photonE[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
-  G4double cf4n[2] = {1.0, 1.0};
+  G4double cf4n[2] = {1.1, 1.1};
+  
   // add scintillation here
+  G4double scint1_wl[1] = { 3. * eV };
+  G4double scintFast[1] = { 1. };
+  G4double *scintSlow = scintFast;
+  
   
   G4MaterialPropertiesTable *mpt_gascf4 = new G4MaterialPropertiesTable();
   mpt_gascf4->AddProperty("RINDEX", photonE, cf4n, 2);    //2 is for length of arrays
-  mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", fLY); 
+  mpt_gascf4->AddProperty("FASTCOMPONENT", scint1_wl, scintFast, 2);
+  mpt_gascf4->AddProperty("SLOWCOMPONENT", scint1_wl, scintSlow, 2);
+  
+  mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", fLY);
+  mpt_gascf4->AddConstProperty("RESOLUTIONSCALE", 2); 
+  mpt_gascf4->AddConstProperty("FASTTIMECONSTANT", 5*ns); 
+  mpt_gascf4->AddConstProperty("SLOWTIMECONSTANT", 20*ns); 
+  mpt_gascf4->AddConstProperty("YIELDRATIO", 1.); 
+
+
   cf4Gas->SetMaterialPropertiesTable(mpt_gascf4);
+  cf4Gas->GetIonisation()->SetBirksConstant(0 * mm/MeV);
   
   // ---------- Silicon PM ----------//
   G4Material * sipmSilicon = nist->FindOrBuildMaterial("G4_Si");
@@ -145,8 +162,6 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   G4Material * mSteel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
   G4Material * mSilver = nist->FindOrBuildMaterial("G4_Ag");
   G4Material * mPalladium = nist->FindOrBuildMaterial("G4_Pd");
-  
-  
   
   ////////////////////------------ Building Detector ------------////////////////////
   // (lab space where gamma sources live)
@@ -221,9 +236,6 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     false, 
                     0,
                     checkOverlaps);
-  //
-  fScoringVolume = logic_cf4;
-  fsipmVolume = logic_sipm;
   
   /////////////////////// Source ///////////////////////
   G4double sourceCaseRadius = 4.3/2 * mm; //zhiheng measured 4.2mm diameter
@@ -326,8 +338,6 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
 
   //
   //always return the physical World
-  //
-  G4cout << "XXZZ end of B1Detector" << G4endl;
   return physWorld;
 }
 

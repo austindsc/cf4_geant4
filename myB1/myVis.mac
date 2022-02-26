@@ -20,7 +20,7 @@
 /vis/geometry/set/colour logic_amo2 0 255 0 0 1
 /vis/geometry/set/colour logic_Ag 0 .75 .75 .75 1
 
-/vis/geometry/set/colour logic_sipm 0 .2 .2 .2 1
+/vis/geometry/set/colour logic_sipm 0 .4 .4 .4 1
 /vis/geometry/set/colour logic_CaseSides 0 .41 .41 .41 1
 
 
@@ -43,4 +43,4 @@
 
 /vis/scene/endOfEventAction accumulate
 
-/vis/ogl/set/displayListLimit 100000
+/vis/ogl/set/displayListLimit 10000

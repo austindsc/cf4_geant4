@@ -1,0 +1,7 @@
+/run/initialize
+
+/gps/particle opticalphoton
+/gps/energy 2 eV
+/gps/position 0 0 -1
+/tracking/verbose 1
+/run/beamOn 10

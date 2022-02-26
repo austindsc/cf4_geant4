@@ -13,6 +13,8 @@
 /setDetector/alphaPosition 2
 /setDetector/cf4Density 1 g/cm3
 
+#/process/optical/processActivation Scintillation true
+
 /run/initialize
 
 # 
@@ -25,4 +27,4 @@
 #/gun/position 0 0 2 cm
 
 
-/run/beamOn 1000
+/run/beamOn 10
