@@ -10,6 +10,7 @@
 class G4VPhysicalVolume;
 class G4LogicalVolume;
 class B1DetectorConstructionMessenger;
+class DetectorMaterials;
 
 /// Detector construction class to define materials and geometry.
 class B1DetectorConstruction : public G4VUserDetectorConstruction
@@ -51,6 +52,7 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
   private:
     virtual void ConstructSDandField();
     
+    DetectorMaterials * detMat;
     B1DetectorConstructionMessenger* fDetMessenger;
     
     // tracking things that change in geometry

@@ -20,6 +20,8 @@
 #include "G4Element.hh"
 #include "G4PhysicalVolumeStore.hh"
 
+#include "DetectorMaterials.hh"
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 B1DetectorConstruction::B1DetectorConstruction()
@@ -27,17 +29,27 @@ B1DetectorConstruction::B1DetectorConstruction()
   fScoringVolume(0)
 {
   fDetMessenger = new B1DetectorConstructionMessenger(this);
+  // still control some things with this
   
   // default values here (if no commands given)
   fSourceHeight = 5.0 * cm; // default distance
-  fcf4Density = 0.002*g/cm3; // slightly denser than STP air
+  fcf4Density = 0.002*g/cm3; // sliightly denser than STP air
   fLY = 100./MeV; // default arbitrary LY
+  
+  detMat = new DetectorMaterials();
+  
+  // do messenger stuff to set variables in detMat
+  
+  detMat->ConstructMaterials();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 B1DetectorConstruction::~B1DetectorConstruction()
-{ }
+{
+  delete fDetMessenger;
+  delete detMat;
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -57,84 +69,6 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   // Option to switch on/off checking of volumes overlaps
   G4bool checkOverlaps = true;
   
-  ////////////////////------------ all materials ------------//////////////////// 
-
-  // ---------- Vacuum (world) ----------//
-  // do dispersion function and fill arrays in loop
-  G4double photonEWorld[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
-  G4double nWorld[2] = {1.00, 1.00};   
-  G4MaterialPropertiesTable *mptWorld = new G4MaterialPropertiesTable();
-  mptWorld->AddProperty("RINDEX", photonEWorld, nWorld, 2); //2 is for length of arrays
-  
-  G4Material* mWorld = nist->FindOrBuildMaterial("G4_Galactic");
-  mWorld->SetMaterialPropertiesTable(mptWorld);
-  
-  // ---------- Silicon PM ----------//  
-  G4double photonE_Si[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
-  G4double nSi[2] = {1.20, 1.20};   
-  G4MaterialPropertiesTable *mptSi = new G4MaterialPropertiesTable();
-  mptSi->AddProperty("RINDEX", photonE_Si, nSi, 2); //2 is for length of arrays
-  
-  G4Material * matSilicon = nist->FindOrBuildMaterial("G4_Si");
-  matSilicon->SetMaterialPropertiesTable(mptWorld);
-  
-  // ---------- CF4 ----------//
-  G4Element * elCarbon = new G4Element("Carbon", "C", 6, 12.01 * g/mole);
-  G4Element * elFluorine = new G4Element("Fluorine", "F", 9,  19. * g/mole);
-  
-  G4Material * cf4Gas = new G4Material("cf4Gas", fcf4Density, 2);
-  cf4Gas->AddElement(elCarbon, 1);
-  cf4Gas->AddElement(elFluorine, 4);
-  
-  G4MaterialPropertiesTable *mpt_gascf4 = new G4MaterialPropertiesTable();
-  
-  // refractive indexes taken from
-  // https://doi.org/10.1063/1.1695909
-  G4double photonE[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
-  G4double cf4n[2] = {1.1, 1.1};
-  mpt_gascf4->AddProperty("RINDEX", photonE, cf4n, 2);    //2 is for length of arrays
-  
-  // add scintillation here
-  G4double scint1_wl[1] = { 3. * eV };
-  G4double scintFast[1] = { 1. };
-  G4double *scintSlow = scintFast;
-  
-  mpt_gascf4->AddProperty("FASTCOMPONENT", scint1_wl, scintFast, 2);
-  mpt_gascf4->AddProperty("SLOWCOMPONENT", scint1_wl, scintSlow, 2);
-  
-  mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", fLY);
-  mpt_gascf4->AddConstProperty("RESOLUTIONSCALE", 2); 
-  mpt_gascf4->AddConstProperty("FASTTIMECONSTANT", 5*ns); 
-  mpt_gascf4->AddConstProperty("SLOWTIMECONSTANT", 20*ns); 
-  mpt_gascf4->AddConstProperty("YIELDRATIO", 1.); 
-  
-  cf4Gas->GetIonisation()->SetBirksConstant(0 * mm/MeV);
-
-  cf4Gas->SetMaterialPropertiesTable(mpt_gascf4);
-
-  // ---------- Alpha Source ----------//
-  G4double goldFrac = 0.5;
-  
-  G4Element * elAm = new G4Element("Americium", "Am", 95, 243 * g/mole);
-  G4Element * elO = new G4Element("Oxygen", "O", 8,  16. * g/mole);
-  G4Material * mAmOxide = new G4Material("mAmOxide", 11.68 * g/cm3, 2);
-  mAmOxide->AddElement(elAm, 1);
-  mAmOxide->AddElement(elO, 2);
-  
-  G4Material * mGold = nist->FindOrBuildMaterial("G4_Au");
-  
-  G4double sourceDensity = mGold->GetDensity() * goldFrac + mAmOxide->GetDensity()*(1-goldFrac);
-  G4Material * mSource = new G4Material("mSource", sourceDensity, 2);
-  mSource->AddMaterial(mGold, goldFrac);
-  mSource->AddMaterial(mAmOxide, 1-goldFrac);
-  
-  // ---------- Source casing ----------//
-  G4Material * mSteel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
-  G4Material * mSilver = nist->FindOrBuildMaterial("G4_Ag");
-  G4Material * mPalladium = nist->FindOrBuildMaterial("G4_Pd");
-  
-  ////////////////////------------ DONE MATERIALS ------------//////////////////// 
-  
   //--------------------------- Building Detector ---------------------------//
   // (lab space where gamma sources live)
   G4double world_sizeXY = 20*cm;
@@ -144,7 +78,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   
   G4LogicalVolume* logicWorld =                         
     new G4LogicalVolume(solidWorld,          //its solid
-                        mWorld,           //its material
+                        detMat->mVacuum,           //its material
                         "World");            //its name
                                    
   G4VPhysicalVolume* physWorld = 
@@ -177,7 +111,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   
   G4Tubs * solid_cf4 = new G4Tubs("solid_cf4", 0., innerCyl_r, 0.5*innerCyl_z, 0, 360.*deg);
   
-  G4LogicalVolume * logic_cf4 = new G4LogicalVolume(solid_cf4, cf4Gas, "logic_cf4");
+  G4LogicalVolume * logic_cf4 = new G4LogicalVolume(solid_cf4, detMat->mGasCF4, "logic_cf4");
   
   G4VPhysicalVolume* phys_cf4 = new G4PVPlacement(0,                    //no rotation
                     G4ThreeVector(0, 0, 0),      //at (0,0,0)
@@ -199,7 +133,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
     
   // sipmSilicon->GetMaterialTable();
   
-  G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, matSilicon, "logic_sipm");
+  G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, detMat->mSilicon, "logic_sipm");
   G4VPhysicalVolume* phys_sipm = new G4PVPlacement(0,
                     G4ThreeVector(0, 0, sipmZ), // SiPM face is at (0, 0, 0)
                     logic_sipm,
@@ -235,7 +169,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   G4ThreeVector caseSideCenter(0, 0, palCenter.getZ() + caseSideHeight/2 - caseAboveSource);
   
   G4Tubs * solid_palladium = new G4Tubs("solid_palladium", 0., sourceRadius, 0.5*palladiumThick, 0, 360.*deg);
-  G4LogicalVolume * logic_palladium = new G4LogicalVolume(solid_palladium, mPalladium, "logic_palladium");
+  G4LogicalVolume * logic_palladium = new G4LogicalVolume(solid_palladium, detMat->mPalladium, "logic_palladium");
   G4VPhysicalVolume* phys_palladium = new G4PVPlacement(0,
                     palCenter,
                     logic_palladium,
@@ -246,7 +180,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     checkOverlaps);
                     
   G4Tubs * solid_gold = new G4Tubs("solid_gold", 0., sourceRadius, 0.5*goldThick, 0, 360.*deg);
-  G4LogicalVolume * logic_gold = new G4LogicalVolume(solid_gold, mGold, "logic_gold");
+  G4LogicalVolume * logic_gold = new G4LogicalVolume(solid_gold, detMat->mGold, "logic_gold");
   G4VPhysicalVolume* phys_gold = new G4PVPlacement(0,
                     goldCenter,
                     logic_gold,
@@ -257,7 +191,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     checkOverlaps);
 
 G4Tubs * solid_amo2 = new G4Tubs("solid_amo2", 0., sourceRadius, 0.5*amo2Thick, 0, 360.*deg);
-G4LogicalVolume * logic_amo2 = new G4LogicalVolume(solid_amo2, mSource, "logic_amo2");
+G4LogicalVolume * logic_amo2 = new G4LogicalVolume(solid_amo2, detMat->mAmActiveMatrix, "logic_amo2");
 G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   amo2Center,
                   logic_amo2,
@@ -270,7 +204,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
   G4PhysicalVolumeStore::GetInstance()->Register(phys_amo2); // to get volume elsewhere. Not needed?
                   
   G4Tubs * solid_Ag = new G4Tubs("solid_Ag", 0., sourceRadius, 0.5*agThick, 0, 360.*deg);
-  G4LogicalVolume * logic_Ag = new G4LogicalVolume(solid_Ag, mSilver, "logic_Ag");
+  G4LogicalVolume * logic_Ag = new G4LogicalVolume(solid_Ag, detMat->mSilver, "logic_Ag");
   G4VPhysicalVolume* phys_Ag = new G4PVPlacement(0,
                     agCenter,
                     logic_Ag,
@@ -281,7 +215,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                     checkOverlaps);
                     
   G4Tubs * solid_ssUnder = new G4Tubs("solid_caseSide", 0, sourceRadius, 0.5*extraSSunderAg, 0, 360.*deg);
-  G4LogicalVolume * logic_ssUnder = new G4LogicalVolume(solid_ssUnder, mSteel, "logic_ssUnder");
+  G4LogicalVolume * logic_ssUnder = new G4LogicalVolume(solid_ssUnder, detMat->mSteel, "logic_ssUnder");
   G4VPhysicalVolume* phys_ssUnder = new G4PVPlacement(0,
                 ssUnderCenter,
                 logic_ssUnder,
@@ -292,7 +226,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                 checkOverlaps);
                     
   G4Tubs * solid_caseSide = new G4Tubs("solid_caseSide", sourceRadius, sourceCaseRadius, 0.5*caseSideHeight, 0, 360.*deg);
-  G4LogicalVolume * logic_caseSide = new G4LogicalVolume(solid_caseSide, mSteel, "logic_caseSide");
+  G4LogicalVolume * logic_caseSide = new G4LogicalVolume(solid_caseSide, detMat->mSteel, "logic_caseSide");
   G4VPhysicalVolume* phys_caseSide = new G4PVPlacement(0,
                   caseSideCenter,
                   logic_caseSide,
