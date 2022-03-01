@@ -73,7 +73,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     
     // all good, found source volume. Now set 'default' properties (do one time hopefully)
     
-    // default particle kinematic is straight alpha
+    // default particle kinematic is alpha
     G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
     G4String particleName;
     G4ParticleDefinition* particle = particleTable->FindParticle(particleName="alpha");

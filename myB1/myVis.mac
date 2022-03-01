@@ -1,12 +1,13 @@
 /vis/open OGL 600x600-0+0
 
+## Verbosity ##
 /vis/verbose warnings
 /vis/verbose errors
 /vis/verbose 0
 
 /vis/viewer/set/autoRefresh false
 
-# drawing detector #
+## drawing detector ##
 /vis/drawVolume
 /vis/viewer/set/style surface
 #/vis/viewer/set/style wireframe
@@ -14,25 +15,23 @@
 /vis/geometry/set/forceWireframe World 0 1
 /vis/geometry/set/colour logic_cf4 0 0 0 1 .3
 
-# drawing the source #
+## drawing the source ##
 /vis/geometry/set/colour logic_palladium 0 0 0 0 1
-/vis/geometry/set/colour logic_gold 0 255 215 0 1
-/vis/geometry/set/colour logic_amo2 0 255 0 0 1
-/vis/geometry/set/colour logic_Ag 0 .75 .75 .75 1
+#/vis/geometry/set/colour logic_gold 0 255 215 0 1
+#/vis/geometry/set/colour logic_amo2 0 255 0 0 1
+#/vis/geometry/set/colour logic_Ag 0 .75 .75 .75 1
 
-/vis/geometry/set/colour logic_sipm 0 .4 .4 .4 1
+/vis/geometry/set/colour logic_sipm 0 1 1 1 1
 /vis/geometry/set/colour logic_CaseSides 0 .41 .41 .41 1
 
-
-# trajectories #
+## trajectories ##
 /vis/scene/add/trajectories smooth
 /vis/modeling/trajectories/create/drawByCharge
 /vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
 /vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
 
-# decorations #
-/vis/scene/add/arrow -11 -11 0 -11 -11 5 cm # along z, 10cm long
-#/vis/scene/add/logo  # Simple logo
+## decorations ##
+/vis/scene/add/arrow -11 -11 0 -11 -11 5 cm # along +z, 5cm long
 # both cause errors. scale will show. text wont
 #/vis/scene/add/scale 10 cm z 10 10 10 auto 0 0 0 cm
 #/vis/scene/add/text -11 -11 -26 cm .5 .25 .25 hello

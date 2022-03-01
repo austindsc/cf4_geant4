@@ -13,7 +13,6 @@
 B1DetectorConstructionMessenger::B1DetectorConstructionMessenger(B1DetectorConstruction * det)
 :Detector(det)
 {
-  G4cout << "yoo austin we built the new class" << G4endl;
   
   Dir = new G4UIdirectory("/setDetector/");
   Dir->SetGuidance("Set run to run detector parameters (source height, cf4 density, etc)");

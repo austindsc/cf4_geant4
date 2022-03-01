@@ -74,6 +74,8 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     G4LogicalVolume*  fSource;
     
   private:
+    virtual void ConstructSDandField();
+    
     B1DetectorConstructionMessenger* fDetMessenger;
     
     // tracking things that change in geometry

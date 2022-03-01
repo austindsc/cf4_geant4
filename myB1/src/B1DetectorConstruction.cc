@@ -37,6 +37,7 @@
 
 #include "B1DetectorConstruction.hh"
 #include "B1DetectorConstructionMessenger.hh"
+#include "sensitiveSipm.hh"
 
 #include "G4RunManager.hh"
 #include "G4NistManager.hh"
@@ -47,6 +48,7 @@
 #include "G4Sphere.hh"
 #include "G4Trd.hh"
 #include "G4LogicalVolume.hh"
+#include "G4VPhysicalVolume.hh"
 #include "G4PVPlacement.hh"
 
 #include "G4UnitsTable.hh"
@@ -79,7 +81,6 @@ B1DetectorConstruction::~B1DetectorConstruction()
 
 G4VPhysicalVolume* B1DetectorConstruction::Construct()
 { 
-  G4double sourceToSipm = fSourceHeight;
   G4cout << "---------------------- Detector Params in Construct() ----------------------\n" << G4endl;
   G4cout << " alpha height = " << fSourceHeight/cm << " cm" << G4endl;
   G4cout << " CF4Density = " << fcf4Density/(g/cm3) << " g/cm3" << G4endl;
@@ -163,7 +164,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   G4Material * mSilver = nist->FindOrBuildMaterial("G4_Ag");
   G4Material * mPalladium = nist->FindOrBuildMaterial("G4_Pd");
   
-  ////////////////////------------ Building Detector ------------////////////////////
+  //--------------------------- Building Detector ---------------------------//
   // (lab space where gamma sources live)
   G4double world_sizeXY = 20*cm;
   G4double world_sizeZ  = 50*cm;
@@ -185,7 +186,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                       0,                     //copy number
                       checkOverlaps);        //overlaps checking
   
-  /////////////////// Outer Cylinder ///////////////////
+  //--------------------------- Outer Cylinder ---------------------------//
   // outer cylinder (vacuum?)
   // G4double outerCyl_r = 15*cm;
   // G4double outerCyl_thick = 1*cm;
@@ -196,7 +197,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   // G4LogicalVolume * logicOuterWorld = new G4LogicalVolume(solidOuterCyl, mWorld)       
   
 
-  /////////////////// CF4 volume (Cylinder) ///////////////////
+  //--------------------------- CF4 volume (Cylinder) ---------------------------//
   // centered on XY place, goes from 0 to innerCyl_z on z axis
   // volume of CF4 held in cylinder
   G4double innerCyl_r = 4*cm;
@@ -217,7 +218,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     checkOverlaps);       //overlaps checking
   
                     
-  /////////////////// SiPM volume (Box) ///////////////////
+  //--------------------------- SiPM volume (Box) ---------------------------//
   G4double sipmXY = 15*mm;
   G4double sipmThick = 5*mm;
   // G4double sipmPosition = -innerCyl_z/2 + 4*cm;
@@ -227,7 +228,8 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
     
   // sipmSilicon->GetMaterialTable();
   
-  G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, sipmSilicon, "logic_sipm");
+  // G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, sipmSilicon, "logic_sipm");
+  G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, mWorld, "logic_sipm");
   G4VPhysicalVolume* phys_sipm = new G4PVPlacement(0,
                     G4ThreeVector(0, 0, sipmZ), // SiPM face is at (0, 0, 0)
                     logic_sipm,
@@ -237,7 +239,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     0,
                     checkOverlaps);
   
-  /////////////////////// Source ///////////////////////
+  //--------------------------- Source ---------------------------//
   G4double sourceCaseRadius = 4.3/2 * mm; //zhiheng measured 4.2mm diameter
   G4double sourceRadius = 2.45/2 * mm; // from Amersham certificate of approval
 
@@ -254,7 +256,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   G4double extraSSunderAg = caseSideHeight - caseAboveSource - totalSourceThick; // how much SS under Ag to make it full of metal
   
   // G4double sipmPosition = -innerCyl_z/2 + 4*cm;
-  G4ThreeVector palCenter(0, 0, sourceToSipm + palladiumThick/2);
+  G4ThreeVector palCenter(0, 0, fSourceHeight + palladiumThick/2);
   G4ThreeVector goldCenter(0, 0, palCenter.getZ() + palladiumThick/2 + goldThick/2);
   G4ThreeVector amo2Center(0, 0, goldCenter.getZ() + goldThick/2 + amo2Thick/2);
   G4ThreeVector agCenter(0, 0, amo2Center.getZ() + amo2Thick/2 + agThick/2);
@@ -295,7 +297,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   0,
                   checkOverlaps);
                   
-  G4PhysicalVolumeStore::GetInstance()->Register(phys_amo2);
+  G4PhysicalVolumeStore::GetInstance()->Register(phys_amo2); // to get volume elsewhere. Not needed?
                   
   G4Tubs * solid_Ag = new G4Tubs("solid_Ag", 0., sourceRadius, 0.5*agThick, 0, 360.*deg);
   G4LogicalVolume * logic_Ag = new G4LogicalVolume(solid_Ag, mSilver, "logic_Ag");
@@ -330,15 +332,21 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   0,
                   checkOverlaps);
   
-
+ //--------------------------- Done Source ---------------------------//
   
   // setting all headers
   fScoringVolume = logic_cf4;
   fsipmVolume = logic_sipm;
 
-  //
   //always return the physical World
   return physWorld;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void B1DetectorConstruction::ConstructSDandField(){
+    
+    sensitiveSipm * ssipm = new sensitiveSipm("sensitiveSipm");
+    
+    fsipmVolume->SetSensitiveDetector(ssipm);
+}

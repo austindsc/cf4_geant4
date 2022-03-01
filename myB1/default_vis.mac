@@ -1,25 +1,32 @@
 # Macro file for the initialization of example B1
 # in interactive session
-#
-# Set some default verbose
-/control/verbose 0
-/run/verbose 0
 
+# Set some default verbose
+#/control/verbose 0
+
+#/run/verbose 0
+
+#/tracking/verbose 0
+
+/process/em/verbose 0
+/process/had/verbose 0
+
+## detector properties ##
 /setDetector/alphaPosition 4
-/setDetector/cf4Density 1.4 g/cm3
+/setDetector/cf4Density 1.4 g/cm3     #liquid
+#/setDetector/cf4Density 0.002 g/cm3  #gas
 /setDetector/cf4LY 0.1 keVLY
 
+## process toggling ##
 #/process/optical/processActivation Scintillation false
 #/process/optical/processActivation Cerenkov false
 
 #/process/optical/verbose 2
 #/process/optical/scintillation/verbose 2
 
-
-#/tracking/verbose 0
-
-# Initialize kernel
+### Initialize kernel (build detector) ###
 /run/initialize
 
-# Visualization setting
+### run myVis ###
 /control/execute ../myB1/myVis.mac
+
