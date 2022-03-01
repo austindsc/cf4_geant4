@@ -76,9 +76,10 @@ void B1RunAction::BeginOfRunAction(const G4Run*)
   G4AnalysisManager *man = G4AnalysisManager::Instance();
   man->OpenFile("b1Output.root");
   
-  man->CreateNtuple("Edep", "Edep");
-  man->CreateNtupleIColumn("fNEvent");
-  man->CreateNtupleDColumn("fEdepInCyl_kev");
+  man->CreateNtuple("ntup", "ntup");
+  man->CreateNtupleIColumn("fNEvent"); //0
+  man->CreateNtupleDColumn("fEdepInCyl_kev"); //1
+  man->CreateNtupleIColumn("fmcNPE"); //2
   man->FinishNtuple(0);
 }
 

@@ -1,7 +1,11 @@
 #include "sensitiveSipm.hh"
 
+#include "G4RunManager.hh"
+
 sensitiveSipm::sensitiveSipm(G4String name) : G4VSensitiveDetector(name )
-{}
+{
+  fEventAction = (B1EventAction *) G4RunManager::GetRunManager()->GetUserEventAction();
+}
 
 sensitiveSipm::~sensitiveSipm()
 {}
@@ -17,7 +21,9 @@ G4bool sensitiveSipm::ProcessHits(G4Step * step, G4TouchableHistory *ROhist){
   
   G4ThreeVector posPhoton = preStepPoint->GetPosition();
   
-  G4cout << "photon hit!: " << posPhoton << G4endl;
+  // G4cout << "photon hit!: " << posPhoton << G4endl;
+  
+  fEventAction->AddmcPE(); 
   
   // return true;
 }

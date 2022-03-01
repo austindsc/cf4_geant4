@@ -46,7 +46,8 @@
 B1EventAction::B1EventAction(B1RunAction* runAction)
 : G4UserEventAction(),
   fRunAction(runAction),
-  fEdep(0.)
+  fEdep(0.),
+  fmcNPE(0)
 {} 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -59,6 +60,7 @@ B1EventAction::~B1EventAction()
 void B1EventAction::BeginOfEventAction(const G4Event*)
 {    
   fEdep = 0.;
+  fmcNPE = 0;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -74,11 +76,17 @@ void B1EventAction::EndOfEventAction(const G4Event*)
   G4AnalysisManager *man = G4AnalysisManager::Instance();
   man->FillNtupleIColumn(0, evt);
   man->FillNtupleDColumn(1, fEdep/keV);
+  man->FillNtupleIColumn(2, fmcNPE);
   man->AddNtupleRow(0);
+  
+  G4cout << "total PE = " << fmcNPE << G4endl;
+  
   
   G4cout << "b1eventAction::EOEA fEdep = " << fEdep/keV << " keV" << G4endl;
 }
 
  void B1EventAction::AddEdep(G4double edep){ fEdep += edep; }
+ 
+ void B1EventAction::AddmcPE(){fmcNPE++;}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -10,21 +10,15 @@
 /event/verbose 0
 /tracking/verbose 0
 
-/setDetector/alphaPosition 2
-/setDetector/cf4Density 1 g/cm3
+/process/em/verbose 0
+/process/had/verbose 0
 
-#/process/optical/processActivation Scintillation true
+## detector properties ##
+/setDetector/alphaPosition 4          #4cm away
+#/setDetector/cf4Density 1.4 g/cm3     #liquid
+/setDetector/cf4Density 0.002 g/cm3  #gas
+/setDetector/cf4LY 1000 MeVLY
 
 /run/initialize
 
-# 
-# Shoot something
-#
-#/gun/particle gamma
-#/gun/energy 0.511 MeV
-#/gun/direction 0 0 -1
-#
-#/gun/position 0 0 2 cm
-
-
-/run/beamOn 10
+/run/beamOn 10000

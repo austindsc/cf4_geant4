@@ -48,10 +48,14 @@ class B1EventAction : public G4UserEventAction
     virtual void EndOfEventAction(const G4Event* event);
 
     void AddEdep(G4double edep);
+    void AddmcPE();
+    
 
   private:
     B1RunAction* fRunAction;
     G4double     fEdep;
+    
+    G4int        fmcNPE; // mc number of photons hitting detector (no efficiencies)
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -1,40 +1,3 @@
-//
-// ********************************************************************
-// * License and Disclaimer                                           *
-// *                                                                  *
-// * The  Geant4 software  is  copyright of the Copyright Holders  of *
-// * the Geant4 Collaboration.  It is provided  under  the terms  and *
-// * conditions of the Geant4 Software License,  included in the file *
-// * LICENSE and available at  http://cern.ch/geant4/license .  These *
-// * include a list of copyright holders.                             *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.  Please see the license in the file  LICENSE  and URL above *
-// * for the full disclaimer and the limitation of liability.         *
-// *                                                                  *
-// * This  code  implementation is the result of  the  scientific and *
-// * technical work of the GEANT4 collaboration.                      *
-// * By using,  copying,  modifying or  distributing the software (or *
-// * any work based  on the software)  you  agree  to acknowledge its *
-// * use  in  resulting  scientific  publications,  and indicate your *
-// * acceptance of all terms of the Geant4 Software license.          *
-// ********************************************************************
-//
-//
-/// \file B1DetectorConstruction.cc
-/// \brief Implementation of the B1DetectorConstruction class
-
-
-/* Austin here
-
-1. start simple. just a world volume and CF4 cylinder
-
-
-*/
-
 #include "B1DetectorConstruction.hh"
 #include "B1DetectorConstructionMessenger.hh"
 #include "sensitiveSipm.hh"
@@ -63,13 +26,12 @@ B1DetectorConstruction::B1DetectorConstruction()
 : G4VUserDetectorConstruction(),
   fScoringVolume(0)
 {
-  // default values here
+  fDetMessenger = new B1DetectorConstructionMessenger(this);
+  
+  // default values here (if no commands given)
   fSourceHeight = 5.0 * cm; // default distance
   fcf4Density = 0.002*g/cm3; // slightly denser than STP air
   fLY = 100./MeV; // default arbitrary LY
-
-  fDetMessenger = new B1DetectorConstructionMessenger(this);
-    
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -107,6 +69,15 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   G4Material* mWorld = nist->FindOrBuildMaterial("G4_Galactic");
   mWorld->SetMaterialPropertiesTable(mptWorld);
   
+  // ---------- Silicon PM ----------//  
+  G4double photonE_Si[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
+  G4double nSi[2] = {1.20, 1.20};   
+  G4MaterialPropertiesTable *mptSi = new G4MaterialPropertiesTable();
+  mptSi->AddProperty("RINDEX", photonE_Si, nSi, 2); //2 is for length of arrays
+  
+  G4Material * matSilicon = nist->FindOrBuildMaterial("G4_Si");
+  matSilicon->SetMaterialPropertiesTable(mptWorld);
+  
   // ---------- CF4 ----------//
   G4Element * elCarbon = new G4Element("Carbon", "C", 6, 12.01 * g/mole);
   G4Element * elFluorine = new G4Element("Fluorine", "F", 9,  19. * g/mole);
@@ -115,18 +86,19 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   cf4Gas->AddElement(elCarbon, 1);
   cf4Gas->AddElement(elFluorine, 4);
   
-  // do dispersion function and fill arrays in loop
+  G4MaterialPropertiesTable *mpt_gascf4 = new G4MaterialPropertiesTable();
+  
+  // refractive indexes taken from
+  // https://doi.org/10.1063/1.1695909
   G4double photonE[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
   G4double cf4n[2] = {1.1, 1.1};
+  mpt_gascf4->AddProperty("RINDEX", photonE, cf4n, 2);    //2 is for length of arrays
   
   // add scintillation here
   G4double scint1_wl[1] = { 3. * eV };
   G4double scintFast[1] = { 1. };
   G4double *scintSlow = scintFast;
   
-  
-  G4MaterialPropertiesTable *mpt_gascf4 = new G4MaterialPropertiesTable();
-  mpt_gascf4->AddProperty("RINDEX", photonE, cf4n, 2);    //2 is for length of arrays
   mpt_gascf4->AddProperty("FASTCOMPONENT", scint1_wl, scintFast, 2);
   mpt_gascf4->AddProperty("SLOWCOMPONENT", scint1_wl, scintSlow, 2);
   
@@ -135,14 +107,11 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   mpt_gascf4->AddConstProperty("FASTTIMECONSTANT", 5*ns); 
   mpt_gascf4->AddConstProperty("SLOWTIMECONSTANT", 20*ns); 
   mpt_gascf4->AddConstProperty("YIELDRATIO", 1.); 
-
+  
+  cf4Gas->GetIonisation()->SetBirksConstant(0 * mm/MeV);
 
   cf4Gas->SetMaterialPropertiesTable(mpt_gascf4);
-  cf4Gas->GetIonisation()->SetBirksConstant(0 * mm/MeV);
-  
-  // ---------- Silicon PM ----------//
-  G4Material * sipmSilicon = nist->FindOrBuildMaterial("G4_Si");
-  
+
   // ---------- Alpha Source ----------//
   G4double goldFrac = 0.5;
   
@@ -163,6 +132,8 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   G4Material * mSteel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
   G4Material * mSilver = nist->FindOrBuildMaterial("G4_Ag");
   G4Material * mPalladium = nist->FindOrBuildMaterial("G4_Pd");
+  
+  ////////////////////------------ DONE MATERIALS ------------//////////////////// 
   
   //--------------------------- Building Detector ---------------------------//
   // (lab space where gamma sources live)
@@ -228,8 +199,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
     
   // sipmSilicon->GetMaterialTable();
   
-  // G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, sipmSilicon, "logic_sipm");
-  G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, mWorld, "logic_sipm");
+  G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, matSilicon, "logic_sipm");
   G4VPhysicalVolume* phys_sipm = new G4PVPlacement(0,
                     G4ThreeVector(0, 0, sipmZ), // SiPM face is at (0, 0, 0)
                     logic_sipm,
