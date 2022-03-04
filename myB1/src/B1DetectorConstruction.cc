@@ -111,7 +111,10 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   
   G4Tubs * solid_medium = new G4Tubs("solid_detectionMedium", 0., innerCyl_r, 0.5*innerCyl_z, 0, 360.*deg);
   
-  G4LogicalVolume * logic_medium = new G4LogicalVolume(solid_medium, detMat->fDetectorMedium, "logic_detectionMedium");
+  // detMat->fDetectorMedium->GetMaterialPropertiesTable()->DumpTable();
+  G4cout << "partway through detectorCosntruction::Consntruct()" << G4endl;
+  
+  G4LogicalVolume * logic_medium = new G4LogicalVolume(solid_medium, *(detMat->fDetectorMedium), "logic_detectionMedium");
   
   G4VPhysicalVolume* phys_medium = new G4PVPlacement(0,                    //no rotation
                     G4ThreeVector(0, 0, 0),      //at (0,0,0)

@@ -9,10 +9,20 @@
 
 DetectorMaterials::DetectorMaterials(){
   
+  // can't set everything as null off the bat
+  // fDetectorMedium = new G4Material();
+  // mLiquidCF4 = new G4Material("blank", 1*g/cm3, 2);
+  // mGasCF4 = new G4Material("blank", 1*g/cm3, 2);
+  // mGasAr = new G4Material("blank", 1*g/cm3, 2);
+  // G4cout << "(0) are these equal " << (mGasCF4 == fDetectorMedium) << G4endl;
+
+  
   // default values here
-  fDetectorMedium = mGasCF4;  // default
-  fmediumDensity = -1 g/cm3;  // flagged as not set
-  fmediumLY = -1/MeV;         // flagged as not set
+  fDetectorMedium = &mGasCF4;  // default
+  fmediumDensity = -1.* g/cm3;  // flagged as not set
+  fmediumLY = -1./MeV;         // flagged as not set
+  
+  // G4cout << "(1) are these equal " << (mGasCF4 == fDetectorMedium) << G4endl;
 }
 
 DetectorMaterials::~DetectorMaterials(){
@@ -20,18 +30,18 @@ DetectorMaterials::~DetectorMaterials(){
 
 void DetectorMaterials::SetDetectionMedium(G4String s){
   if(s == "gCF4" || s == "GCF4"){
-    G4cout << "YOOOO we here" << G4endl;
-    // exit(0);
-    fDetectorMedium = mGasCF4;
+    fDetectorMedium = &mGasCF4;
   } else if (s == "lCF4" || s == "LCF4"){
-    fDetectorMedium = mLiquidCF4;
+    fDetectorMedium = &mLiquidCF4;
   } else if (s == "gAr" || s == "GAr"){
-    fDetectorMedium = mGasAr;
+    fDetectorMedium = &mGasAr;
   }
 }
 
 void DetectorMaterials::ConstructMaterials(){
   
+  G4cout << "--------\nStart of Construct Materials\n-----------" << G4endl;
+
   // Get nist material manager
   G4NistManager* nist = G4NistManager::Instance();
   
@@ -63,8 +73,8 @@ void DetectorMaterials::ConstructMaterials(){
   
   G4double density_cf4Gas = 0.0014*g/cm3; // default value
   G4double cf4Gas_ly = 1000 /MeV;
-  if(fmediumDensity > 0 && fDetectorMedium == mGasCF4) density_cf4Gas = fmediumDensity;
-  if(fmediumLY > 0 && fDetectorMedium == mGasCF4) cf4Gas_ly = fmediumLY;
+  if(fmediumDensity > 0 && *fDetectorMedium == mGasCF4){ density_cf4Gas = fmediumDensity; }
+  if(fmediumLY > 0 && *fDetectorMedium == mGasCF4){ cf4Gas_ly = fmediumLY; }
 
   G4Element * elCarbon = new G4Element("Carbon", "C", 6, 12.01 * g/mole);
   G4Element * elFluorine = new G4Element("Fluorine", "F", 9,  19. * g/mole);
@@ -99,14 +109,21 @@ void DetectorMaterials::ConstructMaterials(){
   mGasCF4->GetIonisation()->SetBirksConstant(0 * mm/MeV);
   mGasCF4->SetMaterialPropertiesTable(mpt_gascf4);
   
+  mGasCF4->GetMaterialPropertiesTable()->DumpTable();
+  // fDetectorMedium = mGasCF4;
+  (*fDetectorMedium)->GetMaterialPropertiesTable()->DumpTable();
+  // G4cout << "are these equal " << (mGasCF4 == fDetectorMedium) << G4endl;
+  // G4cout << "yoo we are here" << G4endl;
+  // exit(0);
+  
   // -------------------- Liquid CF4 --------------------//
   mLiquidCF4 = mGasCF4; //temporary
   
   G4double density_cf4Liq = 1.4*g/cm3; // default value
   G4double cf4Liq_ly = 500 /MeV;
   
-  if(fmediumDensity > 0 && fDetectorMedium == mLiquidCF4) density_cf4Liq = fmediumDensity;
-  if(fmediumLY > 0 && fDetectorMedium == mLiquidCF4) cf4Liq_ly = fmediumLY;
+  if(fmediumDensity > 0 && *fDetectorMedium == mLiquidCF4) density_cf4Liq = fmediumDensity;
+  if(fmediumLY > 0 && *fDetectorMedium == mLiquidCF4) cf4Liq_ly = fmediumLY;
   
   // make CF4
   

@@ -18,7 +18,7 @@
 #/setDetector/cf4LY 0.1 keVLY
 
 /setMaterial/detectionMedium gCF4
-/setMaterial/mediumDensity 69 g/cm3
+/setMaterial/mediumDensity 2 g/cm3
 /setMaterial/mediumLY 1000 MeVLY
 
 ## process toggling ##

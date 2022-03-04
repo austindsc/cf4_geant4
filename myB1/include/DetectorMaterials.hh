@@ -17,7 +17,7 @@ public:
 
   void SetDetectionMedium(G4String s);
   G4String GetDetectorMediumString(){return fmedString; }
-  G4Material * GetDetectorMedium(){return fDetectorMedium; }
+  G4Material * GetDetectorMedium(){return *fDetectorMedium; }
   
   void SetMediumDensity(G4double r){ fmediumDensity = r; }
   G4double GetMediumDensity(){ return fmediumDensity; }
@@ -49,7 +49,7 @@ private:
   
   // for use by the materials messenger
   G4String fmedString;
-  G4Material * fDetectorMedium;// what is currently in active volume
+  G4Material ** fDetectorMedium;// what is currently in active volume
   
   // or not, only having two messenger functions is nice
   G4double fmediumLY;
