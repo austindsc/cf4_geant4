@@ -12,13 +12,14 @@
 /process/had/verbose 0
 
 ## detector properties ##
-/setDetector/alphaPosition 4
+/setDetector/alphaPosition 2
 #/setDetector/cf4Density 1.4 g/cm3     #liquid
 #/setDetector/cf4Density 0.002 g/cm3  #gas
 #/setDetector/cf4LY 0.1 keVLY
 
 /setMaterial/detectionMedium gCF4
-#/setMaterial/
+/setMaterial/mediumDensity 69 g/cm3
+/setMaterial/mediumLY 1000 MeVLY
 
 ## process toggling ##
 #/process/optical/processActivation Scintillation false

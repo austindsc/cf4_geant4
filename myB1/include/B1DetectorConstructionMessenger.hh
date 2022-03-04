@@ -26,11 +26,6 @@ private:
   // -1 no source (<0 in code), not working yet
   // other values are cm distance
   
-  // G4UIcmdWithADoubleAndUnit * SetCF4DensityCmd;
-  // liqiuid or gas haha
-  
-  // G4UIcmdWithADoubleAndUnit * SetLYCmd;
-  
   // G4UIcmdW ithAnInteger   * SetGammaLocationCmd;
   // 0 no source
   // 1...3 different positions

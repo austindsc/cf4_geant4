@@ -8,6 +8,7 @@ class G4String;
 
 class DetectorMaterials{
   friend class B1DetectorConstruction;
+  friend class MaterialsMessenger;
 public:
   DetectorMaterials();
   virtual ~DetectorMaterials();
@@ -49,6 +50,8 @@ private:
   // for use by the materials messenger
   G4String fmedString;
   G4Material * fDetectorMedium;// what is currently in active volume
+  
+  // or not, only having two messenger functions is nice
   G4double fmediumLY;
   G4double fmediumDensity;
 };

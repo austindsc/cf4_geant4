@@ -24,7 +24,7 @@ MaterialsMessenger::MaterialsMessenger(DetectorMaterials * dmat)
   SetDetectionMediumCmd->AvailableForStates(G4State_PreInit);
   
   SetMediumDensityCmd = new G4UIcmdWithADoubleAndUnit("/setMaterial/mediumDensity", this);
-  SetMediumDensityCmd->SetGuidance("give medium density and associated units (probably use g/cm^3)");
+  SetMediumDensityCmd->SetGuidance("give medium density and associated units (probably use g/cm3)");
   SetMediumDensityCmd->SetParameterName("mediumDensity", false, true);
   SetMediumDensityCmd->SetDefaultValue(dmat->GetMediumDensity());//default values in detectorconstruction constructor
   SetMediumDensityCmd->SetUnitCategory("Volumic Mass");
@@ -41,6 +41,8 @@ MaterialsMessenger::MaterialsMessenger(DetectorMaterials * dmat)
   SetMediumLYCmd->SetUnitCandidates("keVLY MeVLY"); 
   SetMediumLYCmd->SetUnitCategory("inv. energy Yield");
   SetMediumLYCmd->AvailableForStates(G4State_PreInit);
+
+  G4cout << "building mat messenger" << G4endl;
 }
 
 MaterialsMessenger::~MaterialsMessenger(){
@@ -52,13 +54,18 @@ MaterialsMessenger::~MaterialsMessenger(){
 }
 
 void MaterialsMessenger::SetNewValue(G4UIcommand *command, G4String newVal){
-  
+
+G4cout << "matmess SetNewValue" << G4endl;
   if(command == SetDetectionMediumCmd){
     fdmat->SetDetectionMedium(newVal);
-  } else if (command == SetMediumDensityCmd){
-    fdmat->SetMediumDensity(SetMediumDensityCmd->GetNewDoubleValue(newVal));
-  } else if (command == SetMediumLYCmd){
-    fdmat->SetMediumLY(SetMediumLYCmd->GetNewDoubleValue(newVal));
+    G4cout << "Changing medium to " << G4endl;
+  }
+  if (command == SetMediumDensityCmd){
+    G4cout << "Changing LY to" << G4endl;
+    fdmat->fmediumDensity = SetMediumDensityCmd->GetNewDoubleValue(newVal);
+  }
+  if (command == SetMediumLYCmd){
+    fdmat->fmediumLY = SetMediumLYCmd->GetNewDoubleValue(newVal);
   }
 
 }

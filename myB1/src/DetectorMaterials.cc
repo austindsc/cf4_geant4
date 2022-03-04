@@ -10,9 +10,9 @@
 DetectorMaterials::DetectorMaterials(){
   
   // default values here
-  fDetectorMedium = mGasCF4; // default
-  fmediumDensity = 0.002 * g/cm3;
-  fmediumLY = 100./MeV;
+  fDetectorMedium = mGasCF4;  // default
+  fmediumDensity = -1 g/cm3;  // flagged as not set
+  fmediumLY = -1/MeV;         // flagged as not set
 }
 
 DetectorMaterials::~DetectorMaterials(){
@@ -21,6 +21,7 @@ DetectorMaterials::~DetectorMaterials(){
 void DetectorMaterials::SetDetectionMedium(G4String s){
   if(s == "gCF4" || s == "GCF4"){
     G4cout << "YOOOO we here" << G4endl;
+    // exit(0);
     fDetectorMedium = mGasCF4;
   } else if (s == "lCF4" || s == "LCF4"){
     fDetectorMedium = mLiquidCF4;
@@ -30,6 +31,7 @@ void DetectorMaterials::SetDetectionMedium(G4String s){
 }
 
 void DetectorMaterials::ConstructMaterials(){
+  
   // Get nist material manager
   G4NistManager* nist = G4NistManager::Instance();
   
@@ -59,9 +61,10 @@ void DetectorMaterials::ConstructMaterials(){
   
   // -------------------- Gas CF4 --------------------//
   
-  //temporary
   G4double density_cf4Gas = 0.0014*g/cm3; // default value
-  G4double temp_cf4Gas_LY = 100./MeV;     // default value
+  G4double cf4Gas_ly = 1000 /MeV;
+  if(fmediumDensity > 0 && fDetectorMedium == mGasCF4) density_cf4Gas = fmediumDensity;
+  if(fmediumLY > 0 && fDetectorMedium == mGasCF4) cf4Gas_ly = fmediumLY;
 
   G4Element * elCarbon = new G4Element("Carbon", "C", 6, 12.01 * g/mole);
   G4Element * elFluorine = new G4Element("Fluorine", "F", 9,  19. * g/mole);
@@ -86,7 +89,7 @@ void DetectorMaterials::ConstructMaterials(){
   mpt_gascf4->AddProperty("FASTCOMPONENT", scint1_wl, scintFast, 2);
   mpt_gascf4->AddProperty("SLOWCOMPONENT", scint1_wl, scintSlow, 2);
   
-  mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", temp_cf4Gas_LY);
+  mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", cf4Gas_ly);
   // mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", 0.0 /MeV);
   mpt_gascf4->AddConstProperty("RESOLUTIONSCALE", 2); 
   mpt_gascf4->AddConstProperty("FASTTIMECONSTANT", 5*ns); 
@@ -99,6 +102,16 @@ void DetectorMaterials::ConstructMaterials(){
   // -------------------- Liquid CF4 --------------------//
   mLiquidCF4 = mGasCF4; //temporary
   
+  G4double density_cf4Liq = 1.4*g/cm3; // default value
+  G4double cf4Liq_ly = 500 /MeV;
+  
+  if(fmediumDensity > 0 && fDetectorMedium == mLiquidCF4) density_cf4Liq = fmediumDensity;
+  if(fmediumLY > 0 && fDetectorMedium == mLiquidCF4) cf4Liq_ly = fmediumLY;
+  
+  // make CF4
+  
+  // -------------------- Gaseous Argon --------------------//
+
   
   // -------------------- Smoke Detector --------------------//
   mSilver = nist->FindOrBuildMaterial("G4_Ag");

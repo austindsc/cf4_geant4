@@ -26,8 +26,6 @@ private:
   G4UIcmdWithAString     * SetDetectionMediumCmd;
   G4UIcmdWithADoubleAndUnit * SetMediumDensityCmd;
   G4UIcmdWithADoubleAndUnit * SetMediumLYCmd;
-  
-  
 };
 
 #endif

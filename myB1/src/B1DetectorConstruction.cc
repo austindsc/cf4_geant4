@@ -30,18 +30,13 @@ B1DetectorConstruction::B1DetectorConstruction()
   fScoringVolume(0)
 {
   fDetMessenger = new B1DetectorConstructionMessenger(this);
-  // still control some things with this
   
+  // still control some things with this
   detMat = new DetectorMaterials();
   MaterialsMessenger * dmatMessenger = new MaterialsMessenger(detMat);
   
-  detMat->ConstructMaterials();
-
   // default values here (if no commands given)
   fSourceHeight = 5.0 * cm; // default distance
-  fcf4Density = 0.002*g/cm3; // slightly denser than STP air
-  fLY = 100./MeV; // default arbitrary LY
-  
   
   // do messenger stuff to set variables in detMat
   
@@ -59,10 +54,11 @@ B1DetectorConstruction::~B1DetectorConstruction()
 
 G4VPhysicalVolume* B1DetectorConstruction::Construct()
 { 
+  
+  detMat->ConstructMaterials(); //THIS MATTERS
+
   G4cout << "---------------------- Detector Params in Construct() ----------------------\n" << G4endl;
   G4cout << " alpha height = " << fSourceHeight/cm << " cm" << G4endl;
-  G4cout << " CF4Density = " << fcf4Density/(g/cm3) << " g/cm3" << G4endl;
-  G4cout << " cf4LY = " << fLY/(1/MeV) << " /MeV" << G4endl;
   
   G4cout << "\n---------------------- Detector Params ----------------------" << G4endl;
   
@@ -106,9 +102,9 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   // G4LogicalVolume * logicOuterWorld = new G4LogicalVolume(solidOuterCyl, mWorld)       
   
 
-  //--------------------------- CF4 volume (Cylinder) ---------------------------//
+  //--------------------------- active volume (Cylinder) ---------------------------//
   // centered on XY place, goes from 0 to innerCyl_z on z axis
-  // volume of CF4 held in cylinder
+  // internal volume of cylinder
   G4double innerCyl_r = 4*cm;
   // G4double innerCyl_t = 1*cm; //thickness
   G4double innerCyl_z = 15*cm;
