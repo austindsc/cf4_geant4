@@ -13,7 +13,7 @@
 #/vis/viewer/set/style wireframe
 #/vis/viewer/set/auxiliaryEdge true
 /vis/geometry/set/forceWireframe World 0 1
-/vis/geometry/set/colour logic_cf4 0 0 0 1 .3
+/vis/geometry/set/colour logic_detectionMedium 0 0 0 1 .3
 
 ## drawing the source ##
 /vis/geometry/set/colour logic_palladium 0 0 0 0 1

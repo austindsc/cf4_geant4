@@ -23,24 +23,24 @@ B1DetectorConstructionMessenger::B1DetectorConstructionMessenger(B1DetectorConst
   SetAlphaDistanceCmd->SetDefaultValue(det->GetAlphaHeight()); //default values in detectorconstruction constructor
   SetAlphaDistanceCmd->AvailableForStates(G4State_PreInit);
 
-  SetCF4DensityCmd = new G4UIcmdWithADoubleAndUnit("/setDetector/cf4Density", this);
-  SetCF4DensityCmd->SetGuidance("give CF4 density and associated units (probably use g/cm^3)");
-  SetCF4DensityCmd->SetParameterName("cf4Density", false, true);
-  SetCF4DensityCmd->SetDefaultValue(det->GetCF4Density());//default values in detectorconstruction constructor
-  SetCF4DensityCmd->SetUnitCategory("Volumic Mass");
-  SetCF4DensityCmd->AvailableForStates(G4State_PreInit);
-  
-  // LY stuff
-  new G4UnitDefinition("LY per MeV", "MeVLY", "inv. energy Yield", 1/MeV);
-  new G4UnitDefinition("LY per keV", "keVLY", "inv. energy Yield", 1/keV);
-  
-  SetLYCmd = new G4UIcmdWithADoubleAndUnit("/setDetector/cf4LY", this);
-  SetLYCmd->SetGuidance("give LY and units (use MeVLY or keVLY)");
-  SetLYCmd->SetParameterName("cf4LY", false, true);
-  SetLYCmd->SetDefaultValue(det->GetLY());//default values in detectorconstruction constructor
-  SetLYCmd->SetUnitCandidates("keVLY MeVLY"); 
-  SetLYCmd->SetUnitCategory("inv. energy Yield");
-  SetLYCmd->AvailableForStates(G4State_PreInit);
+  // SetCF4DensityCmd = new G4UIcmdWithADoubleAndUnit("/setDetector/cf4Density", this);
+  // SetCF4DensityCmd->SetGuidance("give CF4 density and associated units (probably use g/cm^3)");
+  // SetCF4DensityCmd->SetParameterName("cf4Density", false, true);
+  // SetCF4DensityCmd->SetDefaultValue(det->GetCF4Density());//default values in detectorconstruction constructor
+  // SetCF4DensityCmd->SetUnitCategory("Volumic Mass");
+  // SetCF4DensityCmd->AvailableForStates(G4State_PreInit);
+  // 
+  // // LY stuff
+  // new G4UnitDefinition("LY per MeV", "MeVLY", "inv. energy Yield", 1/MeV);
+  // new G4UnitDefinition("LY per keV", "keVLY", "inv. energy Yield", 1/keV);
+  // 
+  // SetLYCmd = new G4UIcmdWithADoubleAndUnit("/setDetector/cf4LY", this);
+  // SetLYCmd->SetGuidance("give LY and units (use MeVLY or keVLY)");
+  // SetLYCmd->SetParameterName("cf4LY", false, true);
+  // SetLYCmd->SetDefaultValue(det->GetLY());//default values in detectorconstruction constructor
+  // SetLYCmd->SetUnitCandidates("keVLY MeVLY"); 
+  // SetLYCmd->SetUnitCategory("inv. energy Yield");
+  // SetLYCmd->AvailableForStates(G4State_PreInit);
   
 }
 
@@ -56,11 +56,12 @@ void B1DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4String
   // do something
   if(command == SetAlphaDistanceCmd){
     Detector->SetAlphaHeight(SetAlphaDistanceCmd->GetNewDoubleValue(newVal) * cm);
-  } else if (command == SetCF4DensityCmd){
-    Detector->SetCF4Density(SetCF4DensityCmd->GetNewDoubleValue(newVal));
-  } else if (command == SetLYCmd){
-    Detector->SetLY(SetLYCmd->GetNewDoubleValue(newVal));
   }
+  // else if (command == SetCF4DensityCmd){
+  //   Detector->SetCF4Density(SetCF4DensityCmd->GetNewDoubleValue(newVal));
+  // } else if (command == SetLYCmd){
+  //   Detector->SetLY(SetLYCmd->GetNewDoubleValue(newVal));
+  // }
   
 }
 

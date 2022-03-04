@@ -21,6 +21,7 @@
 #include "G4PhysicalVolumeStore.hh"
 
 #include "DetectorMaterials.hh"
+#include "MaterialsMessenger.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -31,16 +32,19 @@ B1DetectorConstruction::B1DetectorConstruction()
   fDetMessenger = new B1DetectorConstructionMessenger(this);
   // still control some things with this
   
+  detMat = new DetectorMaterials();
+  MaterialsMessenger * dmatMessenger = new MaterialsMessenger(detMat);
+  
+  detMat->ConstructMaterials();
+
   // default values here (if no commands given)
   fSourceHeight = 5.0 * cm; // default distance
-  fcf4Density = 0.002*g/cm3; // sliightly denser than STP air
+  fcf4Density = 0.002*g/cm3; // slightly denser than STP air
   fLY = 100./MeV; // default arbitrary LY
   
-  detMat = new DetectorMaterials();
   
   // do messenger stuff to set variables in detMat
   
-  detMat->ConstructMaterials();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -109,14 +113,14 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   // G4double innerCyl_t = 1*cm; //thickness
   G4double innerCyl_z = 15*cm;
   
-  G4Tubs * solid_cf4 = new G4Tubs("solid_cf4", 0., innerCyl_r, 0.5*innerCyl_z, 0, 360.*deg);
+  G4Tubs * solid_medium = new G4Tubs("solid_detectionMedium", 0., innerCyl_r, 0.5*innerCyl_z, 0, 360.*deg);
   
-  G4LogicalVolume * logic_cf4 = new G4LogicalVolume(solid_cf4, detMat->mGasCF4, "logic_cf4");
+  G4LogicalVolume * logic_medium = new G4LogicalVolume(solid_medium, detMat->fDetectorMedium, "logic_detectionMedium");
   
-  G4VPhysicalVolume* phys_cf4 = new G4PVPlacement(0,                    //no rotation
+  G4VPhysicalVolume* phys_medium = new G4PVPlacement(0,                    //no rotation
                     G4ThreeVector(0, 0, 0),      //at (0,0,0)
-                    logic_cf4,            //its logical volume
-                    "phys_cf4",           //its name
+                    logic_medium,            //its logical volume
+                    "phys_detectionMedium",           //its name
                     logicWorld,           //its mother  volume
                     false,                //no boolean operation
                     0,                    //copy number
@@ -138,7 +142,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     G4ThreeVector(0, 0, sipmZ), // SiPM face is at (0, 0, 0)
                     logic_sipm,
                     "phys_sipm",
-                    logic_cf4,         // mother volume
+                    logic_medium,         // mother volume
                     false, 
                     0,
                     checkOverlaps);
@@ -174,7 +178,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     palCenter,
                     logic_palladium,
                     "phys_palladium",
-                    logic_cf4,         // mother volume
+                    logic_medium,         // mother volume
                     false, 
                     0,
                     checkOverlaps);
@@ -185,7 +189,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     goldCenter,
                     logic_gold,
                     "phys_gold",
-                    logic_cf4,         // mother volume
+                    logic_medium,         // mother volume
                     false, 
                     0,
                     checkOverlaps);
@@ -196,7 +200,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   amo2Center,
                   logic_amo2,
                   "phys_amo2",
-                  logic_cf4,         // mother volume
+                  logic_medium,         // mother volume
                   false, 
                   0,
                   checkOverlaps);
@@ -209,7 +213,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                     agCenter,
                     logic_Ag,
                     "phys_Ag",
-                    logic_cf4,         // mother volume
+                    logic_medium,         // mother volume
                     false, 
                     0,
                     checkOverlaps);
@@ -220,7 +224,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                 ssUnderCenter,
                 logic_ssUnder,
                 "phys_caseSide",
-                logic_cf4,         // mother volume
+                logic_medium,         // mother volume
                 false, 
                 0,
                 checkOverlaps);
@@ -231,7 +235,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   caseSideCenter,
                   logic_caseSide,
                   "phys_caseSide",
-                  logic_cf4,         // mother volume
+                  logic_medium,         // mother volume
                   false, 
                   0,
                   checkOverlaps);
@@ -239,7 +243,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
  //--------------------------- Done Source ---------------------------//
   
   // setting all headers
-  fScoringVolume = logic_cf4;
+  fScoringVolume = logic_medium;
   fsipmVolume = logic_sipm;
 
   //always return the physical World

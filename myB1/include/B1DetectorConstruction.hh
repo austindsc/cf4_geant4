@@ -27,11 +27,11 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     G4double GetAlphaHeight() { return fSourceHeight; }
     void SetAlphaHeight(G4double h) { fSourceHeight = h;}
     
-    G4double GetCF4Density() { return fcf4Density; }
-    void SetCF4Density(G4double rho) { fcf4Density = rho; }
-    
-    G4double GetLY() { return fLY; }
-    void SetLY(G4double ly) { fLY = ly; }
+    // G4double GetCF4Density() { return fcf4Density; }
+    // void SetCF4Density(G4double rho) { fcf4Density = rho; }
+    // 
+    // G4double GetLY() { return fLY; }
+    // void SetLY(G4double ly) { fLY = ly; }
 
   protected:    
     G4LogicalVolume*  fScoringVolume; //(this is the cf4)

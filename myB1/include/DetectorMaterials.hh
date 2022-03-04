@@ -1,7 +1,10 @@
 #ifndef DETECTORMATERIALS_H
 #define DETECTORMATERIALS_H 1
 
+#include "globals.hh"
+
 class G4Material;
+class G4String;
 
 class DetectorMaterials{
   friend class B1DetectorConstruction;
@@ -11,6 +14,15 @@ public:
   
   void ConstructMaterials(); //call this after setting variables with messenger
 
+  void SetDetectionMedium(G4String s);
+  G4String GetDetectorMediumString(){return fmedString; }
+  G4Material * GetDetectorMedium(){return fDetectorMedium; }
+  
+  void SetMediumDensity(G4double r){ fmediumDensity = r; }
+  G4double GetMediumDensity(){ return fmediumDensity; }
+  
+  void SetMediumLY(G4double ly){ fmediumLY = ly; }
+  G4double GetMediumLY(){ return fmediumLY; }
   
 private:
   // chamber materials
@@ -19,7 +31,7 @@ private:
   G4Material * mSteel;
   G4Material * mLead;
 
-  G4Material * mDetectorMedium;// what is currently in active volume
+  // different mediums
   G4Material * mGasCF4;
   G4Material * mLiquidCF4;
   G4Material * mGasAr;
@@ -33,6 +45,12 @@ private:
   G4Material * mSilver;
   G4Material * mGold;
   G4Material * mPalladium;
+  
+  // for use by the materials messenger
+  G4String fmedString;
+  G4Material * fDetectorMedium;// what is currently in active volume
+  G4double fmediumLY;
+  G4double fmediumDensity;
 };
 
 #endif
