@@ -34,6 +34,7 @@
 #include "globals.hh"
 
 class B1RunAction;
+class G4EventManager;
 
 /// Event action class
 ///
@@ -52,9 +53,10 @@ class B1EventAction : public G4UserEventAction
     
 
   private:
+    G4EventManager * evMan;
+    
     B1RunAction* fRunAction;
     G4double     fEdep;
-    
     G4int        fmcNPE; // mc number of photons hitting detector (no efficiencies)
 };
 

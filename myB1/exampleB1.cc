@@ -62,26 +62,11 @@ int main(int argc,char** argv)
   G4VModularPhysicsList * physList = new myPhysList();
   runManager->SetUserInitialization(physList);
   
-  // G4VModularPhysicsList* physicsList = new FTFP_BERT;
-  // physicsList->SetVerboseLevel(0);
-  // physicsList->ReplacePhysics(new G4EmStandardPhysics_option4());
-  // G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
-  // opticalPhysics->Configure(kScintillation, true);
-  // opticalPhysics->Configure(kAbsorption, true);
-  // opticalPhysics->SetScintillationYieldFactor(10.);
-  // opticalPhysics->SetScintillationExcitationRatio(0.);
-  // opticalPhysics->SetTrackSecondariesFirst(kScintillation, true);
-  // physicsList->RegisterPhysics(opticalPhysics);
-  // runManager->SetUserInitialization(physicsList);
-  
   // User action initialization
   runManager->SetUserInitialization(new B1ActionInitialization());
   
   // Initialize visualization
-  //
   G4VisManager* visManager = new G4VisExecutive;
-  // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
-  // G4VisManager* visManager = new G4VisExecutive("Quiet");
   visManager->Initialize();
 
   // Get the pointer to the User Interface manager
@@ -90,14 +75,16 @@ int main(int argc,char** argv)
   // Process macro or start UI session
   if ( ! ui ) { 
     // batch mode
+    G4cout << "\n\n---------------------- Script Settings ----------------------" << G4endl;
     G4String command = "/control/execute ../myB1/";
     G4String fileName = argv[1];
-    G4cout << command+fileName << G4endl;
     UImanager->ApplyCommand(command+fileName);
   }
   else {
     // interactive mode
+    G4cout << "\n\n---------------------- Script Settings ----------------------\n" << G4endl;
     UImanager->ApplyCommand("/control/execute ../myB1/default_vis.mac");
+
     ui->SessionStart();
     delete ui;
   }

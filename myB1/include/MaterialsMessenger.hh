@@ -26,6 +26,9 @@ private:
   G4UIcmdWithAString     * SetDetectionMediumCmd;
   G4UIcmdWithADoubleAndUnit * SetMediumDensityCmd;
   G4UIcmdWithADoubleAndUnit * SetMediumLYCmd;
+  
+  G4UIcmdWithADoubleAndUnit * SetMediumTempCmd;
+  G4UIcmdWithADoubleAndUnit * SetMediumPressureCmd;
 };
 
 #endif

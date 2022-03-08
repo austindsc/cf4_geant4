@@ -26,7 +26,7 @@ MaterialsMessenger::MaterialsMessenger(DetectorMaterials * dmat)
   SetMediumDensityCmd = new G4UIcmdWithADoubleAndUnit("/setMaterial/mediumDensity", this);
   SetMediumDensityCmd->SetGuidance("give medium density and associated units (probably use g/cm3)");
   SetMediumDensityCmd->SetParameterName("mediumDensity", false, true);
-  SetMediumDensityCmd->SetDefaultValue(dmat->GetMediumDensity());//default values in detectorconstruction constructor
+  SetMediumDensityCmd->SetDefaultValue(dmat->fmediumDensity);//default values in detectorconstruction constructor
   SetMediumDensityCmd->SetUnitCategory("Volumic Mass");
   SetMediumDensityCmd->AvailableForStates(G4State_PreInit);
   
@@ -37,10 +37,24 @@ MaterialsMessenger::MaterialsMessenger(DetectorMaterials * dmat)
   SetMediumLYCmd = new G4UIcmdWithADoubleAndUnit("/setMaterial/mediumLY", this);
   SetMediumLYCmd->SetGuidance("give LY and units (use MeVLY or keVLY)");
   SetMediumLYCmd->SetParameterName("mediumLY", false, true);
-  SetMediumLYCmd->SetDefaultValue(dmat->GetMediumLY());//default values in detectorconstruction constructor
+  SetMediumLYCmd->SetDefaultValue(dmat->fmediumLY);//default values in detectorconstruction constructor
   SetMediumLYCmd->SetUnitCandidates("keVLY MeVLY"); 
   SetMediumLYCmd->SetUnitCategory("inv. energy Yield");
   SetMediumLYCmd->AvailableForStates(G4State_PreInit);
+  
+  SetMediumTempCmd = new G4UIcmdWithADoubleAndUnit("/setMaterial/mediumTemp", this);
+  SetMediumTempCmd->SetGuidance("temp (if it matters), kelvin");
+  SetMediumTempCmd->SetParameterName("mediumTemp", false, true);
+  SetMediumTempCmd->SetDefaultValue(dmat->fmediumTemp);//default values in detectorconstruction constructor
+  SetMediumTempCmd->SetUnitCandidates("kelvin"); 
+  SetMediumTempCmd->AvailableForStates(G4State_PreInit);
+  
+  SetMediumPressureCmd = new G4UIcmdWithADoubleAndUnit("/setMaterial/mediumPressure", this);
+  SetMediumPressureCmd->SetGuidance("pressure (if it matters), bar, atm");
+  SetMediumPressureCmd->SetParameterName("mediumPressure", false, true);
+  SetMediumPressureCmd->SetDefaultValue(dmat->fmediumPressure);//default values in detectorconstruction constructor
+  SetMediumPressureCmd->SetUnitCandidates("bar atm"); 
+  SetMediumPressureCmd->AvailableForStates(G4State_PreInit);
 }
 
 MaterialsMessenger::~MaterialsMessenger(){
@@ -65,7 +79,15 @@ void MaterialsMessenger::SetNewValue(G4UIcommand *command, G4String newVal){
     fdmat->fmediumLY = SetMediumLYCmd->GetNewDoubleValue(newVal);
     G4cout << "Changing LY to = " << SetMediumLYCmd->GetNewDoubleValue(newVal)/MeV << " photon/MeV" << G4endl;
   }
-
+  if (command == SetMediumTempCmd){
+    fdmat->fmediumTemp = SetMediumTempCmd->GetNewDoubleValue(newVal);
+    G4cout << "Setting Temperature to = " << SetMediumTempCmd->GetNewDoubleValue(newVal)/kelvin << " K" << G4endl;
+  }
+  if (command == SetMediumPressureCmd){
+    fdmat->fmediumPressure = SetMediumPressureCmd->GetNewDoubleValue(newVal);
+    G4cout << "Setting Pressure to = " << SetMediumPressureCmd->GetNewDoubleValue(newVal)/bar << " bar" << G4endl;
+  }
+  return;
 }
 
 

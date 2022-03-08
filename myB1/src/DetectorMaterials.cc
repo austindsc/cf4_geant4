@@ -9,38 +9,52 @@
 
 DetectorMaterials::DetectorMaterials(){
   
-  // can't set everything as null off the bat
-  // fDetectorMedium = new G4Material();
-  // mLiquidCF4 = new G4Material("blank", 1*g/cm3, 2);
-  // mGasCF4 = new G4Material("blank", 1*g/cm3, 2);
-  // mGasAr = new G4Material("blank", 1*g/cm3, 2);
-  // G4cout << "(0) are these equal " << (mGasCF4 == fDetectorMedium) << G4endl;
-
-  
   // default values here
   fDetectorMedium = &mGasCF4;  // default
   fmediumDensity = -1.* g/cm3;  // flagged as not set
   fmediumLY = -1./MeV;         // flagged as not set
+  fmediumTemp = 110. * kelvin;      // medium temperature
+  fmediumPressure = 1 * bar;
   
-  // G4cout << "(1) are these equal " << (mGasCF4 == fDetectorMedium) << G4endl;
 }
 
 DetectorMaterials::~DetectorMaterials(){
 }
 
-void DetectorMaterials::SetDetectionMedium(G4String s){
-  if(s == "gCF4" || s == "GCF4"){
+//////////// Setting stuff namespace ////////////
+namespace AOI{ //Add Optical Information
+  
+  void nCF4Gas(G4Material * mat){
+    
+    
+    return;
+  }
+  
+  
+  void nCF4Liq(G4Material * mat){
+    return;
+  }
+  
+  
+  void nArGas(G4Material * mat){
+    return;
+  }
+}
+//////////// Done with namespace ////////////
+
+void DetectorMaterials::SetDetectionMedium(G4String med){
+  if(med == "gCF4" || med == "GCF4"){
     fDetectorMedium = &mGasCF4;
-  } else if (s == "lCF4" || s == "LCF4"){
+  } else if (med == "lCF4" || med == "LCF4"){
     fDetectorMedium = &mLiquidCF4;
-  } else if (s == "gAr" || s == "GAr"){
+  } else if (med == "gAr" || med == "GAr"){
     fDetectorMedium = &mGasAr;
   }
 }
 
-void DetectorMaterials::ConstructMaterials(){
+void DetectorMaterials::BuildMaterials(){
   
-  G4cout << "--------\nStart of Construct Materials\n-----------" << G4endl;
+  G4cout << "\n-------- Build Materials() -----------\n" << G4endl;
 
   // Get nist material manager
   G4NistManager* nist = G4NistManager::Instance();
@@ -55,31 +69,16 @@ void DetectorMaterials::ConstructMaterials(){
   mVacuum = nist->FindOrBuildMaterial("G4_Galactic");
   mVacuum->SetMaterialPropertiesTable(mptWorld);
   
-  // -- Stainless Steel -- //
-  mSteel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
-  // -- Lead -- //
-  mLead = nist->FindOrBuildMaterial("G4_Pb");
-  
-  // -------------------- Silicon --------------------//
-  
-  G4double photonE_Si[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
-  G4double nSi[2] = {1.20, 1.20};   
-  G4MaterialPropertiesTable *mptSi = new G4MaterialPropertiesTable();
-  mptSi->AddProperty("RINDEX", photonE_Si, nSi, 2); //2 is for length of arrays
-  mSilicon = nist->FindOrBuildMaterial("G4_Si");
-  mSilicon->SetMaterialPropertiesTable(mptSi);
-  
   // -------------------- Gas CF4 --------------------//
   
   G4double density_cf4Gas = 0.0014*g/cm3; // default value
   G4double cf4Gas_ly = 1000 /MeV;
   if(fmediumDensity > 0 && *fDetectorMedium == mGasCF4){ density_cf4Gas = fmediumDensity; }
   if(fmediumLY > 0 && *fDetectorMedium == mGasCF4){ cf4Gas_ly = fmediumLY; }
-
   G4Element * elCarbon = new G4Element("Carbon", "C", 6, 12.01 * g/mole);
   G4Element * elFluorine = new G4Element("Fluorine", "F", 9,  19. * g/mole);
   
-  mGasCF4 = new G4Material("cf4Gas", density_cf4Gas, 2);
+  mGasCF4 = new G4Material("cf4Gas", density_cf4Gas, 2, kStateGas, fmediumTemp, fmediumPressure);
   mGasCF4->AddElement(elCarbon, 1);
   mGasCF4->AddElement(elFluorine, 4);
   
@@ -90,6 +89,7 @@ void DetectorMaterials::ConstructMaterials(){
   G4double photonE[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
   G4double cf4n[2] = {1.1, 1.1};
   mpt_gascf4->AddProperty("RINDEX", photonE, cf4n, 2);    //2 is for length of arrays
+  AOI::nCF4Gas(mGasCF4);
   
   // add scintillation here
   G4double scint1_wl[1] = { 3. * eV };
@@ -100,7 +100,6 @@ void DetectorMaterials::ConstructMaterials(){
   mpt_gascf4->AddProperty("SLOWCOMPONENT", scint1_wl, scintSlow, 2);
   
   mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", cf4Gas_ly);
-  // mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", 0.0 /MeV);
   mpt_gascf4->AddConstProperty("RESOLUTIONSCALE", 2); 
   mpt_gascf4->AddConstProperty("FASTTIMECONSTANT", 5*ns); 
   mpt_gascf4->AddConstProperty("SLOWTIMECONSTANT", 20*ns); 
@@ -108,13 +107,6 @@ void DetectorMaterials::ConstructMaterials(){
   
   mGasCF4->GetIonisation()->SetBirksConstant(0 * mm/MeV);
   mGasCF4->SetMaterialPropertiesTable(mpt_gascf4);
-  
-  mGasCF4->GetMaterialPropertiesTable()->DumpTable();
-  // fDetectorMedium = mGasCF4;
-  (*fDetectorMedium)->GetMaterialPropertiesTable()->DumpTable();
-  // G4cout << "are these equal " << (mGasCF4 == fDetectorMedium) << G4endl;
-  // G4cout << "yoo we are here" << G4endl;
-  // exit(0);
   
   // -------------------- Liquid CF4 --------------------//
   mLiquidCF4 = mGasCF4; //temporary
@@ -125,11 +117,24 @@ void DetectorMaterials::ConstructMaterials(){
   if(fmediumDensity > 0 && *fDetectorMedium == mLiquidCF4) density_cf4Liq = fmediumDensity;
   if(fmediumLY > 0 && *fDetectorMedium == mLiquidCF4) cf4Liq_ly = fmediumLY;
   
-  // make CF4
-  
   // -------------------- Gaseous Argon --------------------//
 
+  // -------------------- Silicon --------------------//
   
+  G4double photonE_Si[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
+  G4double nSi[2] = {1.20, 1.20};   
+  G4MaterialPropertiesTable *mptSi = new G4MaterialPropertiesTable();
+  mptSi->AddProperty("RINDEX", photonE_Si, nSi, 2); //2 is for length of arrays
+  mSilicon = nist->FindOrBuildMaterial("G4_Si");
+  mSilicon->SetMaterialPropertiesTable(mptSi);
+
+  // -------------------- Misc Materials --------------------//
+  // -- Stainless Steel -- //
+  mSteel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
+  
+  // -- Lead -- //
+  mLead = nist->FindOrBuildMaterial("G4_Pb");
+
   // -------------------- Smoke Detector --------------------//
   mSilver = nist->FindOrBuildMaterial("G4_Ag");
   mPalladium = nist->FindOrBuildMaterial("G4_Pd");
@@ -149,7 +154,17 @@ void DetectorMaterials::ConstructMaterials(){
   mAmActiveMatrix->AddMaterial(mAmOxide, 1-goldFrac);
   
   // -------------------- More Stuff --------------------//
-
-  
   return;
 }
+
+
+
+
+
+
+
+
+
+
+
+// end

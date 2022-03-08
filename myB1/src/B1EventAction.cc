@@ -48,7 +48,9 @@ B1EventAction::B1EventAction(B1RunAction* runAction)
   fRunAction(runAction),
   fEdep(0.),
   fmcNPE(0)
-{} 
+{
+  evMan = G4EventManager::GetEventManager();
+} 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -59,6 +61,7 @@ B1EventAction::~B1EventAction()
 
 void B1EventAction::BeginOfEventAction(const G4Event*)
 {    
+  if(evMan->GetVerboseLevel() > 0) G4cout << "\n-------- Start Event --------" << G4endl;
   fEdep = 0.;
   fmcNPE = 0;
 }
@@ -79,10 +82,12 @@ void B1EventAction::EndOfEventAction(const G4Event*)
   man->FillNtupleIColumn(2, fmcNPE);
   man->AddNtupleRow(0);
   
-  G4cout << "total PE = " << fmcNPE << G4endl;
-  
-  
-  G4cout << "b1eventAction::EOEA fEdep = " << fEdep/keV << " keV" << G4endl;
+  if(evMan->GetVerboseLevel() > 0){
+    G4cout << "\n---- My Event Info ----\n\n" 
+    << "total PE = " << fmcNPE << G4endl;
+    G4cout << "b1eventAction::EOEA fEdep = " << fEdep/keV << " keV" << G4endl;
+    G4cout << "\n---- Event Complete ----\n" << G4endl;
+  }
 }
 
  void B1EventAction::AddEdep(G4double edep){ fEdep += edep; }

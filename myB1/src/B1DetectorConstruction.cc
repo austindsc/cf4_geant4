@@ -3,7 +3,6 @@
 #include "sensitiveSipm.hh"
 
 #include "G4RunManager.hh"
-#include "G4NistManager.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
 #include "G4Cons.hh"
@@ -54,17 +53,12 @@ B1DetectorConstruction::~B1DetectorConstruction()
 
 G4VPhysicalVolume* B1DetectorConstruction::Construct()
 { 
-  
-  detMat->ConstructMaterials(); //THIS MATTERS
+  detMat->BuildMaterials(); //PUT THIS HERE!
 
-  G4cout << "---------------------- Detector Params in Construct() ----------------------\n" << G4endl;
+  G4cout << "---------------------- Parameters in Construct() ----------------------\n" << G4endl;
   G4cout << " alpha height = " << fSourceHeight/cm << " cm" << G4endl;
   
-  G4cout << "\n---------------------- Detector Params ----------------------" << G4endl;
-  
-  
-  // Get nist material manager
-  G4NistManager* nist = G4NistManager::Instance();
+  G4cout << "\n--------------------------------------------" << G4endl;
 
   // Option to switch on/off checking of volumes overlaps
   G4bool checkOverlaps = true;
@@ -110,9 +104,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   G4double innerCyl_z = 15*cm;
   
   G4Tubs * solid_medium = new G4Tubs("solid_detectionMedium", 0., innerCyl_r, 0.5*innerCyl_z, 0, 360.*deg);
-  
-  // detMat->fDetectorMedium->GetMaterialPropertiesTable()->DumpTable();
-  G4cout << "partway through detectorCosntruction::Consntruct()" << G4endl;
+
   
   G4LogicalVolume * logic_medium = new G4LogicalVolume(solid_medium, *(detMat->fDetectorMedium), "logic_detectionMedium");
   
@@ -244,6 +236,8 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
   // setting all headers
   fScoringVolume = logic_medium;
   fsipmVolume = logic_sipm;
+
+  G4cout << "\n---------------------- Done Construct() ----------------------" << G4endl;
 
   //always return the physical World
   return physWorld;

@@ -13,9 +13,9 @@ public:
   DetectorMaterials();
   virtual ~DetectorMaterials();
   
-  void ConstructMaterials(); //call this after setting variables with messenger
+  void BuildMaterials(); //call this after setting variables with messenger
 
-  void SetDetectionMedium(G4String s);
+  void SetDetectionMedium(G4String med);
   G4String GetDetectorMediumString(){return fmedString; }
   G4Material * GetDetectorMedium(){return *fDetectorMedium; }
   
@@ -24,6 +24,9 @@ public:
   
   void SetMediumLY(G4double ly){ fmediumLY = ly; }
   G4double GetMediumLY(){ return fmediumLY; }
+  
+  void SetMediumTemp(G4double temp){ fmediumTemp = temp; }
+  G4double GetMediumTemp(){ return fmediumTemp; }
   
 private:
   // chamber materials
@@ -51,9 +54,10 @@ private:
   G4String fmedString;
   G4Material ** fDetectorMedium;// what is currently in active volume
   
-  // or not, only having two messenger functions is nice
   G4double fmediumLY;
   G4double fmediumDensity;
+  G4double fmediumTemp;
+  G4double fmediumPressure;
 };
 
 #endif
