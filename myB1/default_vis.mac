@@ -23,7 +23,7 @@
 /setMaterial/mediumPressure 1.2 bar
 
 ## process toggling ##
-/process/optical/processActivation Scintillation false
+#/process/optical/processActivation Scintillation false
 #/process/optical/processActivation Cerenkov false
 
 #/process/optical/verbose 2

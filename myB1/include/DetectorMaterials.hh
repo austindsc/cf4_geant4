@@ -27,7 +27,7 @@ public:
   
   void SetMediumTemp(G4double temp){ fmediumTemp = temp; }
   G4double GetMediumTemp(){ return fmediumTemp; }
-  
+    
 private:
   // chamber materials
   G4Material * mVacuum; //vacuum

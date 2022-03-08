@@ -7,6 +7,8 @@
 #include "G4Material.hh"
 #include "G4Element.hh"
 
+#include "HelperOptical.hh"
+
 DetectorMaterials::DetectorMaterials(){
   
   // default values here
@@ -15,31 +17,15 @@ DetectorMaterials::DetectorMaterials(){
   fmediumLY = -1./MeV;         // flagged as not set
   fmediumTemp = 110. * kelvin;      // medium temperature
   fmediumPressure = 1 * bar;
-  
 }
 
 DetectorMaterials::~DetectorMaterials(){
+   
 }
 
-//////////// Setting stuff namespace ////////////
-namespace AOI{ //Add Optical Information
-  
-  void nCF4Gas(G4Material * mat){
-    
-    
-    return;
-  }
-  
-  
-  void nCF4Liq(G4Material * mat){
-    return;
-  }
-  
-  
-  void nArGas(G4Material * mat){
-    return;
-  }
-}
+
+
+
 //////////// Done with namespace ////////////
 
 void DetectorMaterials::SetDetectionMedium(G4String med){
@@ -61,7 +47,7 @@ void DetectorMaterials::BuildMaterials(){
   
   // -------------------- Chamber Materials --------------------//
   // -- vacuum -- //
-  G4double photonEWorld[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
+  G4double photonEWorld[2] = {1239.841939*eV/120, 1239.841939*eV/1200}; // set n=1 everywhere
   G4double nWorld[2] = {1.00, 1.00};   
   G4MaterialPropertiesTable *mptWorld = new G4MaterialPropertiesTable();
   mptWorld->AddProperty("RINDEX", photonEWorld, nWorld, 2); //2 is for length of arrays
@@ -70,11 +56,11 @@ void DetectorMaterials::BuildMaterials(){
   mVacuum->SetMaterialPropertiesTable(mptWorld);
   
   // -------------------- Gas CF4 --------------------//
-  
   G4double density_cf4Gas = 0.0014*g/cm3; // default value
   G4double cf4Gas_ly = 1000 /MeV;
-  if(fmediumDensity > 0 && *fDetectorMedium == mGasCF4){ density_cf4Gas = fmediumDensity; }
-  if(fmediumLY > 0 && *fDetectorMedium == mGasCF4){ cf4Gas_ly = fmediumLY; }
+  if(fmediumDensity > 0 && *fDetectorMedium == mGasCF4) density_cf4Gas = fmediumDensity;
+  if(fmediumLY > 0 && *fDetectorMedium == mGasCF4) cf4Gas_ly = fmediumLY;
+  
   G4Element * elCarbon = new G4Element("Carbon", "C", 6, 12.01 * g/mole);
   G4Element * elFluorine = new G4Element("Fluorine", "F", 9,  19. * g/mole);
   
@@ -82,31 +68,7 @@ void DetectorMaterials::BuildMaterials(){
   mGasCF4->AddElement(elCarbon, 1);
   mGasCF4->AddElement(elFluorine, 4);
   
-  G4MaterialPropertiesTable *mpt_gascf4 = new G4MaterialPropertiesTable();
-  
-  // refractive indexes taken from
-  // https://doi.org/10.1063/1.1695909
-  G4double photonE[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
-  G4double cf4n[2] = {1.1, 1.1};
-  mpt_gascf4->AddProperty("RINDEX", photonE, cf4n, 2);    //2 is for length of arrays
-  AOI::nCF4Gas(mGasCF4);
-  
-  // add scintillation here
-  G4double scint1_wl[1] = { 3. * eV };
-  G4double scintFast[1] = { 1. };
-  G4double *scintSlow = scintFast;
-  
-  mpt_gascf4->AddProperty("FASTCOMPONENT", scint1_wl, scintFast, 2);
-  mpt_gascf4->AddProperty("SLOWCOMPONENT", scint1_wl, scintSlow, 2);
-  
-  mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", cf4Gas_ly);
-  mpt_gascf4->AddConstProperty("RESOLUTIONSCALE", 2); 
-  mpt_gascf4->AddConstProperty("FASTTIMECONSTANT", 5*ns); 
-  mpt_gascf4->AddConstProperty("SLOWTIMECONSTANT", 20*ns); 
-  mpt_gascf4->AddConstProperty("YIELDRATIO", 1.); 
-  
-  mGasCF4->GetIonisation()->SetBirksConstant(0 * mm/MeV);
-  mGasCF4->SetMaterialPropertiesTable(mpt_gascf4);
+  #include "Optics/GasCF4.icc"
   
   // -------------------- Liquid CF4 --------------------//
   mLiquidCF4 = mGasCF4; //temporary
