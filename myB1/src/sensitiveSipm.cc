@@ -5,6 +5,7 @@
 sensitiveSipm::sensitiveSipm(G4String name) : G4VSensitiveDetector(name )
 {
   fEventAction = (B1EventAction *) G4RunManager::GetRunManager()->GetUserEventAction();
+  
 }
 
 sensitiveSipm::~sensitiveSipm()

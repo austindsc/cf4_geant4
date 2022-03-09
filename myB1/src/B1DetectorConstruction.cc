@@ -248,6 +248,6 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
 void B1DetectorConstruction::ConstructSDandField(){
     
     sensitiveSipm * ssipm = new sensitiveSipm("sensitiveSipm");
-    
     fsipmVolume->SetSensitiveDetector(ssipm);
+    
 }

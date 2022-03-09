@@ -56,8 +56,8 @@ void DetectorMaterials::BuildMaterials(){
   mVacuum->SetMaterialPropertiesTable(mptWorld);
   
   // -------------------- Gas CF4 --------------------//
-  G4double density_cf4Gas = 0.0014*g/cm3; // default value
-  G4double cf4Gas_ly = 1000 /MeV;
+  G4double density_cf4Gas = 0.0012*g/cm3; // default value? need to make P and T function to get density
+  G4double cf4Gas_ly = 2500 /MeV;         // rough, taken from python work and slides
   if(fmediumDensity > 0 && *fDetectorMedium == mGasCF4) density_cf4Gas = fmediumDensity;
   if(fmediumLY > 0 && *fDetectorMedium == mGasCF4) cf4Gas_ly = fmediumLY;
   
@@ -67,17 +67,22 @@ void DetectorMaterials::BuildMaterials(){
   mGasCF4 = new G4Material("cf4Gas", density_cf4Gas, 2, kStateGas, fmediumTemp, fmediumPressure);
   mGasCF4->AddElement(elCarbon, 1);
   mGasCF4->AddElement(elFluorine, 4);
-  
+    
   #include "Optics/GasCF4.icc"
   
   // -------------------- Liquid CF4 --------------------//
-  mLiquidCF4 = mGasCF4; //temporary
   
-  G4double density_cf4Liq = 1.4*g/cm3; // default value
-  G4double cf4Liq_ly = 500 /MeV;
+  G4double density_cf4Liq = 1.6*g/cm3;  // default value? unknown if correct
+  G4double cf4Liq_ly = 4700 /MeV;       // rough, taken from python work and slides
   
   if(fmediumDensity > 0 && *fDetectorMedium == mLiquidCF4) density_cf4Liq = fmediumDensity;
   if(fmediumLY > 0 && *fDetectorMedium == mLiquidCF4) cf4Liq_ly = fmediumLY;
+  mLiquidCF4 = new G4Material("cf4Liq", density_cf4Liq, 2, kStateLiquid, fmediumTemp, fmediumPressure);
+  mLiquidCF4->AddElement(elCarbon, 1);
+  mLiquidCF4->AddElement(elFluorine, 4);
+  
+  #include "Optics/LiquidCF4.icc"
+  
   
   // -------------------- Gaseous Argon --------------------//
 
