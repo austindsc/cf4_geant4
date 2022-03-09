@@ -1,12 +1,10 @@
 # Macro file for the initialization of example B1
 # in interactive session
 
-# Set some default verbose
-#/control/verbose 0
+## Verbosities ##
 
 #/run/verbose 0
-#/tracking/verbose 0
-
+/tracking/verbose 0
 /event/verbose 1
 /run/verbose 1
 
@@ -14,7 +12,7 @@
 /process/had/verbose 0
 
 ## detector properties ##
-/setDetector/alphaPosition 2
+/setDetector/alphaPosition 2.5
 
 /setMaterial/detectionMedium lCF4
 #/setMaterial/mediumDensity 1.4 g/cm3

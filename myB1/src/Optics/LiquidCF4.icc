@@ -39,6 +39,6 @@ mpt_liquidCF4->AddConstProperty("FASTTIMECONSTANT", 5*ns);
 mpt_liquidCF4->AddConstProperty("SLOWTIMECONSTANT", 20*ns); 
 mpt_liquidCF4->AddConstProperty("YIELDRATIO", 0.5); // fast/total light
 
-mGasCF4->GetIonisation()->SetBirksConstant(0.132 * mm/MeV); // guessed from other plastics
+mLiquidCF4->GetIonisation()->SetBirksConstant(0.132 * mm/MeV); // guessed from other plastics
 
 // HO::testHO();
