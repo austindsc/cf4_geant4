@@ -80,9 +80,10 @@ void B1EventAction::EndOfEventAction(const G4Event*)
   man->FillNtupleIColumn(0, evt);
   man->FillNtupleDColumn(1, fEdep/keV);
   man->FillNtupleIColumn(2, fmcNPE);
+  man->FillNtupleIColumn(3, fNPE);
   man->AddNtupleRow(0);
   
-  if(evMan->GetVerboseLevel() > 0){
+  if(evMan->GetVerboseLevel() == -1 || evMan->GetVerboseLevel() > 0){
     G4cout << "\n---- My Event Info ----\n\n" 
     << "total PE = " << fmcNPE << G4endl;
     G4cout << "b1eventAction::EOEA fEdep = " << fEdep/keV << " keV" << G4endl;
@@ -91,7 +92,7 @@ void B1EventAction::EndOfEventAction(const G4Event*)
 }
 
  void B1EventAction::AddEdep(G4double edep){ fEdep += edep; }
- 
  void B1EventAction::AddmcPE(){fmcNPE++;}
+ void B1EventAction::AddPE(){fNPE++;}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -6,6 +6,9 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 project(B1)
 
+# set(CMAKE_CXX_STANDARD 17)
+# set(CMAKE_CXX_FLAGS "-std=c++17 -lstdc++fs") 
+
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
 # You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
@@ -69,6 +72,9 @@ target_link_libraries(exampleB1 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 #     COPYONLY
 #     )
 # endforeach()
+
+file(GLOB DATA_FILES "*.dat")
+file(COPY ${DATA_FILES} DESTINATION ${PROJECT_BINARY_DIR})
 
 #----------------------------------------------------------------------------
 # For internal Geant4 use - but has no effect if you build this

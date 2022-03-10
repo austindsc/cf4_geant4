@@ -77,9 +77,13 @@ void B1RunAction::BeginOfRunAction(const G4Run*)
   man->OpenFile("b1Output.root");
   
   man->CreateNtuple("ntup", "ntup");
-  man->CreateNtupleIColumn("fNEvent"); //0
+  man->CreateNtupleIColumn("fNEvent");        //0
   man->CreateNtupleDColumn("fEdepInCyl_kev"); //1
-  man->CreateNtupleIColumn("fmcNPE"); //2
+  
+  // MC truth values
+  man->CreateNtupleIColumn("fmcNPE");         //2
+  man->CreateNtupleIColumn("fNPE");           //3
+  
   man->FinishNtuple(0);
 }
 

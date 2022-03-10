@@ -4,6 +4,8 @@
 #include "G4VSensitiveDetector.hh"
 #include "B1EventAction.hh"
 
+class G4PhysicsOrderedFreeVector;
+
 class sensitiveSipm : public G4VSensitiveDetector
 {
 public:
@@ -11,10 +13,12 @@ public:
   ~sensitiveSipm();  
   
 private:
+  B1EventAction * fEventAction;
+
   virtual G4bool ProcessHits(G4Step *, G4TouchableHistory *);
   
-  B1EventAction * fEventAction;
-  
+  G4PhysicsOrderedFreeVector * ovecPDE;
+
 };
 
 #endif
