@@ -27,6 +27,8 @@
 /// \file B1EventAction.cc
 /// \brief Implementation of the B1EventAction class
 
+#define MYVERBOSE 1
+
 #include "B1EventAction.hh"
 #include "B1RunAction.hh"
 
@@ -64,6 +66,7 @@ void B1EventAction::BeginOfEventAction(const G4Event*)
   if(evMan->GetVerboseLevel() > 0) G4cout << "\n-------- Start Event --------" << G4endl;
   fEdep = 0.;
   fmcNPE = 0;
+  fNPE = 0;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -83,9 +86,10 @@ void B1EventAction::EndOfEventAction(const G4Event*)
   man->FillNtupleIColumn(3, fNPE);
   man->AddNtupleRow(0);
   
-  if(evMan->GetVerboseLevel() == -1 || evMan->GetVerboseLevel() > 0){
+  if(MYVERBOSE == 1 || evMan->GetVerboseLevel() > 0){
     G4cout << "\n---- My Event Info ----\n\n" 
-    << "total PE = " << fmcNPE << G4endl;
+    << "total MC PE = " << fmcNPE << "\n"
+    << "total PE = " << fNPE << G4endl;
     G4cout << "b1eventAction::EOEA fEdep = " << fEdep/keV << " keV" << G4endl;
     G4cout << "\n---- Event Complete ----\n" << G4endl;
   }

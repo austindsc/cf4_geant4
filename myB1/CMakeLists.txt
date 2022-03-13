@@ -6,11 +6,9 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 project(B1)
 
-# set(CMAKE_CXX_STANDARD 17)
-# set(CMAKE_CXX_FLAGS "-std=c++17 -lstdc++fs") 
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CMAKE_CXX_FLAGS "-std=c++17 -lstdc++fs") 
 
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
@@ -76,8 +74,9 @@ target_link_libraries(exampleB1 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 #     )
 # endforeach()
 
-file(GLOB DATA_FILES "*.dat")
-file(COPY ${DATA_FILES} DESTINATION ${PROJECT_BINARY_DIR})
+file(GLOB DATA_FOLDER "data")
+file(COPY ${DATA_FOLDER} DESTINATION ${PROJECT_BINARY_DIR})
+#message(STATUS "project binary dir =" ${PROJECT_BINARY_DIR})
 
 #----------------------------------------------------------------------------
 # For internal Geant4 use - but has no effect if you build this
