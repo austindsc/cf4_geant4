@@ -9,6 +9,9 @@ project(B1)
 # set(CMAKE_CXX_STANDARD 17)
 # set(CMAKE_CXX_FLAGS "-std=c++17 -lstdc++fs") 
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
 # You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui

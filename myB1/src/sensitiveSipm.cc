@@ -4,7 +4,7 @@
 
 #include "G4RunManager.hh"
 
-// #include <iostream>
+#include <filesystem>
 
 sensitiveSipm::sensitiveSipm(G4String name) : G4VSensitiveDetector(name )
 {
@@ -12,8 +12,8 @@ sensitiveSipm::sensitiveSipm(G4String name) : G4VSensitiveDetector(name )
   
   // adding PDE
   ovecPDE = new G4PhysicsOrderedFreeVector();
-  // G4cout << std::filesystem::current_path << G4endl;
-  // exit(1);
+  G4cout << std::filesystem::current_path() << G4endl;
+  exit(1);
   
   std::string line;
   std::ifstream pdeDataFile("SiPMeff_Ham_5V.dat");
