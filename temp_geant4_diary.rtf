@@ -2,18 +2,20 @@
 \cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 {\*\expandedcolortbl;;}
-\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\margl1440\margr1440\vieww15000\viewh11740\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
-\f0\fs24 \cf0 temporary geant4 work diary\
+\f0\fs26 \cf0 temporary geant4 work diary\
 \
 - Will handle MC output later (change from youtube example to basic/b5 example writing out vectors of MC information for each event). he creates many rows for 1 event, which is a pain for analysis later on\
 \
 - added fNPE to event class (but haven\'92t implemented non-MC NPE yet\
 \
 - need to figure out user verbosity\
-	- preprocessor commands. must set with a command\
-	- currently have MYVERBOSE in EventAction\
+\strike \strikec0 	- preprocessor commands. must set with a command\
+	- currently have MYVERBOSE in EventAction\strike0\striked0 \
+	- add \'91myGlobals.hh\'92 and control extern variable myVerbosity through that\
+	- DONE. \
 \
 - unsure if gas CF4 spectrum working properly. liquid seems to be\
 \
@@ -23,12 +25,17 @@
 	- DONE\
 \
 - need to add sipm effiency to root output step\
+\
 - need to get datafile folder working properly through cmake, etc\
 	- DONE\
 \
 - add full vacuum geometry\
 \
 - check all my gas/liquid stuff\
+\
+- add singleton class designn to detector materials. \
+	- then can make separate classes for alpha source, gamma source, etc and have them get materials from singleton class\
+	\
 \
 \
 \'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\

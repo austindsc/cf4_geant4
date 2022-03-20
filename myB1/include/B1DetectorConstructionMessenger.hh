@@ -9,6 +9,7 @@ class B1DetectorConstruction;
 class G4UIdirectory;
 class G4UIcmdWithADouble;
 class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWithAnInteger;
 
 class B1DetectorConstructionMessenger : public G4UImessenger{
 public:
@@ -21,6 +22,11 @@ private:
   
   B1DetectorConstruction * Detector;
   G4UIdirectory          * Dir;
+  
+  G4UIcmdWithAnInteger   * SetMyVerbosityCmd;
+  // 0 - none of my outputs
+  // 1 - event level outputs
+  
   
   G4UIcmdWithADouble     * SetAlphaDistanceCmd;
   // -1 no source (<0 in code), not working yet

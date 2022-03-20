@@ -138,7 +138,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     0,
                     checkOverlaps);
   
-  //--------------------------- Source ---------------------------//
+  //--------------------------- Alpha Source ---------------------------//
   G4double sourceCaseRadius = 4.3/2 * mm; //zhiheng measured 4.2mm diameter
   G4double sourceRadius = 2.45/2 * mm; // from Amersham certificate of approval
 

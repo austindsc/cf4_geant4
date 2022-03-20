@@ -2,12 +2,15 @@
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithADouble.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
+#include "G4UIcmdWithAnInteger.hh"
 
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 
 #include "B1DetectorConstruction.hh"
 #include "B1DetectorConstructionMessenger.hh"
+
+#include "myGlobals.hh"
 
 
 B1DetectorConstructionMessenger::B1DetectorConstructionMessenger(B1DetectorConstruction * det)
@@ -21,13 +24,18 @@ B1DetectorConstructionMessenger::B1DetectorConstructionMessenger(B1DetectorConst
   SetAlphaDistanceCmd->SetGuidance("Insert z distance (in cm) between SiPM face and alpha source. set val<0 for no Alpha source");
   SetAlphaDistanceCmd->SetParameterName("alphaPosition", false, true); // omittable, but has default value
   SetAlphaDistanceCmd->SetDefaultValue(det->GetAlphaHeight()); //default values in detectorconstruction constructor
-  SetAlphaDistanceCmd->AvailableForStates(G4State_PreInit);  
+  SetAlphaDistanceCmd->AvailableForStates(G4State_PreInit); 
+  
+  SetMyVerbosityCmd = new G4UIcmdWithAnInteger("/setDetector/myVerbosity", this);
+  SetMyVerbosityCmd->SetDefaultValue(MG::GetVerbosity()); //default values in detectorconstruction constructor
+  SetMyVerbosityCmd->SetParameterName("myVerbosity", false, true);
+  SetMyVerbosityCmd->AvailableForStates(G4State_PreInit);
 }
 
 B1DetectorConstructionMessenger::~B1DetectorConstructionMessenger(){
   
   delete Dir;
-  
+  delete SetMyVerbosityCmd;
   delete SetAlphaDistanceCmd;
 }
 
@@ -37,7 +45,9 @@ void B1DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4String
   if(command == SetAlphaDistanceCmd){
     Detector->SetAlphaHeight(SetAlphaDistanceCmd->GetNewDoubleValue(newVal) * cm);
   }
-  
+  if(command == SetMyVerbosityCmd){
+    MG::SetVerbosity((int) SetMyVerbosityCmd->GetNewIntValue(newVal));
+  }
 }
 
 

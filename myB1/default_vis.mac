@@ -13,6 +13,7 @@
 /process/had/verbose 0
 
 ## detector properties ##
+/setDetector/myVerbosity 1
 /setDetector/alphaPosition 2.5
 
 /setMaterial/detectionMedium gCF4
