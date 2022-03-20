@@ -9,10 +9,8 @@ class G4String;
 class DetectorMaterials{
   friend class B1DetectorConstruction;
   friend class MaterialsMessenger;
-public:
-  DetectorMaterials();
-  virtual ~DetectorMaterials();
   
+public:
   void BuildMaterials(); //call this after setting variables with messenger
 
   void SetDetectionMedium(G4String med);
@@ -28,7 +26,17 @@ public:
   void SetMediumTemp(G4double temp){ fmediumTemp = temp; }
   G4double GetMediumTemp(){ return fmediumTemp; }
     
-private:
+  // singleton Stuff
+  DetectorMaterials(DetectorMaterials &other) = delete; // not cloneable
+  void operator=(const DetectorMaterials &) = delete;   // not assignable
+  
+  static DetectorMaterials *GetInstance();
+  
+protected:
+  DetectorMaterials();
+  static DetectorMaterials* singleton;
+  virtual ~DetectorMaterials();
+  
   // chamber materials
   G4Material * mVacuum; //vacuum
   G4Material * mWalls; // black absorptive paper stuff  

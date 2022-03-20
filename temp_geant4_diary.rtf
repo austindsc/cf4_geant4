@@ -9,36 +9,46 @@
 \
 - Will handle MC output later (change from youtube example to basic/b5 example writing out vectors of MC information for each event). he creates many rows for 1 event, which is a pain for analysis later on\
 \
-- added fNPE to event class (but haven\'92t implemented non-MC NPE yet\
-\
 - need to figure out user verbosity\
 \strike \strikec0 	- preprocessor commands. must set with a command\
 	- currently have MYVERBOSE in EventAction\strike0\striked0 \
 	- add \'91myGlobals.hh\'92 and control extern variable myVerbosity through that\
 	- DONE. \
 \
-- unsure if gas CF4 spectrum working properly. liquid seems to be\
+- check if gas CF4 spectrum working properly. liquid seems to be\
+	- must add more accurate spectral physics\
 \
 - just using global PDE and SiPM. Do i add quartz and SiO2 layers and do all that physics to get AOI dependence? no, get gammas working first\
+	- NO, just use \'91global\'92 PDE. step 1 DONE\
+	- must add AOI dependance. scale with cos\\theta for now\
 \
-- definitely add a text reader helper function (physics orderedfreevector)\
+- add a text reader helper function to populate G4 physics stuff (physics orderedfreevector)\
 	- DONE\
-\
-- need to add sipm effiency to root output step\
 \
 - need to get datafile folder working properly through cmake, etc\
 	- DONE\
+\
+- add singleton class design to detector materials. \
+	- then can make separate classes for alpha source, gamma source, etc and have them get materials from singleton class\
+	- necessary if I want to build gamma source, etc, from completely different object\
+	- DONE\
+\
+- need to add sipm effiency to root output step\
 \
 - add full vacuum geometry\
 \
 - check all my gas/liquid stuff\
 \
-- add singleton class designn to detector materials. \
-	- then can make separate classes for alpha source, gamma source, etc and have them get materials from singleton class\
-	\
+- How do i enncapsulate alphaSource and gamma source?\
+	- new class inheriting from G4LogicalVolume\
+	- just use #include \'93someCodeThatBuildsGammaCollimmator.icc\'94\
+	- make function in B1DetectorConstruction::BuildGammaSource(double height, double location, etc\'85)\
+		- This one\
 \
+- Set/change seed based on time (get same results everytime rerunning code)\
 \
 \'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+reinstalling everything\
 \
 needed filesystem\
 needed new xcode\

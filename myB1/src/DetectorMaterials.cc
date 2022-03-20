@@ -9,6 +9,12 @@
 
 #include "HelperOptical.hh"
 
+#include "DetectorMaterials.hh"
+
+// confused about this. but it is necessary.
+// this is where we instantiate the globally used singleton pointer.
+DetectorMaterials * DetectorMaterials::singleton=nullptr;
+
 DetectorMaterials::DetectorMaterials(){
   
   // default values here
@@ -19,12 +25,12 @@ DetectorMaterials::DetectorMaterials(){
   fmediumPressure = 1 * bar;
 }
 
-DetectorMaterials::~DetectorMaterials(){
-   
+DetectorMaterials *DetectorMaterials::GetInstance(){
+  if(singleton==nullptr){ singleton = new DetectorMaterials(); }
+  return singleton;
 }
 
-
-
+DetectorMaterials::~DetectorMaterials(){}
 
 //////////// Done with namespace ////////////
 

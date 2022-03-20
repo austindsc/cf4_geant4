@@ -31,7 +31,8 @@ B1DetectorConstruction::B1DetectorConstruction()
   fDetMessenger = new B1DetectorConstructionMessenger(this);
   
   // still control some things with this
-  detMat = new DetectorMaterials();
+  // detMat = new DetectorMaterials();
+  detMat = DetectorMaterials::GetInstance();
   MaterialsMessenger * dmatMessenger = new MaterialsMessenger(detMat);
   
   // default values here (if no commands given)
