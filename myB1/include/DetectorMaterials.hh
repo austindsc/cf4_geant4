@@ -9,6 +9,7 @@ class G4String;
 class DetectorMaterials{
   friend class B1DetectorConstruction;
   friend class MaterialsMessenger;
+  friend class collimator;
   
 public:
   void BuildMaterials(); //call this after setting variables with messenger
@@ -38,7 +39,8 @@ protected:
   virtual ~DetectorMaterials();
   
   // chamber materials
-  G4Material * mVacuum; //vacuum
+  G4Material * mVacuum; // vacuum
+  G4Material * mAir;
   G4Material * mWalls; // black absorptive paper stuff  
   G4Material * mSteel;
   G4Material * mLead;
@@ -49,7 +51,7 @@ protected:
   G4Material * mGasAr;
   
   G4Material * mSilicon;
-  G4Material * Si02; //silicon dioxide (for SiPM surface?)
+  G4Material * Si02;      //silicon dioxide (for SiPM surface?)
   G4Material * mQuartz;
   
   // smoke detector (alpha source)

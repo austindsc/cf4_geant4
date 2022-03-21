@@ -12,6 +12,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4PVPlacement.hh"
+#include "G4RotationMatrix.hh"
 
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
@@ -21,6 +22,7 @@
 
 #include "DetectorMaterials.hh"
 #include "MaterialsMessenger.hh"
+#include "collimator.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -66,8 +68,8 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   
   //--------------------------- Building Detector ---------------------------//
   // (lab space where gamma sources live)
-  G4double world_sizeXY = 20*cm;
-  G4double world_sizeZ  = 50*cm;
+  G4double world_sizeXY = 100*cm;
+  G4double world_sizeZ  = 100*cm;
 
   G4Box* solidWorld = new G4Box("World", 0.5*world_sizeXY, 0.5*world_sizeXY, 0.5*world_sizeZ);
   
@@ -97,7 +99,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   // G4LogicalVolume * logicOuterWorld = new G4LogicalVolume(solidOuterCyl, mWorld)       
   
 
-  //--------------------------- active volume (Cylinder) ---------------------------//
+  //--------------------------- active volume (CF4 Cylinder) ---------------------------//
   // centered on XY place, goes from 0 to innerCyl_z on z axis
   // internal volume of cylinder
   G4double innerCyl_r = 4*cm;
@@ -130,7 +132,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   // sipmSilicon->GetMaterialTable();
   
   G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, detMat->mSilicon, "logic_sipm");
-  G4VPhysicalVolume* phys_sipm = new G4PVPlacement(0,
+  G4VPhysicalVolume* phys_sipm = new G4PVPlacement(0, // no rotation
                     G4ThreeVector(0, 0, sipmZ), // SiPM face is at (0, 0, 0)
                     logic_sipm,
                     "phys_sipm",
@@ -138,6 +140,11 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     false, 
                     0,
                     checkOverlaps);
+                    
+  //--------------------------- Gamma Lead Shielding ---------------------------//
+  collimator * logic_coll = new collimator(checkOverlaps);
+  G4VPhysicalVolume * phys_collimator = logic_coll->doPlacement(5.*cm, logicWorld, checkOverlaps);
+  
   
   //--------------------------- Alpha Source ---------------------------//
   G4double sourceCaseRadius = 4.3/2 * mm; //zhiheng measured 4.2mm diameter
