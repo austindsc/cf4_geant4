@@ -32,7 +32,7 @@ private:
   // -1 no source (<0 in code), not working yet
   // other values are cm distance
   
-  // G4UIcmdW ithAnInteger   * SetGammaLocationCmd;
+  G4UIcmdWithADouble   * SetGammaHeightCmd;
   // 0 no source
   // 1...3 different positions
   

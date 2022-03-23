@@ -14,7 +14,8 @@
 
 ## detector properties ##
 /setDetector/myVerbosity 1
-/setDetector/alphaPosition 5.0
+/setDetector/alphaHeight 5.0
+/setDetector/gammaHeight 0.
 
 #/setMaterial/detectionMedium gCF4
 /setMaterial/detectionMedium lCF4

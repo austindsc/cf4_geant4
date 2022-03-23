@@ -24,8 +24,20 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     // getters and setters
     G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
     
-    G4double GetAlphaHeight() { return fSourceHeight; }
-    void SetAlphaHeight(G4double h) { fSourceHeight = h;}
+    G4double GetAlphaHeight() { return fAlphaHeight; }
+    void SetAlphaHeight(G4double h) {
+      this->SetAlphaStatus(true);
+      fAlphaHeight = h;}
+    G4bool GetAlphaStatus(){ return fAlphaStatus; }
+    void SetAlphaStatus(G4bool y){ fAlphaStatus = y; }
+    
+    G4double GetGammaHeight() {return fGammaHeight; }
+    void SetGammaHeight(G4double h){
+      this->SetGammaStatus(true);
+      fGammaHeight = h;
+    }
+    G4bool GetGammaStatus(){ return fGammaStatus; }
+    void SetGammaStatus(G4bool y){ fGammaStatus = y; }
 
   protected:    
     G4LogicalVolume*  fScoringVolume; //(this is the cf4)
@@ -50,7 +62,11 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     B1DetectorConstructionMessenger* fDetMessenger;
     
     // tracking things that change in geometry
-    G4double fSourceHeight;
+    G4double  fAlphaHeight;
+    G4bool    fAlphaStatus; // false means no source
+    
+    G4double  fGammaHeight;
+    G4bool    fGammaStatus;
     
 };
 

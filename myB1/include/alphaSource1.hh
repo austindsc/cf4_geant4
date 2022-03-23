@@ -6,23 +6,20 @@
 class G4LogicalVolume;
 class DetectorMaterials;
 
-class alphaSource1 : public G4LogicalVolume{
+// previously used same framework as gammma source + collimator but
+// didn't want to deal with multiple CF4 logical/physical volumes to
+// track energy deposition. So this is essentially a wrapper for the alphaSource 
+// source code.
+
+class alphaSource1{
   
 public:
-  alphaSource1(G4bool checkOverlaps);
-  
-  G4VPhysicalVolume * doPlacement(G4double zheight, G4LogicalVolume * mother, G4bool checkOverlaps);
-  
-  G4double GetSourceHeight();
-  void SetSourceHeight();
+  alphaSource1(G4LogicalVolume* medium, G4double zheight, G4bool checkOverlaps);
   
 private:
-  
-  G4double sourceHeight;
+  G4LogicalVolume * logic_local_medium;
   DetectorMaterials * detMat;
-  
-  static G4double fMaxZ; // total source size (along axis towards SiPM)
-  static G4double fMaxR;
+
 };
 
 #endif

@@ -19,6 +19,22 @@ G4double collimator::fMaxZ = 11.0 * cm;
 G4double collimator::fMaxX = 6. * cm; // 5 is required
 G4double collimator::fMaxY = 6. * cm; // 4.5 is required, 6 is extra
 
+// -- physical placement -- //
+G4VPhysicalVolume * collimator::doPlacement(G4double zheight, G4LogicalVolume * mother, G4bool checkOverlaps){
+  
+  G4ThreeVector lead_center(25*cm, 0*cm, zheight);
+
+  G4RotationMatrix * rot_lead1 = new G4RotationMatrix();
+  rot_lead1->rotateY(90*deg);
+
+  return new G4PVPlacement(rot_lead1, //no rotation
+                              lead_center,    // translation
+                              this,    // material
+                              "phys_collimator",   // name
+                              mother,   // mother volume
+                              false, 0, checkOverlaps); // boolean, copy number, checkOverlaps
+}
+
 // -- constructor -- //
 collimator::collimator(G4bool checkOverlaps)
   : G4LogicalVolume(new G4Box("solid_collWorld", fMaxX/2, fMaxY/2, fMaxZ/2),
@@ -87,20 +103,4 @@ collimator::collimator(G4bool checkOverlaps)
   G4Tubs * solid_plasticTube = new G4Tubs("solid_plasticTube", holeD/2 - plasticThick, holeD/2, leadLength/2, 0., 360.*deg);
   G4LogicalVolume * logic_plasticTube = new G4LogicalVolume(solid_plasticTube, dmat->mGenericPlastic, "logic_plasticTube");
   new G4PVPlacement(0, G4ThreeVector(0, 0, extraSpace), logic_plasticTube, "phys_plasticTube", this, 0, 0, checkOverlaps);
-}
-
-// -- physical placement -- //
-G4VPhysicalVolume * collimator::doPlacement(G4double zheight, G4LogicalVolume * mother, G4bool checkOverlaps){
-  
-  G4ThreeVector lead_center(25*cm, 0*cm, zheight);
-
-  G4RotationMatrix * rot_lead1 = new G4RotationMatrix();
-  rot_lead1->rotateY(90*deg);
-
-  return new G4PVPlacement(rot_lead1, //no rotation
-                              lead_center,    // translation
-                              this,    // material
-                              "phys_collimator",   // name
-                              mother,   // mother volume
-                              false, 0, checkOverlaps); // boolean, copy number, checkOverlaps
 }
