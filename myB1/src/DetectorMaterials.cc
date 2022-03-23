@@ -52,7 +52,7 @@ void DetectorMaterials::BuildMaterials(){
   G4NistManager* nist = G4NistManager::Instance();
   
   // -------------------- Chamber Materials --------------------//
-  // -- vacuum -- //
+  // -- Vacuum -- //
   G4double photonEWorld[2] = {1239.841939*eV/120, 1239.841939*eV/1200}; // set n=1 everywhere
   G4double nWorld[2] = {1.00, 1.00};   
   G4MaterialPropertiesTable *mptWorld = new G4MaterialPropertiesTable();
@@ -61,8 +61,22 @@ void DetectorMaterials::BuildMaterials(){
   mVacuum = nist->FindOrBuildMaterial("G4_Galactic");
   mVacuum->SetMaterialPropertiesTable(mptWorld);
   
+  // -- Stainless Steel -- //
+  mSteel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
+  
+  // -- Aluminum -- //
+  mAluminum = new G4Material("Aluminum", 13., 26.98*g/mole, 2.700*g/cm3);
+  // must do optics
+  
+  // -------------------- Misc Materials --------------------//
   // -- air -- //
   mAir = nist->FindOrBuildMaterial("G4_AIR");
+
+  // -- generic plastic -- //
+  mGenericPlastic = nist->FindOrBuildMaterial("G4_POLYSTYRENE");
+  
+  // -- Lead -- //
+  mLead = nist->FindOrBuildMaterial("G4_Pb");
   
   // -------------------- Gas CF4 --------------------//
   G4double density_cf4Gas = 0.0012*g/cm3; // default value? need to make P and T function to get density
@@ -92,24 +106,17 @@ void DetectorMaterials::BuildMaterials(){
   
   #include "Optics/LiquidCF4.icc"
   
-  
   // -------------------- Gaseous Argon --------------------//
 
+
+
   // -------------------- Silicon --------------------//
-  
   G4double photonE_Si[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
   G4double nSi[2] = {1.20, 1.20};   
   G4MaterialPropertiesTable *mptSi = new G4MaterialPropertiesTable();
   mptSi->AddProperty("RINDEX", photonE_Si, nSi, 2); //2 is for length of arrays
   mSilicon = nist->FindOrBuildMaterial("G4_Si");
   mSilicon->SetMaterialPropertiesTable(mptSi);
-
-  // -------------------- Misc Materials --------------------//
-  // -- Stainless Steel -- //
-  mSteel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
-  
-  // -- Lead -- //
-  mLead = nist->FindOrBuildMaterial("G4_Pb");
 
   // -------------------- Smoke Detector --------------------//
   mSilver = nist->FindOrBuildMaterial("G4_Ag");

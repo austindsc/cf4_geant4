@@ -12,6 +12,8 @@
 #include "G4SystemOfUnits.hh"
 #include "Randomize.hh"
 
+#include "G4RotationMatrix.hh"
+
 #include "G4Tubs.hh"
 #include "G4GeneralParticleSource.hh"
 #include "G4UImanager.hh"
@@ -50,12 +52,68 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   
   //this function is called at the begining of each event
-  
-  G4double cf4Top = 0;
-  G4double cf4Bottom = 0;
-
   // first time it runs, we go here and apply all our 'default' behaviour
-  if (!famo2_volume) {
+  if (!fgammaSource_volume){
+    
+    fgammaSource_volume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_gammaSource");
+    fgammaSource_tubs = dynamic_cast<G4Tubs*>(fgammaSource_volume->GetLogicalVolume()->GetSolid());
+    fcollimator_volume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_collimator");
+
+    // need to rotate source vector
+    const G4RotationMatrix * rot_coll = fcollimator_volume->GetRotation();
+    G4ThreeVector collVec = fcollimator_volume->GetTranslation();
+    G4ThreeVector ogsVec = fgammaSource_volume->GetTranslation();
+    G4ThreeVector newGSVec = CLHEP::inverseOf(*rot_coll) * ogsVec;
+    G4ThreeVector finalgsVector = newGSVec + collVec;
+
+    // G4cout << "collimator vector: " << collVec/cm << " cm" << G4endl;
+    // G4cout << "\nOriginal source vector: " << ogsVec/cm << G4endl;
+    // G4cout << "new source vector: " << newGSVec/cm << " cm" << G4endl;
+
+    if(!fgammaSource_volume || !fgammaSource_tubs || !fcollimator_volume) {
+      G4ExceptionDescription msg;
+      msg << "Can't find fgammaSource_tubs, _volume or fcollimator_volume \n"; 
+      G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()",
+      "Austin's warning message", FatalException, msg);
+    } // all good, found source volume. Now set 'default' properties (do one time hopefully)
+    
+    // default particle kinematic is alpha
+    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+    G4String particleName;
+    G4ParticleDefinition* particle = particleTable->FindParticle(particleName="gamma");
+    fGun->SetParticleDefinition(particle); 
+    
+    // position distribution
+    G4SingleParticleSource * tSource = fGun->GetCurrentSource();
+    tSource->GetPosDist()->SetPosDisType("Volume");
+    tSource->GetPosDist()->SetPosDisShape("Cylinder");
+    tSource->GetPosDist()->SetCentreCoords(finalgsVector);
+    tSource->GetPosDist()->SetRadius(fgammaSource_tubs->GetOuterRadius());
+    tSource->GetPosDist()->SetHalfZ(fgammaSource_tubs->GetZHalfLength());
+    tSource->GetAngDist()->SetParticleMomentumDirection(G4ThreeVector(-1, 0, 0));
+    
+    // angular distribution
+    tSource->GetAngDist()->DefineAngRefAxes("angref1", G4ThreeVector(0, 0, -1));
+    tSource->GetAngDist()->DefineAngRefAxes("angref2", G4ThreeVector(0, 1, 0));
+    tSource->GetAngDist()->SetUseUserAngAxis(true);
+    
+    tSource->GetAngDist()->SetAngDistType("iso");
+    tSource->GetAngDist()->SetMaxTheta(5. * deg);
+    
+    // energy distribution
+    tSource->GetEneDist()->SetMonoEnergy(2. * MeV);
+
+  }
+  
+
+
+
+
+
+  //0000000000000000 SKIP ALL THIS FOR TESTING 0000000000000000
+  /*
+  // first time it runs, we go here and apply all our 'default' behaviour
+  if (!famo2_volume && 1 == 0) {
     famo2_volume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_amo2");
     
     // getting the solid
@@ -93,12 +151,13 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     tSource->GetAngDist()->SetMaxTheta(90. * deg);
     
     // energy distribution
-    // tSource->GetEneDist()->SetMonoEnergy(5.39 * MeV);
     tSource->GetEneDist()->SetMonoEnergy(5.39 * MeV);
+
   }
   
   // don't need to do anything, already done
   if ( famo2_volume ) {}
+  */
 
   fGun->GeneratePrimaryVertex(anEvent);
 }

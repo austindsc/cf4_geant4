@@ -10,6 +10,7 @@ class DetectorMaterials{
   friend class B1DetectorConstruction;
   friend class MaterialsMessenger;
   friend class collimator;
+  friend class alphaSource1;
   
 public:
   void BuildMaterials(); //call this after setting variables with messenger
@@ -44,12 +45,10 @@ protected:
   G4Material * mWalls; // black absorptive paper stuff  
   G4Material * mSteel;
   G4Material * mLead;
-
-  // different mediums
-  G4Material * mGasCF4;
-  G4Material * mLiquidCF4;
-  G4Material * mGasAr;
+  G4Material * mGenericPlastic;
+  G4Material * mAluminum;
   
+  // SiPM stuff
   G4Material * mSilicon;
   G4Material * Si02;      //silicon dioxide (for SiPM surface?)
   G4Material * mQuartz;
@@ -60,14 +59,21 @@ protected:
   G4Material * mGold;
   G4Material * mPalladium;
   
-  // for use by the materials messenger
+  // for materials messenger
   G4String fmedString;
   G4Material ** fDetectorMedium;// what is currently in active volume
   
+  //--- different detection mediums
+  G4Material * mGasCF4;
+  G4Material * mLiquidCF4;
+  G4Material * mGasAr;
+  
+  // and their properties
   G4double fmediumLY;
   G4double fmediumDensity;
   G4double fmediumTemp;
   G4double fmediumPressure;
+
 };
 
 #endif

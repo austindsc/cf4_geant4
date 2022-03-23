@@ -13,6 +13,7 @@ myPhysList::myPhysList(){
   
   opticalPhysics->Configure(kCerenkov, false);
   opticalPhysics->Configure(kScintillation, true);
+  opticalPhysics->SetCerenkovTrackSecondariesFirst(true);
   opticalPhysics->SetTrackSecondariesFirst(kScintillation, true);
   
   // G4Scintillation* theScintProcessDef = new G4Scintillation("Scintillation");

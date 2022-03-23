@@ -13,19 +13,26 @@
 #/vis/viewer/set/style wireframe
 #/vis/viewer/set/auxiliaryEdge true
 /vis/geometry/set/forceWireframe World 0 1
-/vis/geometry/set/colour logic_detectionMedium 0 0 0 1 .3
+/vis/geometry/set/colour logic_medium 0 0 0 1 .3
 
 ## drawing the gammma stuff ##
 /vis/geometry/set/forceWireframe logic_collWorld 0 1
+/vis/geometry/set/colour logic_b1 1 43 45 47 0.4
+/vis/geometry/set/colour logic_b2 1 43 45 47 0.4
+/vis/geometry/set/colour logic_b3 1 43 45 47 0.4
+/vis/geometry/set/colour logic_b4 1 43 45 47 0.4
+/vis/geometry/set/colour logic_gammaSource 1 1 0 0 1.
+/vis/geometry/set/colour logic_plasticTube 1 0.96 0.42 0.26 0.5
 
-## drawing the source ##
+## drawing the alpha source ##
+/vis/geometry/set/forceWireframe logic_alphaWorld 0 1
 /vis/geometry/set/colour logic_palladium 0 0 0 0 1
 #/vis/geometry/set/colour logic_gold 0 255 215 0 1
 #/vis/geometry/set/colour logic_amo2 0 255 0 0 1
 #/vis/geometry/set/colour logic_Ag 0 .75 .75 .75 1
 
 /vis/geometry/set/colour logic_sipm 0 1 1 1 1
-/vis/geometry/set/colour logic_CaseSides 0 .41 .41 .41 1
+#/vis/geometry/set/colour logic_CaseSides 0 .41 .41 .41 1
 
 ## trajectories ##
 /vis/scene/add/trajectories smooth

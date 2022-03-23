@@ -26,7 +26,7 @@ namespace OH{
         std::getline(dfile, line); // skip first line. XX badly coded
         G4double x, y;
         dfile >> x >> y;
-        if(verbose > 0) G4cout << x << " " << y << G4endl;
+        if(verbose > 1) G4cout << x << " " << y << G4endl;
         vec->InsertValues(x, y/scaleY);
         
         if(dfile.eof()){dfile.close(); return true;}

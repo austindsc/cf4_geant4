@@ -36,6 +36,10 @@ class B1PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4Tubs* fCF4_volume;
     G4VPhysicalVolume* famo2_volume;
     G4Tubs* famo2_tubs;
+    
+    G4VPhysicalVolume* fgammaSource_volume;
+    G4Tubs* fgammaSource_tubs;
+    G4VPhysicalVolume* fcollimator_volume;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

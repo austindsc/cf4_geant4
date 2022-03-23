@@ -23,6 +23,7 @@
 #include "DetectorMaterials.hh"
 #include "MaterialsMessenger.hh"
 #include "collimator.hh"
+#include "alphaSource1.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -109,7 +110,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   G4Tubs * solid_medium = new G4Tubs("solid_detectionMedium", 0., innerCyl_r, 0.5*innerCyl_z, 0, 360.*deg);
 
   
-  G4LogicalVolume * logic_medium = new G4LogicalVolume(solid_medium, *(detMat->fDetectorMedium), "logic_detectionMedium");
+  G4LogicalVolume * logic_medium = new G4LogicalVolume(solid_medium, *(detMat->fDetectorMedium), "logic_medium");
   
   G4VPhysicalVolume* phys_medium = new G4PVPlacement(0,                    //no rotation
                     G4ThreeVector(0, 0, 0),      //at (0,0,0)
@@ -143,9 +144,12 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     
   //--------------------------- Gamma Lead Shielding ---------------------------//
   collimator * logic_coll = new collimator(checkOverlaps);
-  G4VPhysicalVolume * phys_collimator = logic_coll->doPlacement(5.*cm, logicWorld, checkOverlaps);
+  G4VPhysicalVolume * phys_collimator = logic_coll->doPlacement(3.*cm, logicWorld, checkOverlaps);
   
   
+  alphaSource1 * alpha = new alphaSource1(checkOverlaps);
+  alpha->doPlacement(fSourceHeight, logic_medium, checkOverlaps);
+  /*
   //--------------------------- Alpha Source ---------------------------//
   G4double sourceCaseRadius = 4.3/2 * mm; //zhiheng measured 4.2mm diameter
   G4double sourceRadius = 2.45/2 * mm; // from Amersham certificate of approval
@@ -228,7 +232,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                 0,
                 checkOverlaps);
                     
-  G4Tubs * solid_caseSide = new G4Tubs("solid_caseSide", sourceRadius, sourceCaseRadius, 0.5*caseSideHeight, 0, 360.*deg);
+  G4Tubs * solid_caseSide = new G4Tubs("solid_caseSide", sourceRadius, sourceCaseRadius, 0.5*caseSideHeight, 0., 360.*deg);
   G4LogicalVolume * logic_caseSide = new G4LogicalVolume(solid_caseSide, detMat->mSteel, "logic_caseSide");
   G4VPhysicalVolume* phys_caseSide = new G4PVPlacement(0,
                   caseSideCenter,
@@ -238,6 +242,8 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   false, 
                   0,
                   checkOverlaps);
+  */
+  
   
  //--------------------------- Done Source ---------------------------//
   

@@ -19,7 +19,6 @@ public:
   G4double GetColTest();
   
 private:
-  G4LogicalVolume* logic_coll;
   G4double gammaHeight;
   DetectorMaterials * dmat;
   

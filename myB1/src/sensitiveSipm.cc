@@ -4,6 +4,7 @@
 #include "G4RunManager.hh"
 
 #include "HelperOptical.hh"
+#include "myGlobals.hh"
 
 #include <filesystem>
 
@@ -13,7 +14,7 @@ sensitiveSipm::sensitiveSipm(G4String name) : G4VSensitiveDetector(name )
   // adding PDE
   ovecPDE = new G4PhysicsOrderedFreeVector();
   
-  OH::LoadTxt_OrderedVector("data/SiPMeff_Ham_5V.dat", ovecPDE, 1, 100);
+  OH::LoadTxt_OrderedVector("data/SiPMeff_Ham_5V.dat", ovecPDE, MG::GetVerbosity(), 100);
   ovecPDE->SetSpline(false); // okay? large interpolation can cause errors
 }
 
