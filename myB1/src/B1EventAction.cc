@@ -87,7 +87,7 @@ void B1EventAction::EndOfEventAction(const G4Event*)
   man->AddNtupleRow(0);
   
   if(MG::GetVerbosity() == 1 || evMan->GetVerboseLevel() > 0){
-    G4cout << "\n---- My Event Info ----\n\n" 
+    G4cout << "\n---- My Event Info #" << evt << "  ----\n\n" 
     << "total MC PE = " << fmcNPE << "\n"
     << "total PE = " << fNPE << G4endl;
     G4cout << "b1eventAction::EOEA fEdep = " << fEdep/keV << " keV" << G4endl;

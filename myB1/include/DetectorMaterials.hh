@@ -2,6 +2,7 @@
 #define DETECTORMATERIALS_H 1
 
 #include "globals.hh"
+#include "G4SystemOfUnits.hh"
 
 class G4Material;
 class G4String;
@@ -22,7 +23,7 @@ public:
   void SetMediumDensity(G4double r){ fmediumDensity = r; }
   G4double GetMediumDensity(){ return fmediumDensity; }
   
-  void SetMediumLY(G4double ly){ fmediumLY = ly; }
+  void SetMediumLY(G4double ly){ if(ly == 0/MeV) ly = 0.1/MeV; fmediumLY = ly; }
   G4double GetMediumLY(){ return fmediumLY; }
   
   void SetMediumTemp(G4double temp){ fmediumTemp = temp; }

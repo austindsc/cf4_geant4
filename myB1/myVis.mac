@@ -52,6 +52,7 @@
 
 /vis/viewer/set/autoRefresh true
 
-/vis/scene/endOfEventAction accumulate
+/vis/scene/endOfEventAction refresh
+/vis/scene/endOfRunAction refresh
 
-/vis/ogl/set/displayListLimit 10000
+/vis/ogl/set/displayListLimit 20000

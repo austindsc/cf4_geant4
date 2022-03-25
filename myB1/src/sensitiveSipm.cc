@@ -33,12 +33,12 @@ G4bool sensitiveSipm::ProcessHits(G4Step * step, G4TouchableHistory *ROhist){
   G4ThreeVector pPhoton = preStepPoint->GetMomentum();
   G4double wlen = (1239.8*eV/pPhoton.mag()) * nm; //wavelength in nanometers 
   
-  G4cout << "MC Hit! wl = " << wlen/nm << " nm" << G4endl;
+  if(MG::GetVerbosity() >= 2)G4cout << "MC Hit! wl = " << wlen/nm << " nm" << G4endl;
   fEventAction->AddmcPE(); 
 
   // With Efficiencies
   if(G4UniformRand() < ovecPDE->Value(wlen)){
-    G4cout << "Raw hit! wl = " << wlen/nm << " nm" <<G4endl;
+    if(MG::GetVerbosity() >= 2)G4cout << "Raw hit! wl = " << wlen/nm << " nm" <<G4endl;
     fEventAction->AddPE();
   }
   

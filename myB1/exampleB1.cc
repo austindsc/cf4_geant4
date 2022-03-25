@@ -51,8 +51,7 @@ int main(int argc,char** argv)
   if ( argc == 1 ) { ui = new G4UIExecutive(argc, argv);  }
   
   // Construct the default run manager
-  auto* runManager =
-    G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+  G4RunManager * runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
   runManager->SetVerboseLevel(0);
   
   // Detector construction

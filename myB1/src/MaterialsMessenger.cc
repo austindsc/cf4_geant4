@@ -76,7 +76,7 @@ void MaterialsMessenger::SetNewValue(G4UIcommand *command, G4String newVal){
     G4cout << "Changing medium Density to = " << SetMediumDensityCmd->GetNewDoubleValue(newVal)/(g/cm3) << " g/cm3" << G4endl;
   }
   if (command == SetMediumLYCmd){
-    fdmat->fmediumLY = SetMediumLYCmd->GetNewDoubleValue(newVal);
+    fdmat->SetMediumLY(SetMediumLYCmd->GetNewDoubleValue(newVal));
     G4cout << "Changing LY to = " << SetMediumLYCmd->GetNewDoubleValue(newVal)/MeV << " photon/MeV" << G4endl;
   }
   if (command == SetMediumTempCmd){

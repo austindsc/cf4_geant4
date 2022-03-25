@@ -1,24 +1,35 @@
-# Macro file for example B1
-# 
-# Can be run in batch, without graphic
-# or interactively: Idle> /control/execute run1.mac
+## Verbosities ##
 
-# Initialize kernel
-
-/control/verbose 0
-/run/verbose 0
-/event/verbose 0
+#/run/verbose 0
+/vis/verbose 0
 /tracking/verbose 0
+/event/verbose 0
+/run/verbose 0
 
 /process/em/verbose 0
 /process/had/verbose 0
 
 ## detector properties ##
-/setDetector/alphaPosition 4          #4cm away
-#/setDetector/cf4Density 1.4 g/cm3     #liquid
-/setDetector/cf4Density 0.002 g/cm3  #gas
-/setDetector/cf4LY 1000 MeVLY
+/setDetector/myVerbosity 1
+/setDetector/alphaHeight 4.
+/setDetector/gammaHeight 2.5
 
+#/setMaterial/detectionMedium gCF4
+/setMaterial/detectionMedium lCF4
+#/setMaterial/mediumDensity 1.7 g/cm3
+#/setMaterial/mediumLY 1000. MeVLY
+#/setMaterial/mediumTemp 69 kelvin
+#/setMaterial/mediumPressure 1.2 bar
+
+## process toggling ##
+#/process/optical/processActivation Scintillation false
+#/process/optical/processActivation Cerenkov false
+
+#/process/optical/verbose 2
+#/process/optical/scintillation/verbose 2
+
+### Initialize kernel (build detector) ###
 /run/initialize
 
-/run/beamOn 10000
+/run/beamOn 100000
+

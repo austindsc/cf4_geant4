@@ -19,6 +19,7 @@
 
 #include "G4Element.hh"
 #include "G4PhysicalVolumeStore.hh"
+#include "G4UserLimits.hh"
 
 #include "DetectorMaterials.hh"
 #include "MaterialsMessenger.hh"
@@ -76,6 +77,10 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
 
   G4Box* solidWorld = new G4Box("World", 0.5*world_sizeXY, 0.5*world_sizeXY, 0.5*world_sizeZ);
   G4LogicalVolume* logicWorld = new G4LogicalVolume(solidWorld, detMat->mVacuum, "World");                   
+  G4double maxTrackLength = 200*cm;
+  G4UserLimits * myLimits = new G4UserLimits();
+  myLimits->SetUserMaxTrackLength(maxTrackLength);
+  logicWorld->SetUserLimits(myLimits);
   G4VPhysicalVolume* physWorld = new G4PVPlacement(0, G4ThreeVector(), logicWorld, "World", 0, false, 0, checkOverlaps);
   
   //--------------------------- Outer Cylinder ---------------------------//
@@ -98,6 +103,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   
   G4Tubs * solid_medium = new G4Tubs("solid_detectionMedium", 0., innerCyl_r, 0.5*innerCyl_z, 0, 360.*deg);
   G4LogicalVolume * logic_medium = new G4LogicalVolume(solid_medium, *(detMat->fDetectorMedium), "logic_medium");
+  logic_medium->SetUserLimits(myLimits);
   G4VPhysicalVolume* phys_medium = new G4PVPlacement(0,                    //no rotation
                     G4ThreeVector(0, 0, 0),      //at (0,0,0)
                     logic_medium,            //its logical volume
