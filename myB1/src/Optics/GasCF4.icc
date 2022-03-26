@@ -28,13 +28,14 @@ G4double s_gas_cf4_Spectrum_Fast[100] = {
 
 G4double *s_gas_cf4_Spectrum_Slow = s_gas_cf4_Spectrum_Fast;
 
-mpt_gascf4->AddProperty("FASTCOMPONENT", s_gas_cf4_photonE, s_gas_cf4_Spectrum_Fast, 100);
-mpt_gascf4->AddProperty("SLOWCOMPONENT", s_gas_cf4_photonE, s_gas_cf4_Spectrum_Slow, 100);
+mpt_gascf4->AddProperty("SCINTILLATIONCOMPONENT1", s_gas_cf4_photonE, s_gas_cf4_Spectrum_Fast, 100);
+mpt_gascf4->AddProperty("SCINTILLATIONCOMPONENT2", s_gas_cf4_photonE, s_gas_cf4_Spectrum_Slow, 100);
 
 mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD", cf4Gas_ly);
 mpt_gascf4->AddConstProperty("RESOLUTIONSCALE", 2); 
-mpt_gascf4->AddConstProperty("FASTTIMECONSTANT", 5*ns); 
-mpt_gascf4->AddConstProperty("SLOWTIMECONSTANT", 20*ns); 
-mpt_gascf4->AddConstProperty("YIELDRATIO", 1); // fast/total light
+mpt_gascf4->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 5*ns); 
+mpt_gascf4->AddConstProperty("SCINTILLATIONTIMECONSTANT2", 20*ns); 
+mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD1", 1); // fast/total light
+mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD2", 1); // fast/total light
 
 mGasCF4->GetIonisation()->SetBirksConstant(0.132 * mm/MeV); // guessed from other plastics

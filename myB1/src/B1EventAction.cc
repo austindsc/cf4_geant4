@@ -35,7 +35,7 @@
 
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
-#include "g4root.hh"
+#include "G4AnalysisManager.hh"
 #include "G4RunManager.hh"
 
 #include <stdlib.h>

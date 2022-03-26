@@ -38,14 +38,15 @@ for(int i = 0; i < 123; i++){ //flipping everything in array
 
 G4double *s_liq_cf4_spectrum_slow = s_liq_cf4_spectrum_fast;
 
-mpt_liquidCF4->AddProperty("FASTCOMPONENT", s_liq_cf4_photonE, s_liq_cf4_spectrum_fast, 123);
-mpt_liquidCF4->AddProperty("SLOWCOMPONENT", s_liq_cf4_photonE, s_liq_cf4_spectrum_slow, 123);
+mpt_liquidCF4->AddProperty("SCINTILLATIONCOMPONENT1", s_liq_cf4_photonE, s_liq_cf4_spectrum_fast, 123);
+mpt_liquidCF4->AddProperty("SCINTILLATIONCOMPONENT2", s_liq_cf4_photonE, s_liq_cf4_spectrum_slow, 123);
 
 mpt_liquidCF4->AddConstProperty("SCINTILLATIONYIELD", cf4Liq_ly);
 mpt_liquidCF4->AddConstProperty("RESOLUTIONSCALE", 1); 
-mpt_liquidCF4->AddConstProperty("FASTTIMECONSTANT", 5*ns); 
-mpt_liquidCF4->AddConstProperty("SLOWTIMECONSTANT", 20*ns); 
-mpt_liquidCF4->AddConstProperty("YIELDRATIO", 0.5); // fast/total light
+mpt_liquidCF4->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 5*ns); 
+mpt_liquidCF4->AddConstProperty("SCINTILLATIONTIMECONSTANT2", 20*ns); 
+mpt_liquidCF4->AddConstProperty("SCINTILLATIONYIELD1", 1); // fast/total light
+mpt_liquidCF4->AddConstProperty("SCINTILLATIONYIELD2", 1); // fast/total light
 
 mLiquidCF4->GetIonisation()->SetBirksConstant(0.132 * mm/MeV); // guessed from other plastics
 

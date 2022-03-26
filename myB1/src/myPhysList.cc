@@ -14,9 +14,6 @@ myPhysList::myPhysList(){
   G4EmStandardPhysics* emPhys = new G4EmStandardPhysics();
   G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
   
-  opticalPhysics->Configure(kCerenkov, true);
-  opticalPhysics->Configure(kScintillation, true);
-  
   G4OpticalParameters::Instance()->SetCerenkovTrackSecondariesFirst(true);
   G4OpticalParameters::Instance()->SetScintTrackSecondariesFirst(true);
   

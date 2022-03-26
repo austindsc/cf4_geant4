@@ -1,7 +1,7 @@
 #ifndef HELPEROPTICAL_H
 #define HELPEROPTICAL_H
 
-class G4PhysicsOrderedFreeVector;
+#include "G4PhysicsOrderedFreeVector.hh"
 
 namespace OH{
   

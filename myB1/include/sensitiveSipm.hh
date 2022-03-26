@@ -3,9 +3,9 @@
 
 #include "G4VSensitiveDetector.hh"
 #include "B1EventAction.hh"
+#include "G4PhysicsOrderedFreeVector.hh"
 
 class G4UniformRand;
-class G4PhysicsOrderedFreeVector;
 
 class sensitiveSipm : public G4VSensitiveDetector
 {
