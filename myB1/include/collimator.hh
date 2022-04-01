@@ -20,6 +20,7 @@ public:
   
 private:
   G4double gammaHeight;
+  G4double fextraSpace;
   DetectorMaterials * dmat;
   
   static G4double fMaxZ; // along direction gammas shoot (different than CF4 z axis)

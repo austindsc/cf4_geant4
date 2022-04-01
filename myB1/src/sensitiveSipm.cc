@@ -46,5 +46,5 @@ G4bool sensitiveSipm::ProcessHits(G4Step * step, G4TouchableHistory *ROhist){
   // G4cout << "photon hit!: " << posPhoton << G4endl;
   
   
-  // return true;
+  return true;
 }

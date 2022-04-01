@@ -83,58 +83,112 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   logicWorld->SetUserLimits(myLimits);
   G4VPhysicalVolume* physWorld = new G4PVPlacement(0, G4ThreeVector(), logicWorld, "World", 0, false, 0, checkOverlaps);
   
-  //--------------------------- Outer Cylinder ---------------------------//
-  // outer cylinder (vacuum?)
-  // G4double outerCyl_r = 15*cm;
-  // G4double outerCyl_thick = 1*cm;
-  // G4double outerCyl_z = 100*cm;
-  // G4Material* cylSteel = G4Material::GetMaterial("G4_STAINLESS-STEEL");
-  // 
-  // G4Tubs * solidOuterCyl = new G4Tubs("outerCyl", outerCyl_r, outerCyl_r + outerCyl_thick, 0.5*outerCyl_z, 0, 360.*deg);
-  // G4LogicalVolume * logicOuterWorld = new G4LogicalVolume(solidOuterCyl, mWorld)       
+  //--------------------------- CF4 metal Cylinder ---------------------------//
+  G4double mediumR = 3.48*cm/2;
+  G4double mediumZ = 15*cm;
+  G4double sipmHeightFromBottom = 8.8*cm;
+  G4double sipmThick = 5*mm;
+  G4ThreeVector moveMediumUP(0, 0, mediumZ/2 - sipmHeightFromBottom); //so SiPM face is still at 0, 0, 0
+  //G4ThreeVector moveMediumUP(0, 0, 0); //so SiPM face is still at 0, 0, 0
   
+  G4double outerCyl_thick = 0.33*cm;
+  
+  G4Tubs * solid_mediumCyl = new G4Tubs("solid_mediumCyl", mediumR, mediumR + outerCyl_thick, 0.5*mediumZ, 0, 360.*deg);
+  G4LogicalVolume * logic_mediumCyl = new G4LogicalVolume(solid_mediumCyl, detMat->mSteel, "logic_mediumCyl");
+  new G4PVPlacement(0, moveMediumUP, logic_mediumCyl, "phys_mediumCyl", logicWorld, false, 0, checkOverlaps);
+  
+  // upper flanges of CF4 cylinder
+  G4double flange_r = 6.9*cm/2;
+  G4double upperFlange_thick = 1.3*cm;
+  G4Tubs * solid_med_upperFlange = new G4Tubs("solid_med_upperFlange", mediumR + outerCyl_thick, flange_r, 0.5*upperFlange_thick, 0, 360*deg);
+  G4LogicalVolume * logic_med_upperFlange = new G4LogicalVolume(solid_med_upperFlange, detMat->mSteel, "logic_med_upperFlange");
+  new G4PVPlacement(0, moveMediumUP + G4ThreeVector(0, 0, mediumZ/2 - upperFlange_thick/2), logic_med_upperFlange, "phys_med_upperFlange", logicWorld, false, 0, checkOverlaps);
+
+  // solid upper flange
+  G4double upperFlange_solid_thick = 1.2*cm;
+  G4Tubs * solid_med_solidupperFlange = new G4Tubs("solid_med_solidupperFlange", 0, flange_r, 0.5*upperFlange_solid_thick, 0, 360*deg);
+  G4LogicalVolume * logic_med_solidupperFlange = new G4LogicalVolume(solid_med_solidupperFlange, detMat->mSteel, "logic_med_solidupperFlange");
+  new G4PVPlacement(0, moveMediumUP + G4ThreeVector(0, 0, mediumZ/2 + upperFlange_solid_thick/2), logic_med_solidupperFlange, "phys_med_solidupperFlange", logicWorld, false, 0, checkOverlaps);
+
+  // lower flanges of CF4 cylinder
+  G4double lowerFlange_thick = 3.8*cm;
+  G4Tubs * solid_med_lowerFlange = new G4Tubs("solid_med_lowerFlange", mediumR + outerCyl_thick, flange_r, 0.5*lowerFlange_thick, 0, 360*deg);
+  G4LogicalVolume * logic_med_lowerFlange = new G4LogicalVolume(solid_med_lowerFlange, detMat->mSteel, "logic_med_lowerFlange");
+  new G4PVPlacement(0, moveMediumUP + G4ThreeVector(0, 0, -mediumZ/2 + lowerFlange_thick/2), logic_med_lowerFlange, "phys_med_lowerFlange", logicWorld, false, 0, checkOverlaps);
+
+  // solid lower flange
+  new G4PVPlacement(0, moveMediumUP + G4ThreeVector(0, 0, -mediumZ/2 - upperFlange_solid_thick/2), logic_med_solidupperFlange, "phys_med_solidlowerFlange", logicWorld, false, 0, checkOverlaps);
+
+  // upper aluminum of shielding can 1
+  G4double can1R = 20.955*cm/2;
+  G4double can1Z = 25.4*cm;
+  G4double can1thick = 0.635 * cm/2;
+  G4double can1PlateZ = 1.27 * cm;
+  G4double plateFromTopOfChamber = 1.6*cm;
+  G4ThreeVector tempVector = moveMediumUP + G4ThreeVector(0, 0, mediumZ/2 + upperFlange_solid_thick/2);
+  G4ThreeVector can1PlateOffset(-5.38*cm, 0, tempVector.getZ() + plateFromTopOfChamber + can1PlateZ/2);
+  
+  G4Tubs * solid_can1Plate = new G4Tubs("solid_can1Plate", 0, can1R, can1PlateZ/2, 0., 360.*deg);
+  G4LogicalVolume * logic_can1Plate = new G4LogicalVolume(solid_can1Plate, detMat->mAluminum, "logic_can1Plate");
+  new G4PVPlacement(0, can1PlateOffset, logic_can1Plate, "phys_can1Plate", logicWorld, false, 0, checkOverlaps);
+  
+  G4Tubs * solid_can1 = new G4Tubs("solid_can1", can1R, can1R+can1thick, can1Z/2, 0., 360.*deg);
+  G4LogicalVolume * logic_can1 = new G4LogicalVolume(solid_can1, detMat->mSteel, "logic_can1");
+  new G4PVPlacement(0, can1PlateOffset + G4ThreeVector(0, 0, -can1Z/2 + can1PlateZ/2), logic_can1, "phys_can1", logicWorld, false, 0, checkOverlaps);
+  
+  G4Tubs * solid_can1_bottom = new G4Tubs("solid_can1_bottom", 0, can1R, can1thick/2, 0., 360.*deg);
+  G4LogicalVolume * logic_can1_bottom = new G4LogicalVolume(solid_can1_bottom, detMat->mSteel, "logic_can1_bottom");
+  new G4PVPlacement(0, can1PlateOffset + G4ThreeVector(0, 0, -can1Z + can1PlateZ/2 + can1thick/2), logic_can1_bottom, "phys_can1_bottom", logicWorld, false, 0, checkOverlaps);
+
+  // last outer cylinder
+  G4double outercanR = 24.79*cm/2;
+  G4double outercanThick = 0.61/2 * cm;
+  G4double outercanZ = 38.73*cm;
+  G4double outercanHeightFromPlate = 9.67*cm;
+  G4Tubs * solid_outercan = new G4Tubs("solid_outercan", outercanR, outercanR+outercanThick, outercanZ/2, 0, 360.*deg);
+  G4LogicalVolume * logic_outercan = new G4LogicalVolume(solid_outercan, detMat->mSteel, "logic_outercan");
+  new G4PVPlacement(0, can1PlateOffset + G4ThreeVector(0, 0, -outercanZ/2 + outercanHeightFromPlate), logic_outercan, "phys_outercan", logicWorld, false, 0, checkOverlaps);
 
   //--------------------------- active volume (CF4 Cylinder) ---------------------------//
   // centered on XY place, goes from 0 to innerCyl_z on z axis
   // internal volume of cylinder
-  G4double innerCyl_r = 4*cm;
-  // G4double innerCyl_t = 1*cm; //thickness
-  G4double innerCyl_z = 15*cm;
   
-  G4Tubs * solid_medium = new G4Tubs("solid_detectionMedium", 0., innerCyl_r, 0.5*innerCyl_z, 0, 360.*deg);
+  G4Tubs * solid_medium = new G4Tubs("solid_detectionMedium", 0., mediumR, 0.5*mediumZ, 0, 360.*deg);
   G4LogicalVolume * logic_medium = new G4LogicalVolume(solid_medium, *(detMat->fDetectorMedium), "logic_medium");
   logic_medium->SetUserLimits(myLimits);
   G4VPhysicalVolume* phys_medium = new G4PVPlacement(0,                    //no rotation
-                    G4ThreeVector(0, 0, 0),      //at (0,0,0)
+                    moveMediumUP,      //at (0,0,0)
                     logic_medium,            //its logical volume
                     "phys_detectionMedium",           //its name
                     logicWorld,           //its mother  volume
                     false,                //no boolean operation
                     0,                    //copy number
                     checkOverlaps);       //overlaps checking
-  
+                    
+  //--------------------------- Absorptive paper ---------------------------//
+  // G4double paperThick = 0.5*mm;
+  // G4Tubs * solid_paper = new G4Tubs("solid_paper", mediumR-2*paperThick, mediumR-paperThick, 0.5*mediumZ, 0, 360.*deg);
                     
   //--------------------------- SiPM volume (Box) ---------------------------//
   G4double sipmXY = 15*mm;
-  G4double sipmThick = 5*mm;
   G4Box * solid_sipm = new G4Box("solid_sipm", 0.5*sipmXY, 0.5*sipmXY, 0.5*sipmThick);
   // sipmSilicon->GetMaterialTable();
   G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipm, detMat->mSilicon, "logic_sipm");
   G4VPhysicalVolume* phys_sipm = new G4PVPlacement(0, // no rotation
-                    G4ThreeVector(0, 0, -sipmThick/2), // SiPM face is at (0, 0, 0)
+                    G4ThreeVector(0, 0, -sipmThick/2 -moveMediumUP.getZ()), // SiPM face is at (0, 0, 0)
                     logic_sipm,
                     "phys_sipm",
                     logic_medium,         // mother volume
                     false, 0, checkOverlaps);
                     
-  //--------------------------- Gamma Lead Shielding ---------------------------//
+  //--------------------------- Collimator ---------------------------//
   if(fGammaStatus == true){ 
     collimator * logic_coll = new collimator(checkOverlaps);
     G4VPhysicalVolume * phys_collimator = logic_coll->doPlacement(fGammaHeight, logicWorld, checkOverlaps);
   }
   
   //--------------------------- Alpha Source ---------------------------//
-  if(fAlphaHeight >= 0 && fAlphaStatus == true) new alphaSource1(logic_medium, fAlphaHeight, checkOverlaps);
+  if(fAlphaHeight >= 0 && fAlphaStatus == true) new alphaSource1(logic_medium, fAlphaHeight - moveMediumUP.getZ(), checkOverlaps);
   
  //--------------------------- Done Source ---------------------------//
   

@@ -1,18 +1,23 @@
+# Macro file for the initialization of example B1
+# in interactive session
+
 ## Verbosities ##
 
-#/run/verbose 0
 /vis/verbose 0
 /tracking/verbose 0
 /event/verbose 0
 /run/verbose 0
 
+/run/numberOfThreads 1
+
 /process/em/verbose 0
-/process/had/verbose 0
+/particle/verbose 0
+#/process/had/verbose 0
 
 ## detector properties ##
 /setDetector/myVerbosity 1
-/setDetector/alphaHeight 4.
-/setDetector/gammaHeight 2.5
+#/setDetector/alphaHeight 4
+/setDetector/gammaHeight 2.
 
 #/setMaterial/detectionMedium gCF4
 /setMaterial/detectionMedium lCF4
@@ -31,5 +36,5 @@
 ### Initialize kernel (build detector) ###
 /run/initialize
 
+### run myVis ###
 /run/beamOn 100000
-

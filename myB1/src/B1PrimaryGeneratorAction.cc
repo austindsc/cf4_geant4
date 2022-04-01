@@ -81,6 +81,8 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     famo2_tubs = dynamic_cast<G4Tubs*>(famo2_volume->GetLogicalVolume()->GetSolid());
     // G4LogicalVolume * logic_alphaVolume = phys_alphaVolume->GetLogicalVolume();
     // G4cout << "phys_amo2 has position " << famo2_volume->GetObjectTranslation().getZ()/mm << " mm" << G4endl;
+    G4VPhysicalVolume * phys_medium = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_detectionMedium");
+    
     
     if(!famo2_tubs || !famo2_volume) {
       G4ExceptionDescription msg;
@@ -99,7 +101,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     G4SingleParticleSource * tSource = fGunAlpha->GetCurrentSource();
     tSource->GetPosDist()->SetPosDisType("Volume");
     tSource->GetPosDist()->SetPosDisShape("Cylinder");
-    tSource->GetPosDist()->SetCentreCoords(famo2_volume->GetObjectTranslation());
+    tSource->GetPosDist()->SetCentreCoords(famo2_volume->GetObjectTranslation() + phys_medium->GetObjectTranslation());
     tSource->GetPosDist()->SetRadius(famo2_tubs->GetOuterRadius());
     tSource->GetPosDist()->SetHalfZ(famo2_tubs->GetZHalfLength());
     tSource->GetPosDist()->ConfineSourceToVolume("phys_amo2"); //redundant?
@@ -112,7 +114,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     tSource->GetEneDist()->SetMonoEnergy(5.39 * MeV);
   }
   
-  // Setting up Alpha Source
+  // Setting up Gamma Source
   if (!fgammaSource_volume && fdetconstruction->GetGammaStatus() == true){
     
     fgammaSource_volume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_gammaSource");
@@ -163,7 +165,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     tSource->GetAngDist()->SetMaxTheta(4. * deg);
   
     // energy distribution
-    tSource->GetEneDist()->SetMonoEnergy(1. * MeV);
+    tSource->GetEneDist()->SetMonoEnergy(0.661 * MeV);
   }
   
   if(fdetconstruction->GetGammaStatus())fGunGamma1->GeneratePrimaryVertex(anEvent);

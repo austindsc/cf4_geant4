@@ -14,9 +14,13 @@ myPhysList::myPhysList(){
   G4EmStandardPhysics* emPhys = new G4EmStandardPhysics();
   G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
   
-  G4OpticalParameters::Instance()->SetCerenkovTrackSecondariesFirst(true);
-  G4OpticalParameters::Instance()->SetScintTrackSecondariesFirst(true);
+  G4OpticalParameters * oppars = G4OpticalParameters::Instance();
   
+  oppars->SetCerenkovTrackSecondariesFirst(true);
+  oppars->SetScintTrackSecondariesFirst(true);
+  oppars->SetScintFiniteRiseTime(true);
+  oppars->SetScintByParticleType(false);
+    
   // opticalParams->SetCerenkovTrackSecondariesFirst(true);
   // opticalParams->SetScintTrackSecondariesFirst(true);
   
@@ -29,6 +33,7 @@ myPhysList::myPhysList(){
   
   G4StepLimiterPhysics * myLimiter = new G4StepLimiterPhysics();
   myLimiter->SetApplyToAll(true);
+  
   // myLimiter->ConstructParticle("opticalphoton");
   RegisterPhysics(myLimiter);
   

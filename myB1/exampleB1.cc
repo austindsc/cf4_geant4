@@ -36,6 +36,7 @@
 
 // physics lists
 #include "myPhysList.hh"
+#include "DMXPhysicsList.hh"
 
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
@@ -61,15 +62,21 @@ int main(int argc,char** argv)
   G4VModularPhysicsList * physList = new myPhysList();
   runManager->SetUserInitialization(physList);
   
+  // G4VUserPhysicsList * dmxList = new DMXPhysicsList();
+  // runManager->SetUserInitialization(dmxList);
+  
   // User action initialization
   runManager->SetUserInitialization(new B1ActionInitialization());
+  runManager->SetVerboseLevel(0);
   
   // Initialize visualization
-  G4VisManager* visManager = new G4VisExecutive;
+  G4VisManager* visManager = new G4VisExecutive();
+  visManager->SetVerboseLevel(0);
   visManager->Initialize();
 
   // Get the pointer to the User Interface manager
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
+  UImanager->SetVerboseLevel(0);
 
   // Process macro or start UI session
   if ( ! ui ) { 

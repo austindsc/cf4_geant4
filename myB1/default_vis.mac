@@ -3,24 +3,26 @@
 
 ## Verbosities ##
 
-#/run/verbose 0
 /vis/verbose 0
 /tracking/verbose 0
 /event/verbose 0
 /run/verbose 0
 
+/run/numberOfThreads 1
+
 /process/em/verbose 0
+/particle/verbose 0
 #/process/had/verbose 0
 
 ## detector properties ##
 /setDetector/myVerbosity 1
-/setDetector/alphaHeight 4.
-/setDetector/gammaHeight 5.
+#/setDetector/alphaHeight 4
+/setDetector/gammaHeight 4.
 
 #/setMaterial/detectionMedium gCF4
 /setMaterial/detectionMedium lCF4
 #/setMaterial/mediumDensity 1.7 g/cm3
-/setMaterial/mediumLY 1000. MeVLY
+#/setMaterial/mediumLY 1000. MeVLY
 #/setMaterial/mediumTemp 69 kelvin
 #/setMaterial/mediumPressure 1.2 bar
 

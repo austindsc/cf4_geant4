@@ -22,7 +22,8 @@ G4double collimator::fMaxY = 6. * cm; // 4.5 is required, 6 is extra
 // -- physical placement -- //
 G4VPhysicalVolume * collimator::doPlacement(G4double zheight, G4LogicalVolume * mother, G4bool checkOverlaps){
   
-  G4ThreeVector lead_center(25*cm, 0*cm, zheight);
+  // offset of cans + outer radius + outer wall thickness + extraSpace of collimator world + lead half length
+  G4ThreeVector lead_center(-5.38*cm + 24.79*cm/2 + 0.61/2 * cm + fextraSpace + 5.*cm, 0*cm, zheight);
 
   G4RotationMatrix * rot_lead1 = new G4RotationMatrix();
   rot_lead1->rotateY(90*deg);
@@ -45,7 +46,8 @@ collimator::collimator(G4bool checkOverlaps)
   //-- build Lead Blocks
   // G4double lt = 2.25 * cm; // standard block size (LeadThickness)
   G4double leadLength = 10.*cm;
-  G4double extraSpace = (collimator::fMaxZ - leadLength)/2;
+  fextraSpace = (collimator::fMaxZ - leadLength)/2;
+  G4double extraSpace = fextraSpace;
   G4double holeD = 4. * mm; // center hole diameter
   G4double paper = 0.05*mm/2; // paper can fit between lead blocks
   G4double crack = 1.*mm;
@@ -96,7 +98,7 @@ collimator::collimator(G4bool checkOverlaps)
   G4Tubs * solid_gammaSource = new G4Tubs("solid_gammaSource", 0, gsR, gsZ/2, 0, 360.*deg);
   G4LogicalVolume * logic_gammaSource = new G4LogicalVolume(solid_gammaSource, dmat->mAir, "logic_gammaSource");
   G4VPhysicalVolume * phys_gs = new G4PVPlacement(0, G4ThreeVector(0, 0, -leadLength/2 -gsZ/2 + extraSpace), logic_gammaSource, "phys_gammaSource", this, 0, 0, checkOverlaps);
-  G4PhysicalVolumeStore::GetInstance()->Register(phys_gs); // to get volume elsewhere. Not needed?
+  //G4PhysicalVolumeStore::GetInstance()->Register(phys_gs); // to get volume elsewhere. Not needed. already registered with previous command
   
   // add plastic tube
   G4double plasticThick = 0.2*mm;

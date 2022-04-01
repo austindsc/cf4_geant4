@@ -13,7 +13,20 @@
 #/vis/viewer/set/style wireframe
 #/vis/viewer/set/auxiliaryEdge true
 /vis/geometry/set/forceWireframe World 0 1
-/vis/geometry/set/colour logic_medium 0 0 0 1 .3
+
+#/vis/geometry/set/forceWireframe logic_mediumCyl 0 1
+#/vis/geometry/set/forceWireframe logic_med_upperFlange 0 1
+#/vis/geometry/set/forceWireframe logic_med_solidupperFlange 0 1
+#/vis/geometry/set/forceWireframe logic_med_lowerFlange 0 1
+#/vis/geometry/set/forceWireframe logic_outercan 0 1
+/vis/geometry/set/colour logic_mediumCyl 1 0.33 0.33 0.33 0.6
+/vis/geometry/set/colour logic_med_upperFlange 1 0.33 0.33 0.33 0.8
+/vis/geometry/set/colour logic_med_solidupperFlange 1 0.33 0.33 0.33 0.8
+/vis/geometry/set/colour logic_med_lowerFlange 1 0.33 0.33 0.33 0.8
+/vis/geometry/set/colour logic_can1Plate 1 0.87 0.87 0.87 1
+/vis/geometry/set/colour logic_can1 1 0.2 0.2 0.2 0.5
+/vis/geometry/set/colour logic_can1_bottom 1 0.2 0.2 0.2 0.5
+/vis/geometry/set/colour logic_outercan 1 0.2 0.2 0.2 0.5
 
 ## drawing the gammma stuff ##
 /vis/geometry/set/forceWireframe logic_collWorld 0 1
@@ -31,8 +44,9 @@
 #/vis/geometry/set/colour logic_amo2 0 255 0 0 1
 #/vis/geometry/set/colour logic_Ag 0 .75 .75 .75 1
 
+/vis/geometry/set/colour logic_medium 0 0 0 1 .2
 /vis/geometry/set/colour logic_sipm 0 1 1 1 1
-#/vis/geometry/set/colour logic_CaseSides 0 .41 .41 .41 1
+#/vis/geometry/set/colour logic_CaseSides 0 1 1 1 1
 
 ## trajectories ##
 /vis/scene/add/trajectories smooth
@@ -52,7 +66,8 @@
 
 /vis/viewer/set/autoRefresh true
 
-/vis/scene/endOfEventAction refresh
-/vis/scene/endOfRunAction refresh
+/vis/scene/endOfEventAction accumulate 1000
+#/vis/scene/endOfEventAction refresh
+#/vis/scene/endOfRunAction refresh
 
 /vis/ogl/set/displayListLimit 20000

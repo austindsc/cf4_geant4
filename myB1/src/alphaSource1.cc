@@ -55,7 +55,8 @@ alphaSource1::alphaSource1(G4LogicalVolume * medium, G4double zheight, G4bool ch
   //screw and aluminum plate holding it
   G4double screwToAl_z = 9. * mm;
   G4double screwToAl_r = 2.4/2 * mm;
-  G4double alPlateSide = 23. * mm; // very rough guess
+  // G4double alPlateSide = 23. * mm; // very rough guess
+  G4double alPlateSide = 17. * mm; // very rough guess
   G4double alPlateThick = 4.*mm; // rougher guess
   
   // G4double sipmPosition = -innerCyl_z/2 + 4*cm;

@@ -68,6 +68,10 @@ void DetectorMaterials::BuildMaterials(){
   mAluminum = new G4Material("Aluminum", 13., 26.98*g/mole, 2.700*g/cm3);
   // must do optics
   
+  // -- black paper -- //
+  // G4MaterialPropertiesTable * mptPaper = new G4MaterialPropertiesTable();
+  
+  
   // -------------------- Misc Materials --------------------//
   // -- air -- //
   mAir = nist->FindOrBuildMaterial("G4_AIR");

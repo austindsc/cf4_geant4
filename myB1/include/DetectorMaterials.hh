@@ -48,6 +48,7 @@ protected:
   G4Material * mLead;
   G4Material * mGenericPlastic;
   G4Material * mAluminum;
+  G4Material * mBlackPaper;
   
   // SiPM stuff
   G4Material * mSilicon;
