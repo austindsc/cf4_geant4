@@ -8,7 +8,6 @@
 #include "G4ParticleGun.hh"
 #include "globals.hh"
 
-
 class G4GeneralParticleSource;
 class G4Event;
 class G4Tubs;

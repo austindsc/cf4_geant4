@@ -3,6 +3,7 @@
 #include "G4UIcmdWithADouble.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWithAnInteger.hh"
+#include "G4UIcmdWithAString.hh"
 
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
@@ -36,7 +37,11 @@ B1DetectorConstructionMessenger::B1DetectorConstructionMessenger(B1DetectorConst
   SetGammaHeightCmd->SetParameterName("gammaHeight", false, true); // omittable, but has default value
   SetGammaHeightCmd->SetDefaultValue(det->GetGammaHeight()); //default values in detectorconstruction constructor
   SetGammaHeightCmd->AvailableForStates(G4State_PreInit);  
-
+  
+  SetGammaSourceCmd = new G4UIcmdWithAString("/setDetector/gammaSource", this);
+  SetGammaSourceCmd->SetParameterName("gammaSource", false, true);
+  SetGammaSourceCmd->SetDefaultValue(det->GetGammaSourceStr());
+  SetGammaSourceCmd->AvailableForStates(G4State_PreInit);
 }
 
 B1DetectorConstructionMessenger::~B1DetectorConstructionMessenger(){
@@ -44,6 +49,8 @@ B1DetectorConstructionMessenger::~B1DetectorConstructionMessenger(){
   delete Dir;
   delete SetMyVerbosityCmd;
   delete SetAlphaDistanceCmd;
+  delete SetGammaHeightCmd;
+  delete SetGammaSourceCmd;
 }
 
 void B1DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4String newVal){
@@ -57,6 +64,9 @@ void B1DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4String
   }
   if(command == SetGammaHeightCmd){
     Detector->SetGammaHeight(SetGammaHeightCmd->GetNewDoubleValue(newVal) * cm);
+  }
+  if(command == SetGammaSourceCmd){
+    Detector->SetGammaSourceStr(newVal);
   }
 
 }

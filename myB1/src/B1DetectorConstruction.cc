@@ -43,8 +43,10 @@ B1DetectorConstruction::B1DetectorConstruction()
   fAlphaStatus = false;
   fAlphaHeight = -1. * cm; // NO alpha source
   
-  fGammaStatus = false;
-  fGammaHeight = -1. * cm; // NO gamma source
+  fGammaStatus = false; // NO gamma source
+  fGammaHeight = -1. * cm;
+  
+  fGammaSource = "Cs137"; //default, other options are "Co60", etc
   
   // do messenger stuff to set variables in detMat
   

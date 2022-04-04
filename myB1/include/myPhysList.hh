@@ -6,6 +6,10 @@
 class myPhysList : public G4VModularPhysicsList{
 public:
   myPhysList();
+  
+  virtual void ConstructParticle();
+  virtual void ConstructProcess();
+  virtual void SetCuts();
   ~myPhysList();
   
 };

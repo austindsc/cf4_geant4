@@ -9,6 +9,7 @@ class B1DetectorConstruction;
 class G4UIdirectory;
 class G4UIcmdWithADouble;
 class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWithAString;
 class G4UIcmdWithAnInteger;
 
 class B1DetectorConstructionMessenger : public G4UImessenger{
@@ -32,7 +33,9 @@ private:
   // -1 no source (<0 in code), not working yet
   // other values are cm distance
   
-  G4UIcmdWithADouble   * SetGammaHeightCmd;
+  G4UIcmdWithADouble    * SetGammaHeightCmd;
+  G4UIcmdWithAString    * SetGammaSourceCmd;
+  
   // 0 no source
   // 1...3 different positions
   

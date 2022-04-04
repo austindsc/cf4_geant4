@@ -12,6 +12,7 @@
 
 /process/em/verbose 0
 /particle/verbose 0
+/tracking/verbose 1
 #/process/had/verbose 0
 
 ## detector properties ##

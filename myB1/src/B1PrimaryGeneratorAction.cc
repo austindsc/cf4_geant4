@@ -24,6 +24,9 @@
 #include "B1DetectorConstruction.hh"
 #include "myGlobals.hh"
 
+#include "Randomize.hh"
+#include "G4SPSRandomGenerator.hh"
+
 #include <stdlib.h>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -143,7 +146,6 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
     G4String particleName;
     G4ParticleDefinition* particle = particleTable->FindParticle(particleName="gamma");
-    // G4ParticleDefinition* particle = particleTable->FindParticle(particleName="e-"); // for testing
     fGunGamma1->SetParticleDefinition(particle); 
   
     // position distribution
@@ -153,6 +155,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     tSource->GetPosDist()->SetCentreCoords(finalgsVector);
     tSource->GetPosDist()->SetRadius(fgammaSource_tubs->GetOuterRadius());
     tSource->GetPosDist()->SetHalfZ(fgammaSource_tubs->GetZHalfLength());
+    tSource->GetPosDist()->ConfineSourceToVolume("phys_gammaSource");
     
     // tSource->GetPosDist()->SetCentreCoords(G4ThreeVector(0*cm, 0*cm, 3*cm)); // for testing
     // tSource->GetAngDist()->SetParticleMomentumDirection(G4ThreeVector(-1, 0, 0)); //for testing
@@ -163,12 +166,24 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     tSource->GetAngDist()->SetUseUserAngAxis(true);
     tSource->GetAngDist()->SetAngDistType("iso");
     tSource->GetAngDist()->SetMaxTheta(4. * deg);
-  
-    // energy distribution
-    tSource->GetEneDist()->SetMonoEnergy(0.661 * MeV);
   }
   
-  if(fdetconstruction->GetGammaStatus())fGunGamma1->GeneratePrimaryVertex(anEvent);
+  G4cout << "Random number is " << G4UniformRand() << G4endl;
+  
+  if(fdetconstruction->GetGammaStatus()){
+    G4SingleParticleSource * tSource = fGunGamma1->GetCurrentSource();
+    
+    if(fdetconstruction->GetGammaSourceStr() == "Cs137"){
+      tSource->GetEneDist()->SetMonoEnergy(0.661 * MeV);
+    }
+    
+    // else if(fdetconstruction->GetGammaSourceStr() == "Co60"){
+    //   if(G4UniformRand() > )tSource->GetEneDist()->SetMonoEnergy(1.1*MeV);
+    // }
+    
+    fGunGamma1->GeneratePrimaryVertex(anEvent);
+  }
+  
   if(fdetconstruction->GetAlphaStatus())fGunAlpha->GeneratePrimaryVertex(anEvent);
 }
 
