@@ -34,7 +34,14 @@ private:
   // other values are cm distance
   
   G4UIcmdWithADouble    * SetGammaHeightCmd;
+  // in cm
+  
   G4UIcmdWithAString    * SetGammaSourceCmd;
+  // /setDetector/gammaSource
+  // isoCs137
+  // isoCo60
+  // Cs137 (angle biasing, not complete decay information)
+  // Co60 (angle biasing, not complete decay information)
   
   // 0 no source
   // 1...3 different positions

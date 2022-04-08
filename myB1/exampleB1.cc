@@ -35,8 +35,10 @@
 #include "G4UImanager.hh"
 
 // physics lists
-#include "myPhysList.hh"
-#include "DMXPhysicsList.hh"
+// #include "myPhysList.hh"
+// #include "DMXPhysicsList.hh"
+#include "PhysicsList.hh"
+
 
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
@@ -59,11 +61,11 @@ int main(int argc,char** argv)
   runManager->SetUserInitialization(new B1DetectorConstruction());
 
   // Physics list
-  G4VModularPhysicsList * physList = new myPhysList();
-  runManager->SetUserInitialization(physList);
-  
-  // G4VUserPhysicsList * dmxList = new DMXPhysicsList();
-  // runManager->SetUserInitialization(dmxList);
+  // G4VUserPhysicsList * physList = new myPhysList();
+  // runManager->SetUserInitialization(physList);
+  // G4VUserPhysicsList * 
+  runManager->SetUserInitialization(new PhysicsList());
+
   
   // User action initialization
   runManager->SetUserInitialization(new B1ActionInitialization());

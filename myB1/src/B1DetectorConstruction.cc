@@ -46,7 +46,7 @@ B1DetectorConstruction::B1DetectorConstruction()
   fGammaStatus = false; // NO gamma source
   fGammaHeight = -1. * cm;
   
-  fGammaSource = "Cs137"; //default, other options are "Co60", etc
+  fGammaSource = "Cs137"; //default, other options are "Co60", etc (see header)
   
   // do messenger stuff to set variables in detMat
   
@@ -79,9 +79,11 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
 
   G4Box* solidWorld = new G4Box("World", 0.5*world_sizeXY, 0.5*world_sizeXY, 0.5*world_sizeZ);
   G4LogicalVolume* logicWorld = new G4LogicalVolume(solidWorld, detMat->mVacuum, "World");                   
+  
   G4double maxTrackLength = 200*cm;
   G4UserLimits * myLimits = new G4UserLimits();
   myLimits->SetUserMaxTrackLength(maxTrackLength);
+  
   logicWorld->SetUserLimits(myLimits);
   G4VPhysicalVolume* physWorld = new G4PVPlacement(0, G4ThreeVector(), logicWorld, "World", 0, false, 0, checkOverlaps);
   

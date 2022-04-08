@@ -13,6 +13,7 @@ class G4Event;
 class G4Tubs;
 class G4VPhysicalVolume;
 class B1DetectorConstruction;
+class G4SingleParticleSource;
 
 /// The primary generator action class with particle gun.
 ///
@@ -29,11 +30,20 @@ class B1PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     virtual void GeneratePrimaries(G4Event*);
   
     // method to access particle gun
-    const G4GeneralParticleSource* GetParticleSource() const { return fGunGamma1; }
+    // const G4GeneralParticleSource* GetParticleSource() const { return fGunGamma1; }
+  
+  protected:
+    // void build_Cs137(G4ThreeVector position, G4Tubs * tube);
+    // void build_Co60(G4ThreeVector position, G4Tubs * tube);
+    void doSourcePlacement(G4ThreeVector position, G4Tubs * tube, G4String name);
+    void setGammaDirection(G4double thetaSpread, G4SingleParticleSource* gun);
   
   private:
-    G4GeneralParticleSource* fGunAlpha;
-    G4GeneralParticleSource* fGunGamma1;
+    G4GeneralParticleSource* fGun;
+    
+    G4double fAlphaIntensity; //index 0
+    G4double fGammaIntensity;  //index 1
+    G4double fGammaThetaMax;
     
     G4Tubs* fCF4_volume;
     G4VPhysicalVolume* famo2_volume;

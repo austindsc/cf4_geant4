@@ -27,6 +27,8 @@
 #include "Randomize.hh"
 #include "G4SPSRandomGenerator.hh"
 
+#include "G4IonTable.hh"
+
 #include <stdlib.h>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -36,29 +38,19 @@ B1PrimaryGeneratorAction::B1PrimaryGeneratorAction()
 fgammaSource_volume(0), fgammaSource_tubs(0), fcollimator_volume(0), fdetconstruction(0)
 {
   G4int n_particle = 1;
-  fGunAlpha = new G4GeneralParticleSource();
-  fGunAlpha->SetNumberOfParticles(n_particle);
+  fGun = new G4GeneralParticleSource();
+  fGun->SetNumberOfParticles(n_particle);
   
-  fGunGamma1 = new G4GeneralParticleSource();
-  fGunGamma1->SetNumberOfParticles(n_particle);
-  
-  // // default particle kinematic is straight alpha
-  // G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  // G4String particleName;
-  // G4ParticleDefinition* particle = particleTable->FindParticle(particleName="alpha");
-  // fGun->SetParticleDefinition(particle); 
-  
-  // G4cout << "runMan gives: " << detConst->GetGammaHeight()/cm << G4endl;
-  // 
-  // exit(0);
+  fAlphaIntensity = 10;
+  fGammaIntensity = 10;
+  fGammaThetaMax = 5.*deg;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 B1PrimaryGeneratorAction::~B1PrimaryGeneratorAction()
 {
-  delete fGunAlpha;
-  delete fGunGamma1;
+  delete fGun;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -72,20 +64,20 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     if(!fdetconstruction){
       G4ExceptionDescription msg;
       msg << "Can't find B1DetectorConstruction\n"; 
-      G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()", 
-      "Austin's warning message", FatalException, msg);
-      }
+      G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()", "Austin's warning message", FatalException, msg);
+    }
   }
   
   // Setting up Alpha Source
   if (!famo2_volume && fdetconstruction->GetAlphaStatus() == true) {
+    
+    fGun->SetCurrentSourceIntensity(fAlphaIntensity);
     
     famo2_volume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_amo2");
     famo2_tubs = dynamic_cast<G4Tubs*>(famo2_volume->GetLogicalVolume()->GetSolid());
     // G4LogicalVolume * logic_alphaVolume = phys_alphaVolume->GetLogicalVolume();
     // G4cout << "phys_amo2 has position " << famo2_volume->GetObjectTranslation().getZ()/mm << " mm" << G4endl;
     G4VPhysicalVolume * phys_medium = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_detectionMedium");
-    
     
     if(!famo2_tubs || !famo2_volume) {
       G4ExceptionDescription msg;
@@ -94,31 +86,28 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       "Austin's warning message", FatalException, msg);
     }
 
-    // default particle kinematic is alpha
-    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-    G4String particleName;
-    G4ParticleDefinition* particle = particleTable->FindParticle(particleName="alpha");
-    fGunAlpha->SetParticleDefinition(particle); 
-    
-    // position distribution
-    G4SingleParticleSource * tSource = fGunAlpha->GetCurrentSource();
-    tSource->GetPosDist()->SetPosDisType("Volume");
-    tSource->GetPosDist()->SetPosDisShape("Cylinder");
-    tSource->GetPosDist()->SetCentreCoords(famo2_volume->GetObjectTranslation() + phys_medium->GetObjectTranslation());
-    tSource->GetPosDist()->SetRadius(famo2_tubs->GetOuterRadius());
-    tSource->GetPosDist()->SetHalfZ(famo2_tubs->GetZHalfLength());
-    tSource->GetPosDist()->ConfineSourceToVolume("phys_amo2"); //redundant?
+    G4ParticleDefinition* particle = G4ParticleTable::GetParticleTable()->FindParticle("alpha");
+    fGun->SetParticleDefinition(particle); 
+    G4ThreeVector alphaSvector = famo2_volume->GetObjectTranslation() + phys_medium->GetObjectTranslation();
+    this->doSourcePlacement(alphaSvector, famo2_tubs, "phys_amo2");
+    //this->doSourcePlacement(G4ThreeVector(0, 0, 2*cm), famo2_tubs, "phys_amo2"); // testing
     
     // angular distribution
-    tSource->GetAngDist()->SetAngDistType("iso");
-    tSource->GetAngDist()->SetMaxTheta(90. * deg);
+    fGun->GetCurrentSource()->GetAngDist()->SetAngDistType("iso");
+    fGun->GetCurrentSource()->GetAngDist()->SetMaxTheta(90. * deg);
     
     // energy distribution
-    tSource->GetEneDist()->SetMonoEnergy(5.39 * MeV);
+    fGun->GetCurrentSource()->GetEneDist()->SetMonoEnergy(5.39 * MeV);
   }
   
   // Setting up Gamma Source
   if (!fgammaSource_volume && fdetconstruction->GetGammaStatus() == true){
+    
+    // kill the alpha source if its not requested
+    if(fdetconstruction->GetAlphaStatus() == false){
+      fGun->SetCurrentSourceto(0); // alpha source
+      fGun->SetCurrentSourceIntensity(0);
+    }
     
     fgammaSource_volume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_gammaSource");
     fgammaSource_tubs = dynamic_cast<G4Tubs*>(fgammaSource_volume->GetLogicalVolume()->GetSolid());
@@ -130,6 +119,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     G4ThreeVector ogsVec = fgammaSource_volume->GetTranslation();
     G4ThreeVector newGSVec = CLHEP::inverseOf(*rot_coll) * ogsVec;
     G4ThreeVector finalgsVector = newGSVec + collVec;
+    // finalgsVector = G4ThreeVector(0, 0 , 4*cm); // testing
   
     // G4cout << "collimator vector: " << collVec/cm << " cm" << G4endl;
     // G4cout << "\nOriginal source vector: " << ogsVec/cm << G4endl;
@@ -142,50 +132,80 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       "Austin's warning message", FatalException, msg);
     } // all good, found source volume. Now set 'default' properties (do one time hopefully)
   
-    // default particle kinematic is alpha
-    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-    G4String particleName;
-    G4ParticleDefinition* particle = particleTable->FindParticle(particleName="gamma");
-    fGunGamma1->SetParticleDefinition(particle); 
-  
-    // position distribution
-    G4SingleParticleSource * tSource = fGunGamma1->GetCurrentSource();
-    tSource->GetPosDist()->SetPosDisType("Volume");
-    tSource->GetPosDist()->SetPosDisShape("Cylinder");
-    tSource->GetPosDist()->SetCentreCoords(finalgsVector);
-    tSource->GetPosDist()->SetRadius(fgammaSource_tubs->GetOuterRadius());
-    tSource->GetPosDist()->SetHalfZ(fgammaSource_tubs->GetZHalfLength());
-    tSource->GetPosDist()->ConfineSourceToVolume("phys_gammaSource");
-    
-    // tSource->GetPosDist()->SetCentreCoords(G4ThreeVector(0*cm, 0*cm, 3*cm)); // for testing
-    // tSource->GetAngDist()->SetParticleMomentumDirection(G4ThreeVector(-1, 0, 0)); //for testing
-    
-    // angular distribution
-    tSource->GetAngDist()->DefineAngRefAxes("angref1", G4ThreeVector(0, 0, -1));
-    tSource->GetAngDist()->DefineAngRefAxes("angref2", G4ThreeVector(0, 1, 0));
-    tSource->GetAngDist()->SetUseUserAngAxis(true);
-    tSource->GetAngDist()->SetAngDistType("iso");
-    tSource->GetAngDist()->SetMaxTheta(4. * deg);
-  }
-  
-  G4cout << "Random number is " << G4UniformRand() << G4endl;
-  
-  if(fdetconstruction->GetGammaStatus()){
-    G4SingleParticleSource * tSource = fGunGamma1->GetCurrentSource();
-    
-    if(fdetconstruction->GetGammaSourceStr() == "Cs137"){
-      tSource->GetEneDist()->SetMonoEnergy(0.661 * MeV);
+    G4String gs = fdetconstruction->GetGammaSourceStr();
+    if(gs == "isoCs137"){
+      fGun->AddaSource(fGammaIntensity);
+      this->doSourcePlacement(finalgsVector, fgammaSource_tubs, "phys_gammaSource");
+      fGun->GetCurrentSource()->GetEneDist()->SetMonoEnergy(0.0*MeV);
+      fGun->GetCurrentSource()->SetParticleDefinition(G4IonTable::GetIonTable()->GetIon(55, 137, 0.*keV));
+      fGun->GetCurrentSource()->SetParticleCharge(0*eplus);
     }
-    
-    // else if(fdetconstruction->GetGammaSourceStr() == "Co60"){
-    //   if(G4UniformRand() > )tSource->GetEneDist()->SetMonoEnergy(1.1*MeV);
-    // }
-    
-    fGunGamma1->GeneratePrimaryVertex(anEvent);
+    else if(gs == "isoCo60"){
+      fGun->AddaSource(fGammaIntensity);
+      this->doSourcePlacement(finalgsVector, fgammaSource_tubs, "phys_gammaSource");
+      fGun->GetCurrentSource()->GetEneDist()->SetMonoEnergy(0.0*MeV);
+      fGun->GetCurrentSource()->SetParticleDefinition(G4IonTable::GetIonTable()->GetIon(27, 60, 0.*keV));
+      fGun->GetCurrentSource()->SetParticleCharge(0*eplus);
+    }
+    if(gs == "Cs137"){
+      const int csN = 8;
+      // taken from https://www.nndc.bnl.gov/nudat3/decaysearchdirect.jsp?nuc=137Cs&unc=NDS
+      G4double myCsEnergy[csN] = {4.47*keV, 31.817*keV, 32.194*keV, 36.304*keV, 36.378*keV, 37.255*keV, 283.5*keV, 0.661*MeV};
+      G4double myCsIntensity[csN] = {0.0091, 0.0199, 0.0364, 0.00348, 0.00672, 0.00213, 0.0000058, 0.851};
+      
+      for(int i = 0; i < csN; i++){
+        fGun->AddaSource(fGammaIntensity * myCsIntensity[i]);
+        fGun->GetCurrentSource()->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle("gamma"));
+        this->doSourcePlacement(finalgsVector, fgammaSource_tubs, "phys_gammaSource");
+        // this->doSourcePlacement(G4ThreeVector(0, 0, 4), fgammaSource_tubs, "phys_gammaSource"); // testing
+        this->setGammaDirection(fGammaThetaMax, fGun->GetCurrentSource());
+        fGun->GetCurrentSource()->GetEneDist()->SetMonoEnergy(myCsEnergy[i]);
+      }
+      
+    }
+    if(gs == "Co60"){
+      const int coN = 8;
+      // taken from https://www.nndc.bnl.gov/nudat3/decaysearchdirect.jsp?nuc=60Co&unc=NDS
+      G4double myCoEnergy[coN] = {7.47*keV, 8.265*keV, 347.14*keV, 826.1*keV, 1173.228*keV, 1332.5*keV, 2158.6*keV, 2505.7*keV};
+      G4double myCoIntensity[coN] = {0.000063+0.000032, 0.000015, 0.000075, 0.000076, 0.9985, 0.9998, 0.000012, 2e-8};
+      
+      for(int i = 0; i < coN; i++){
+        fGun->AddaSource(fGammaIntensity * myCoIntensity[i]);
+        fGun->GetCurrentSource()->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle("gammma"));
+        this->doSourcePlacement(finalgsVector, fgammaSource_tubs, "phys_gammaSource");
+        // this->doSourcePlacement(G4ThreeVector(0, 0, 4), fgammaSource_tubs, "phys_gammaSource"); // testing
+        this->setGammaDirection(fGammaThetaMax, fGun->GetCurrentSource());
+        fGun->GetCurrentSource()->GetEneDist()->SetMonoEnergy(myCoEnergy[i]);
+      }
+    }
   }
   
-  if(fdetconstruction->GetAlphaStatus())fGunAlpha->GeneratePrimaryVertex(anEvent);
+  fGun->GeneratePrimaryVertex(anEvent);
 }
+
+void B1PrimaryGeneratorAction::doSourcePlacement(G4ThreeVector position, G4Tubs * tube, G4String name){
+  G4SingleParticleSource * tSource = fGun->GetCurrentSource();
+  tSource->GetPosDist()->SetPosDisType("Volume");
+  tSource->GetPosDist()->SetPosDisShape("Cylinder");
+  tSource->GetPosDist()->SetCentreCoords(position);
+  tSource->GetPosDist()->SetRadius(tube->GetOuterRadius());
+  tSource->GetPosDist()->SetHalfZ(tube->GetZHalfLength());
+  tSource->GetPosDist()->ConfineSourceToVolume(name);
+  return;
+}
+
+void B1PrimaryGeneratorAction::setGammaDirection(G4double thetaSpread, G4SingleParticleSource* gun){
+  // angular distribution
+  gun->GetAngDist()->DefineAngRefAxes("angref1", G4ThreeVector(0, 0, -1));
+  gun->GetAngDist()->DefineAngRefAxes("angref2", G4ThreeVector(0, 1, 0));
+  gun->GetAngDist()->SetUseUserAngAxis(true);
+  gun->GetAngDist()->SetAngDistType("iso");
+  gun->GetAngDist()->SetMaxTheta(thetaSpread);
+  return;
+}
+
+// void B1PrimaryGeneratorAction::build_Cs137(G4ThreeVector position, G4Tubs * tube);
+// void B1PrimaryGeneratorAction::build_Co60(G4ThreeVector position, G4Tubs * tube);
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

@@ -100,7 +100,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   logic_local_medium,         // mother volume
                   false, 0, checkOverlaps);
                   
-  G4PhysicalVolumeStore::GetInstance()->Register(phys_amo2); // to get volume elsewhere. Not needed?
+  // G4PhysicalVolumeStore::GetInstance()->Register(phys_amo2); // to get volume elsewhere. Not needed?
                   
   G4Tubs * solid_Ag = new G4Tubs("solid_Ag", 0., sourceRadius, 0.5*agThick, 0, 360.*deg);
   G4LogicalVolume * logic_Ag = new G4LogicalVolume(solid_Ag, detMat->mSilver, "logic_Ag");

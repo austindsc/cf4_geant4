@@ -19,14 +19,14 @@
 #/vis/geometry/set/forceWireframe logic_med_solidupperFlange 0 1
 #/vis/geometry/set/forceWireframe logic_med_lowerFlange 0 1
 #/vis/geometry/set/forceWireframe logic_outercan 0 1
-/vis/geometry/set/colour logic_mediumCyl 1 0.33 0.33 0.33 0.6
-/vis/geometry/set/colour logic_med_upperFlange 1 0.33 0.33 0.33 0.8
-/vis/geometry/set/colour logic_med_solidupperFlange 1 0.33 0.33 0.33 0.8
-/vis/geometry/set/colour logic_med_lowerFlange 1 0.33 0.33 0.33 0.8
-/vis/geometry/set/colour logic_can1Plate 1 0.87 0.87 0.87 1
-/vis/geometry/set/colour logic_can1 1 0.2 0.2 0.2 0.5
-/vis/geometry/set/colour logic_can1_bottom 1 0.2 0.2 0.2 0.5
-/vis/geometry/set/colour logic_outercan 1 0.2 0.2 0.2 0.5
+/vis/geometry/set/colour logic_mediumCyl 1 0.33 0.33 0.33 0.5
+/vis/geometry/set/colour logic_med_upperFlange 1 0.33 0.33 0.33 0.5
+/vis/geometry/set/colour logic_med_solidupperFlange 1 0.33 0.33 0.33 0.5
+/vis/geometry/set/colour logic_med_lowerFlange 1 0.33 0.33 0.33 0.5
+/vis/geometry/set/colour logic_can1Plate 1 0.87 0.87 0.87 2
+/vis/geometry/set/colour logic_can1 1 0.2 0.2 0.2 0.2
+/vis/geometry/set/colour logic_can1_bottom 1 0.2 0.2 0.2 0.2
+/vis/geometry/set/colour logic_outercan 1 0.2 0.2 0.2 0.2
 
 ## drawing the gammma stuff ##
 /vis/geometry/set/forceWireframe logic_collWorld 0 1
@@ -45,14 +45,23 @@
 #/vis/geometry/set/colour logic_Ag 0 .75 .75 .75 1
 
 /vis/geometry/set/colour logic_medium 0 0 0 1 .2
-/vis/geometry/set/colour logic_sipm 0 1 1 1 1
+/vis/geometry/set/colour logic_sipm 0 10 10 10 1
 #/vis/geometry/set/colour logic_CaseSides 0 1 1 1 1
 
 ## trajectories ##
 /vis/scene/add/trajectories smooth
-/vis/modeling/trajectories/create/drawByCharge
-/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
-/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
+#/vis/modeling/trajectories/create/drawByCharge
+#/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+#/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
+
+/vis/modeling/trajectories/create/drawByParticleID
+/vis/modeling/trajectories/drawByParticleID-0/set e- red
+/vis/modeling/trajectories/drawByParticleID-0/set opticalphoton pink
+/vis/modeling/trajectories/drawByParticleID-0/set gamma green
+/vis/modeling/trajectories/drawByParticleID-0/set nu_e grey
+/vis/modeling/trajectories/drawByParticleID-0/set anti_nu_e grey
+#/vis/modeling/trajectories/drawByParticleID-0/set alpha yellow
+#/vis/modeling/trajectories/drawByParticleID-0/set GenericIon grey
 
 ## decorations ##
 /vis/scene/add/arrow -19 -19 0 -19 -19 5 cm # along +z, 5cm long
