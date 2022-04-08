@@ -1,75 +1,38 @@
 {\rtf1\ansi\ansicpg1252\cocoartf2638
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fswiss\fcharset0 Helvetica-Bold;}
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 {\*\expandedcolortbl;;}
-\margl1440\margr1440\vieww13200\viewh12580\viewkind0
+\margl1440\margr1440\vieww14020\viewh12580\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
-\f0\fs26 \cf0 LoLX meeting\
-- copper to connect\
-- minimize exposed PCB\
-\
-boards - 1 week\
-wire bonding - 1 month (in parallel)\
-filters - 4-5weeks (pessimistically)\
-\
-95mm tube everything goes in\
-	- largest cross section\
-	- 5mm needle diameter\
-\
-concept milestones\
-- filter holders\
-- cage design\
-- disassembly in july\
-	- finalized design in june\
-	- cage in july\
-	- done for start of august\
-\
-
-\f1\b \ul Next Steps\
-
-\f0\b0 \ulnone - retake data steps\
-- 
-\f1\b \ul \
-\
+\f0\b\fs26 \cf0 \ul \ulc0 \
 temporary geant4 work diary
-\f0\b0 \ulnone \
+\f1\b0 \ulnone \
 \
 - check if gas CF4 spectrum working properly. liquid seems to be\
-	- must add more accurate spectral physics (density/pressure dependance)\
 \
-- just using global PDE and SiPM. Do i add quartz and SiO2 layers and do all that physics to get AOI dependence? no, get gammas working first\
+- must add more accurate spectral physics (density/pressure dependance, and density dependance on T and P)\
+\
+- just using global PDE and SiPM. Do i add quartz and SiO2 layers and do all that physics to get AOI dependence? \
 	- NO, just use \'91global\'92 PDE. step 1 DONE\
-	- must add AOI dependance. scale with cos\\theta for now\
-	- must add filter as well. with AOI (ask Newport for this)\
+	- must add AOI dependance. scale with cos\\theta for now?\
+	- must add filter as well. with AOI (got information from NewPort)\
 \
 - Output\
 	- total energy deposited in CF4\
 	- true NPE\
 	- detected NPE\
 	
-\f1\b to add\
+\f0\b to add\
 
-\f0\b0 	- distance in CF4\
+\f1\b0 	- add timing information (because real setup can do timing analysis now)
+\f0\b \
+
+\f1\b0 	- distance in CF4\
 		- loop through steps, if stepEdep > 0.001keV \'91count it\'92\
 	- position(r, z) where energy deposited\
 	- vector of detected photon wavelengths\
 		- Will handle MC output later (change from youtube example to basic/b5 example writing out vectors of MC information for each event). YT example creates many rows for 1 event, which is a pain for analysis later on\
-\
-- Functional Gamma source\
-	- working on getting correct translation/rotation in G4particle source. had to rotate with inverse of coll rotation matrix\
-	- must add functions to primary generator, messenger\
-	- must ensure that everything works together\
-	- doesn\'92t work properly with both sources right now\
-	- use correct radioactive sources\
-\
-- check all my gas/liquid stuff\
-\
-- must update google photos\
-\
-- How do i enncapsulate alphaSource and gamma source?\
-	- new class inheriting from G4LogicalVolume\
-	- not shooting in correct location\
 \
 - optical properties\
 	- must add aluminum and SS\
@@ -77,47 +40,36 @@ temporary geant4 work diary
 	- possible absorption? \
 	- more refractive indexes\
 \
-- building gamma source\
-	- 
-\f1\b added 0.05mm crack between horizontal blocks (attached together)
-\f0\b0 \
-
-\f1\b 	- being too specific\
-		- 
-\f0\b0 did exact block sizes and orientations (probably overkill)\
-		- added plastic tube (probably overkill). assumed mcdonalds straw waall thickness of 0.2mm\
-	- actual gamma source\
-		- ignore hermetically sealed packaging\
-		- just a \'91puck\'92 of air behind collimator\
-	- shoot direction\
-		- currently gamma source in +x, in XZ plane. Must shoot along -x\
-	- solid angle of collimator around 2deg - atan(0.2cm/10cm), set theta spread to 5 deg\
-\
-- add my own tracking class\
 - proper physics list\
 	- EM default probably fine\
 	- change to UG physics list\
-		- Thompson scattering\
-	- particle independent LY\
+		- UG list doesn\'92t work\
+	- using modified physics list from advanced/amsEcal, (added optical physics)\
+	- must add in relevant stuff from DMX list\
 \
 - fix my user limits to only affect certain particles\
+	- currently done in construction\
 \
 - Set/change seed based on time (get same results everytime rerunning code)\
 \
+- must update google photos\
+\
+- add messenger to set alpha/gamma intensity ratio (if we want to compare the two)\
+\
 \
 
-\f1\b ==== DONE ====\
+\f0\b ==== DONE ====\
 
-\f0\b0 - add full vacuum geometry\
+\f1\b0 - add full vacuum geometry\
 	- DONE\
 \
 - rebuilding alpha source (encapsulated)\
 	- sipm face at global 0 0 0\
 	- DONE\
 
-\f1\b \
+\f0\b \
 
-\f0\b0 - add a text reader helper function to populate G4 physics stuff (physics orderedfreevector)\
+\f1\b0 - add a text reader helper function to populate G4 physics stuff (physics orderedfreevector)\
 	- DONE\
 \
 - need to get datafile folder working properly through cmake, etc\
@@ -134,10 +86,46 @@ temporary geant4 work diary
 	- add \'91myGlobals.hh\'92 and control extern variable myVerbosity through that\
 	- DONE. \
 \
+- Functional Gamma source\
+	- working on getting correct translation/rotation in G4particle source. had to rotate with inverse of coll rotation matrix\
+	- must add functions to primary generator, messenger\
+	- must ensure that everything works together\
+	- doesn\'92t work properly with both sources right now\
+	- use correct radioactive sources\
+	- DONE\
+\
+- How do i enncapsulate alphaSource and gamma source?\
+	- new class inheriting from G4LogicalVolume\
+	- not shooting in correct location\
+	- alpha and gammas can be shot together\
+\
+- building gamma source\
+	- 
+\f0\b added 0.05mm crack between horizontal blocks (attached together)
+\f1\b0 \
+
+\f0\b 	- being too specific\
+		- 
+\f1\b0 did exact block sizes and orientations (probably overkill)\
+		- added plastic tube (probably overkill). assumed mcdonalds straw waall thickness of 0.2mm\
+	- actual gamma source\
+		- ignore hermetically sealed packaging\
+		- just a \'91puck\'92 of air behind collimator\
+	- shoot direction\
+		- currently gamma source in +x, in XZ plane. Must shoot along -x\
+	- solid angle of collimator around 2deg - atan(0.2cm/10cm), set theta spread to 5 deg\
+	- DONE, set to 2degree angle for now\
+\
+\
 \'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
 \'97 new Geant4 Install \'97 \
-cmake -DCMAKE_INSTALL_PREFIX=/Users/austindestcroix/newGeant4/install_g4/ -DGEANT4_INSTALL_DATA=ON -DCMAKE_CXX_STANDARD=17 -DGEANT4_INSTALL_DATADIR=/Users/austindestcroix/newGeant4/newDataG4/ -DGEANT4_USE_QT=ON -DGEANT4_USE_OPENGL_X11=ON -DGEANT4_USE_INVENTOR_QT=OFF -DGEANT4_BUILD_MULTITHREADED=OFF ../geant4_v11.0.1\
+cmake -DCMAKE_INSTALL_PREFIX=/Users/austindestcroix/newGeant4/install_g4/ -DGEANT4_INSTALL_DATA=ON -DCMAKE_CXX_STANDARD=17 -DGEANT4_INSTALL_DATADIR=/Users/austindestcroix/newGeant4/newDataG4/  -DGEANT4_INSTALL_DATASETS_TENDL=ON -DGEANT4_USE_QT=ON -DGEANT4_USE_OPENGL_X11=ON -DGEANT4_USE_INVENTOR_QT=OFF -DGEANT4_BUILD_MULTITHREADED=OFF ../geant4_v11.0.1\
 \
+make\
+\
+make install\
+\
+make uninstall\
 \
 \
 \'97 reinstalling everything\'97 \
