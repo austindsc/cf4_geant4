@@ -38,7 +38,7 @@ class G4VPhysicsConstructor;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class PhysicsList: public G4VModularPhysicsList
+class PhysicsList: public G4VUserPhysicsList
 {
   public:
     PhysicsList();
@@ -49,12 +49,20 @@ class PhysicsList: public G4VModularPhysicsList
     
     void ConstructOptical();
     void ConstructEM();
+    void ConstructGeneral();
+    
+    void SetCuts();
+    
     
     // void AddPhysicsList(const G4String& name);
     
   private:    
     // G4VPhysicsConstructor*  emPhysicsList;
     G4String emName;
+    
+    G4double cutForGamma;
+    G4double cutForElectron;
+    G4double cutForPositron;
     
     // PhysicsListMessenger* pMessenger;
 };

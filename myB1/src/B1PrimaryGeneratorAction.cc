@@ -90,7 +90,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     fGun->SetParticleDefinition(particle); 
     G4ThreeVector alphaSvector = famo2_volume->GetObjectTranslation() + phys_medium->GetObjectTranslation();
     this->doSourcePlacement(alphaSvector, famo2_tubs, "phys_amo2");
-    //this->doSourcePlacement(G4ThreeVector(0, 0, 2*cm), famo2_tubs, "phys_amo2"); // testing
+    // this->doSourcePlacement(G4ThreeVector(0, 0, 2*cm), famo2_tubs, "phys_amo2"); // testing
     
     // angular distribution
     fGun->GetCurrentSource()->GetAngDist()->SetAngDistType("iso");

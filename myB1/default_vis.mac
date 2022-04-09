@@ -21,8 +21,8 @@
 #/setDetector/gammaSource Co60
 #/setDetector/gammaSource isoCs137
 #/setDetector/gammaSource isoCo60
-#/setDetector/alphaHeight 4. #currently gamma and alpha source have same intensity (see primary generator constructor)
-/setDetector/gammaHeight 4.
+/setDetector/alphaHeight 4. #currently gamma and alpha source have same intensity (see primary generator constructor)
+#/setDetector/gammaHeight 4.
 
 #/setMaterial/detectionMedium gCF4
 /setMaterial/detectionMedium lCF4
