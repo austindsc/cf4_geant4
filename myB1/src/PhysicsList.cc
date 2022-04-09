@@ -112,6 +112,7 @@
 #include "G4OpAbsorption.hh"
 #include "G4OpBoundaryProcess.hh"
 #include "G4OpticalParameters.hh"
+#include "G4Cerenkov.hh"
 
 // blah
 #include "G4RadioactiveDecay.hh"
@@ -217,10 +218,6 @@ void PhysicsList::ConstructParticle()
 void PhysicsList::ConstructProcess()
 {
   AddTransportation();
-
-  // electromagnetic Physics List
-  //
-  // emPhysicsList->ConstructProcess();
   
   ConstructEM();
   ConstructOptical();
@@ -230,28 +227,44 @@ void PhysicsList::ConstructProcess()
 
 void PhysicsList::ConstructGeneral(){
   
+  // using example/extended/rdecay01 decay physics (not amsEcal decay physics)
+  // as that is how I could get proper isotropic Cs, Co sources working
+  
   // Add Decay Process
   G4Radioactivation* radioactiveDecay = new G4Radioactivation();
   
-  G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+  // //test
+  // G4Decay* fDecayProcess = new G4Decay();
 
   // need to initialize atomic deexcitation
   G4LossTableManager* man = G4LossTableManager::Instance();
   G4VAtomDeexcitation* deex = man->AtomDeexcitation();
   if (!deex) {
-     ///G4EmParameters::Instance()->SetFluo(true); 
+     G4EmParameters::Instance()->SetFluo(true); 
      deex = new G4UAtomicDeexcitation();
      deex->InitialiseAtomicDeexcitation();
      man->SetAtomDeexcitation(deex);
   }
   
+  G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
   ph->RegisterProcess(radioactiveDecay, G4GenericIon::GenericIon());
+  // don't do in loop below (it doesn't make all daughters properly and gives an error)
+  
   // auto particleIterator=GetParticleIterator();
   // particleIterator->reset();
   // while( (*particleIterator)() ){
   //   G4ParticleDefinition* particle = particleIterator->value();
-  //   if (fDecayProcess->IsApplicable(*particle)) 
-  //     ph ->RegisterProcess(fDecayProcess, particle);
+  //   G4String particleName = particle->GetParticleName();
+  // 
+  //   if (fDecayProcess->IsApplicable(*particle)){
+  //     // ph->RegisterProcess(fDecayProcess, particle);
+  //     // G4cout << "fDecay on " << particleName << G4endl;
+  //   }
+  // 
+  //   if(radioactiveDecay->IsApplicable(*particle)){
+  //     // ph->RegisterProcess(radioactiveDecay, particle);
+  //     // G4cout << "RDecay on " << particleName << G4endl;
+  //   }
   // }
   
 }
@@ -259,6 +272,10 @@ void PhysicsList::ConstructGeneral(){
 void PhysicsList::ConstructOptical(){
   G4OpticalParameters* opParams = G4OpticalParameters::Instance();
   
+  // Cerenkov
+  G4Cerenkov * theCerenkov = new G4Cerenkov("Cerenkov");
+  
+  // Scintillation
   G4Scintillation* theScintProcessDef = new G4Scintillation("Scintillation");
   opParams->SetScintTrackSecondariesFirst(true);
   // opParams->SetScintByParticleType(true);
@@ -267,28 +284,45 @@ void PhysicsList::ConstructOptical(){
   opParams->SetCerenkovTrackSecondariesFirst(true);
   opParams->SetScintTrackSecondariesFirst(true);
   opParams->SetScintFiniteRiseTime(true);
-  opParams->SetScintByParticleType(false);
+  opParams->SetScintByParticleType(false); // for now use Birk's quenching
 
-  // optical processes
+  // optical transport processes
   G4OpAbsorption* theAbsorptionProcess = new G4OpAbsorption();
   G4OpBoundaryProcess* theBoundaryProcess = new G4OpBoundaryProcess();
-
+  G4RayleighScattering* theRayleighScatter = new G4RayleighScattering();
+  
+  // looping and application
+  G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
   auto particleIterator=GetParticleIterator();
   particleIterator->reset();
-  while( (*particleIterator)() )
-    {
+  while( (*particleIterator)() ){
       G4ParticleDefinition* particle = particleIterator->value();
-      G4ProcessManager* pmanager = particle->GetProcessManager();
+      // G4ProcessManager* pmanager = particle->GetProcessManager();
       G4String particleName = particle->GetParticleName();
+      
+      // scintillation
       if (theScintProcessDef->IsApplicable(*particle)){
-        pmanager->AddProcess(theScintProcessDef);
-        pmanager->SetProcessOrderingToLast(theScintProcessDef,idxAtRest);
-        pmanager->SetProcessOrderingToLast(theScintProcessDef,idxPostStep);
+        // pmanager->AddProcess(theScintProcessDef);
+        // pmanager->SetProcessOrderingToLast(theScintProcessDef,idxAtRest);
+        // pmanager->SetProcessOrderingToLast(theScintProcessDef,idxPostStep);
+        ph->RegisterProcess(theScintProcessDef, particle);
+        // G4cout << "\nxx Scintillation applicable = " << particleName << G4endl;
       }
       
+      // cerenkov
+      if(theCerenkov->IsApplicable(*particle)){
+        ph->RegisterProcess(theCerenkov, particle);
+        // G4cout << "\nxx cerenkov applicable = " << particleName << G4endl;
+      }
+      
+      // optical photon transport
       if (particleName == "opticalphoton"){
-	       pmanager->AddDiscreteProcess(theAbsorptionProcess);
-	       pmanager->AddDiscreteProcess(theBoundaryProcess);
+        ph->RegisterProcess(theAbsorptionProcess, particle);
+        ph->RegisterProcess(theBoundaryProcess,   particle);
+        ph->RegisterProcess(theRayleighScatter,   particle);
+        // pmanager->AddDiscreteProcess(theAbsorptionProcess);
+        // pmanager->AddDiscreteProcess(theBoundaryProcess);
+        // pmanager->AddDiscreteProcess(theRayleighScatter);
       }
     }
 }
@@ -296,6 +330,7 @@ void PhysicsList::ConstructOptical(){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void PhysicsList::ConstructEM(){
+  // DMX physics details with amsEcal implementation structure
   
   G4LossTableManager* man = G4LossTableManager::Instance();
   man->SetAtomDeexcitation(new G4UAtomicDeexcitation());

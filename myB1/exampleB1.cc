@@ -35,8 +35,6 @@
 #include "G4UImanager.hh"
 
 // physics lists
-// #include "myPhysList.hh"
-// #include "DMXPhysicsList.hh"
 #include "PhysicsList.hh"
 
 

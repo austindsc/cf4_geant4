@@ -17,12 +17,13 @@
 
 ## detector properties ##
 /setDetector/myVerbosity 1
+/setDetector/gammaHeight 4.
 #/setDetector/gammaSource Cs137 #default
 #/setDetector/gammaSource Co60
 #/setDetector/gammaSource isoCs137
 #/setDetector/gammaSource isoCo60
-/setDetector/alphaHeight 4. #currently gamma and alpha source have same intensity (see primary generator constructor)
-#/setDetector/gammaHeight 4.
+#/setDetector/alphaHeight 4. #currently gamma and alpha source have same intensity (see primary generator constructor)
+
 
 #/setMaterial/detectionMedium gCF4
 /setMaterial/detectionMedium lCF4
@@ -34,6 +35,9 @@
 ## process toggling ##
 #/process/optical/processActivation Scintillation false
 #/process/optical/processActivation Cerenkov false
+#/process/optical/processActivation OpRayleigh false
+#/process/optical/processActivation OpAbsorption false
+#/process/optical/processActivation OpBoundary false
 
 #/process/optical/verbose 2
 #/process/optical/scintillation/verbose 2
