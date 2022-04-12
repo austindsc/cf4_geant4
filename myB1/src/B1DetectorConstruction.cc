@@ -48,6 +48,8 @@ B1DetectorConstruction::B1DetectorConstruction()
   fGammaStatus = false; // NO gamma source
   fGammaHeight = -1. * cm;
   
+  fCollStatus = true;
+  
   fGammaSource = "Cs137"; //default, other options are "Co60", etc (see header)
   
   // do messenger stuff to set variables in detMat
@@ -183,7 +185,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   
   G4double rodPosR = mediumR - rodsR - 1*mm;
   G4ThreeVector rodp1 = G4ThreeVector(rodPosR, 0, -(mediumZ-rodsL)/2);
-  new G4PVPlacement(0, rodp1, logic_rods, "phys_rod1", logic_medium, false, 0, checkOverlaps);
+  new G4PVPlacement(0, rodp1.rotateZ(60*deg), logic_rods, "phys_rod1", logic_medium, false, 0, checkOverlaps);
   new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod2", logic_medium, false, 0, checkOverlaps);
   new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod3", logic_medium, false, 0, checkOverlaps);
             
@@ -200,9 +202,23 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     false, 0, checkOverlaps);
                     
   //--------------------------- Collimator ---------------------------//
-  if(fGammaStatus == true){ 
+  // if(fGammaStatus == true)collimator * logic_coll = new collimator(checkOverlaps);
+  if(fGammaStatus == true && fCollStatus == true){ // with collimator
     collimator * logic_coll = new collimator(checkOverlaps);
     G4VPhysicalVolume * phys_collimator = logic_coll->doPlacement(fGammaHeight, logicWorld, checkOverlaps);
+  }
+  else if(fGammaStatus == true && fCollStatus == false){
+    //-- actual source 'holder' (this is a dummy item for Gamma sources)
+    G4double gsR = 0.4*mm;
+    G4double gsZ = 1.*mm;
+    
+    G4Tubs * solid_gammaSource = new G4Tubs("solid_gammaSource", 0, gsR, gsZ/2, 0, 360.*deg);
+    G4LogicalVolume * logic_gammaSource = new G4LogicalVolume(solid_gammaSource, detMat->mGenericPlastic, "logic_gammaSource");
+    
+    G4RotationMatrix * rot_lead1 = new G4RotationMatrix();
+    rot_lead1->rotateY(90*deg);
+    G4VPhysicalVolume * phys_gs = new G4PVPlacement(rot_lead1, G4ThreeVector(can1PlateOffset.getX() + outercanR + outercanThick + gsZ, 0, fGammaHeight),
+                                  logic_gammaSource, "phys_gammaSource", logicWorld, 0, 0, checkOverlaps);
   }
   
   //--------------------------- Alpha Source ---------------------------//

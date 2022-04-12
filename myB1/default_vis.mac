@@ -25,6 +25,7 @@
 
 ## detector configuration ##
 /setDetector/myVerbosity 1
+/setDetector/useCollimator true
 /setDetector/gammaHeight 4.4
 #/setDetector/gammaSource Cs137 #default
 #/setDetector/gammaSource Co60

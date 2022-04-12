@@ -29,8 +29,6 @@ temporary geant4 work diary
 \
 - Add Bi207 source without collimator\
 \
-- build ability to run with or without collimator\
-\
 - Output\
 	- total energy deposited in CF4\
 	- true NPE\
@@ -81,10 +79,17 @@ temporary geant4 work diary
 \f0\b ==== DONE ====\
 
 \f1\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 - build ability to run with or without collimator\
+	- added collimator flag to detconstruction. either build source directly in detconst, or in collimator()\
+	- then checked for flag in primary generator, and do translation accordingly.\
+	- DONE\
+\
 - change my data loader to have a general \'91scaleX\'92 and \'91scaleY\'92 which are G4doubles, so i can use data more freely elsewhere.\
 	- DONE\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
-\f0\b \
+\f0\b \cf0 \
 
 \f1\b0 - add full vacuum geometry\
 	- DONE\

@@ -91,18 +91,19 @@ collimator::collimator(G4bool checkOverlaps)
   new G4PVPlacement(0, G4ThreeVector(-shift_x3, -shift_y3, extraSpace), logic_b3, "phys_box3", this, 0, 0, checkOverlaps);
   new G4PVPlacement(0, G4ThreeVector(-shift_x4, shift_y4, extraSpace), logic_b4, "phys_box4", this, 0, 0, checkOverlaps);
    
-  //-- actual source 'holder' (this is a dummy item for Cs or Co sources)
-  G4double gsR = 0.4*mm;
-  G4double gsZ = 2.*mm;
-  
-  G4Tubs * solid_gammaSource = new G4Tubs("solid_gammaSource", 0, gsR, gsZ/2, 0, 360.*deg);
-  G4LogicalVolume * logic_gammaSource = new G4LogicalVolume(solid_gammaSource, dmat->mAir, "logic_gammaSource");
-  G4VPhysicalVolume * phys_gs = new G4PVPlacement(0, G4ThreeVector(0, 0, -leadLength/2 -gsZ/2 + extraSpace), logic_gammaSource, "phys_gammaSource", this, 0, 0, checkOverlaps);
-  //G4PhysicalVolumeStore::GetInstance()->Register(phys_gs); // to get volume elsewhere. Not needed. already registered with previous command
-  
   // add plastic tube
   G4double plasticThick = 0.2*mm;
   G4Tubs * solid_plasticTube = new G4Tubs("solid_plasticTube", holeD/2 - plasticThick, holeD/2, leadLength/2, 0., 360.*deg);
   G4LogicalVolume * logic_plasticTube = new G4LogicalVolume(solid_plasticTube, dmat->mGenericPlastic, "logic_plasticTube");
   new G4PVPlacement(0, G4ThreeVector(0, 0, extraSpace), logic_plasticTube, "phys_plasticTube", this, 0, 0, checkOverlaps);
+  
+  //-- actual source 'holder' (this is a dummy item for Cs or Co sources)
+  G4double gsR = 0.4*mm;
+  G4double gsZ = 1.*mm;
+  
+  G4Tubs * solid_gammaSource = new G4Tubs("solid_gammaSource", 0, gsR, gsZ/2, 0, 360.*deg);
+  G4LogicalVolume * logic_gammaSource = new G4LogicalVolume(solid_gammaSource, dmat->mGenericPlastic, "logic_gammaSource");
+  G4VPhysicalVolume * phys_gs = new G4PVPlacement(0, G4ThreeVector(0, 0, -leadLength/2 -gsZ/2 + extraSpace), logic_gammaSource, "phys_gammaSource", this, 0, 0, checkOverlaps);
+  //G4PhysicalVolumeStore::GetInstance()->Register(phys_gs); // to get volume elsewhere. Not needed. already registered with previous command
+
 }

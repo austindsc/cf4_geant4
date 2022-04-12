@@ -11,6 +11,7 @@ class G4UIcmdWithADouble;
 class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWithAString;
 class G4UIcmdWithAnInteger;
+class G4UIcmdWithABool;
 
 class B1DetectorConstructionMessenger : public G4UImessenger{
 public:
@@ -36,6 +37,7 @@ private:
   G4UIcmdWithADouble    * SetGammaHeightCmd;
   // in cm
   
+  G4UIcmdWithABool      * SetCollimatorStatusCmd;
   G4UIcmdWithAString    * SetGammaSourceCmd;
   // /setDetector/gammaSource
   // isoCs137

@@ -39,6 +39,9 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     G4bool GetGammaStatus(){ return fGammaStatus; }
     void SetGammaStatus(G4bool y){ fGammaStatus = y; }
     
+    G4bool GetCollStatus(){ return fCollStatus; }
+    void SetCollStatus(G4bool y){ fCollStatus = y; }
+    
     G4String GetGammaSourceStr(){ return fGammaSource; }
     void SetGammaSourceStr(G4String sourceName){ fGammaSource = sourceName; }
 
@@ -70,6 +73,8 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     
     G4double  fGammaHeight;
     G4bool    fGammaStatus;
+    
+    G4bool    fCollStatus;
     
     G4String fGammaSource;
     

@@ -111,11 +111,17 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     
     fgammaSource_volume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_gammaSource");
     fgammaSource_tubs = dynamic_cast<G4Tubs*>(fgammaSource_volume->GetLogicalVolume()->GetSolid());
-    fcollimator_volume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_collimator");
+    
+    G4ThreeVector collVec = G4ThreeVector(0, 0, 0);
+    const G4RotationMatrix * rot_coll = new G4RotationMatrix();
+    if(fdetconstruction->GetCollStatus() == true){ //using collimator
+      fcollimator_volume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_collimator");
   
-    // need to rotate source vector
-    const G4RotationMatrix * rot_coll = fcollimator_volume->GetRotation();
-    G4ThreeVector collVec = fcollimator_volume->GetTranslation();
+      // need to rotate source vector
+      rot_coll = fcollimator_volume->GetRotation();
+      collVec = fcollimator_volume->GetTranslation();
+    }
+    
     G4ThreeVector ogsVec = fgammaSource_volume->GetTranslation();
     G4ThreeVector newGSVec = CLHEP::inverseOf(*rot_coll) * ogsVec;
     G4ThreeVector finalgsVector = newGSVec + collVec;
@@ -125,7 +131,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     // G4cout << "\nOriginal source vector: " << ogsVec/cm << G4endl;
     // G4cout << "new source vector: " << newGSVec/cm << " cm" << G4endl;
   
-    if(!fgammaSource_volume || !fgammaSource_tubs || !fcollimator_volume) {
+    if((!fgammaSource_volume || !fgammaSource_tubs) || (!fcollimator_volume && fdetconstruction->GetCollStatus()==true)) {
       G4ExceptionDescription msg;
       msg << "Can't find fgammaSource_tubs, _volume or fcollimator_volume \n"; 
       G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()",
@@ -187,7 +193,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       }
     }
     else if(gs == "Co57"){
-      const int coN = 6;
+      const int coN = 12;
       // taken from https://www.nndc.bnl.gov/nudat3/decaysearchdirect.jsp?nuc=57Co&unc=NDS
       G4double myCoEnergy[coN] = {6.4*keV, 7.058*keV, 14.4*keV, 122.06*keV, 136.47*keV, 230.4*keV, 339.7*keV, 352.33*keV, 366.8*keV, 570.*keV, 692.4*keV, 706.54*keV};
       G4double myCoIntensity[coN] = {0.166 + 0.33, 0.059, 0.091, 0.856, 0.107, 4.e-6, 3.7e-5, 3.e-5, 1.2e-5, 1.58e-4, 0.00149, 5.e-5};

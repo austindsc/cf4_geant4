@@ -4,6 +4,7 @@
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWithAnInteger.hh"
 #include "G4UIcmdWithAString.hh"
+#include "G4UIcmdWithABool.hh"
 
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
@@ -42,6 +43,11 @@ B1DetectorConstructionMessenger::B1DetectorConstructionMessenger(B1DetectorConst
   SetGammaSourceCmd->SetParameterName("gammaSource", false, true);
   SetGammaSourceCmd->SetDefaultValue(det->GetGammaSourceStr());
   SetGammaSourceCmd->AvailableForStates(G4State_PreInit);
+  
+  SetCollimatorStatusCmd = new G4UIcmdWithABool("/setDetector/useCollimator", this);
+  SetCollimatorStatusCmd->SetParameterName("useCollimator", false, true);
+  SetCollimatorStatusCmd->SetDefaultValue(det->GetCollStatus());
+  SetCollimatorStatusCmd->AvailableForStates(G4State_PreInit);
 }
 
 B1DetectorConstructionMessenger::~B1DetectorConstructionMessenger(){
@@ -67,6 +73,9 @@ void B1DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4String
   }
   if(command == SetGammaSourceCmd){
     Detector->SetGammaSourceStr(newVal);
+  }
+  if(command == SetCollimatorStatusCmd){
+    Detector->SetCollStatus(SetCollimatorStatusCmd->GetNewBoolValue(newVal));
   }
 
 }
