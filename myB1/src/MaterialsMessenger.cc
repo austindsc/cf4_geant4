@@ -14,6 +14,9 @@ MaterialsMessenger::MaterialsMessenger(DetectorMaterials * dmat)
 :fdmat(dmat)
 {
   
+  calledDensity = false;
+  calledTempOrPressure = false;
+  
   Dir = new G4UIdirectory("/setMaterial/");
   Dir->SetGuidance("Set detector medium, density and LY");
   
@@ -74,6 +77,7 @@ void MaterialsMessenger::SetNewValue(G4UIcommand *command, G4String newVal){
   if (command == SetMediumDensityCmd){
     fdmat->fmediumDensity = SetMediumDensityCmd->GetNewDoubleValue(newVal);
     G4cout << "Changing medium Density to = " << SetMediumDensityCmd->GetNewDoubleValue(newVal)/(g/cm3) << " g/cm3" << G4endl;
+    calledDensity = true;
   }
   if (command == SetMediumLYCmd){
     fdmat->SetMediumLY(SetMediumLYCmd->GetNewDoubleValue(newVal));
@@ -82,10 +86,18 @@ void MaterialsMessenger::SetNewValue(G4UIcommand *command, G4String newVal){
   if (command == SetMediumTempCmd){
     fdmat->fmediumTemp = SetMediumTempCmd->GetNewDoubleValue(newVal);
     G4cout << "Setting Temperature to = " << SetMediumTempCmd->GetNewDoubleValue(newVal)/kelvin << " K" << G4endl;
+    calledTempOrPressure = true;
   }
   if (command == SetMediumPressureCmd){
     fdmat->fmediumPressure = SetMediumPressureCmd->GetNewDoubleValue(newVal);
     G4cout << "Setting Pressure to = " << SetMediumPressureCmd->GetNewDoubleValue(newVal)/bar << " bar" << G4endl;
+    calledTempOrPressure = true;
+  }
+  
+  if(calledDensity == true && calledTempOrPressure == true){
+    G4ExceptionDescription msg;
+    msg << "User set both Density and Pressure/Temperature. Using given density,\nNOT temperature calculated density)\n"; 
+    G4Exception("MaterialsMessenger::SetNewValue", "Austin's warning message", JustWarning, msg);
   }
   return;
 }

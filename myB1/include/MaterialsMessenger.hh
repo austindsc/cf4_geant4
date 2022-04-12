@@ -29,6 +29,9 @@ private:
   
   G4UIcmdWithADoubleAndUnit * SetMediumTempCmd;
   G4UIcmdWithADoubleAndUnit * SetMediumPressureCmd;
+  
+  G4bool calledDensity;
+  G4bool calledTempOrPressure;
 };
 
 #endif

@@ -113,6 +113,7 @@
 #include "G4OpBoundaryProcess.hh"
 #include "G4OpticalParameters.hh"
 #include "G4Cerenkov.hh"
+#include "G4OpRayleigh.hh"
 
 // blah
 #include "G4RadioactiveDecay.hh"
@@ -270,26 +271,26 @@ void PhysicsList::ConstructGeneral(){
 }
 
 void PhysicsList::ConstructOptical(){
+  
   G4OpticalParameters* opParams = G4OpticalParameters::Instance();
+  opParams->SetScintByParticleType(false); // for now use Birk's quenching
+  opParams->SetScintTrackSecondariesFirst(true);
+  opParams->SetCerenkovTrackSecondariesFirst(true);
+  opParams->SetScintFiniteRiseTime(true);
+  
+  // // optical physics
+  // G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
+  
+  // Scintillation
+  G4Scintillation* theScintProcessDef = new G4Scintillation("Scintillation");
   
   // Cerenkov
   G4Cerenkov * theCerenkov = new G4Cerenkov("Cerenkov");
   
-  // Scintillation
-  G4Scintillation* theScintProcessDef = new G4Scintillation("Scintillation");
-  opParams->SetScintTrackSecondariesFirst(true);
-  // opParams->SetScintByParticleType(true);
-  // // optical physics
-  // G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
-  opParams->SetCerenkovTrackSecondariesFirst(true);
-  opParams->SetScintTrackSecondariesFirst(true);
-  opParams->SetScintFiniteRiseTime(true);
-  opParams->SetScintByParticleType(false); // for now use Birk's quenching
-
   // optical transport processes
   G4OpAbsorption* theAbsorptionProcess = new G4OpAbsorption();
   G4OpBoundaryProcess* theBoundaryProcess = new G4OpBoundaryProcess();
-  G4RayleighScattering* theRayleighScatter = new G4RayleighScattering();
+  G4OpRayleigh* theOpRayleighProc = new G4OpRayleigh();
   
   // looping and application
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
@@ -319,7 +320,8 @@ void PhysicsList::ConstructOptical(){
       if (particleName == "opticalphoton"){
         ph->RegisterProcess(theAbsorptionProcess, particle);
         ph->RegisterProcess(theBoundaryProcess,   particle);
-        ph->RegisterProcess(theRayleighScatter,   particle);
+        // ph->RegisterProcess(theOpRayleighProc,   particle);
+        
         // pmanager->AddDiscreteProcess(theAbsorptionProcess);
         // pmanager->AddDiscreteProcess(theBoundaryProcess);
         // pmanager->AddDiscreteProcess(theRayleighScatter);

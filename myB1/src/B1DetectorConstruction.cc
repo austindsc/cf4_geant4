@@ -26,6 +26,8 @@
 #include "collimator.hh"
 #include "alphaSource1.hh"
 
+#include <cmath>
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 B1DetectorConstruction::B1DetectorConstruction()
@@ -170,9 +172,21 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     checkOverlaps);       //overlaps checking
                     
   //--------------------------- Absorptive paper ---------------------------//
-  // G4double paperThick = 0.5*mm;
-  // G4Tubs * solid_paper = new G4Tubs("solid_paper", mediumR-2*paperThick, mediumR-paperThick, 0.5*mediumZ, 0, 360.*deg);
+  G4double paperThick = 0.2*mm;
+  G4Tubs * solid_paper = new G4Tubs("solid_paper", mediumR-2*paperThick, mediumR-paperThick, 0.5*mediumZ, 0, 360.*deg);
                     
+  //--------------------------- Metal Rods ---------------------------//
+  G4double rodsR = 1.5*mm;
+  G4double rodsL = mediumZ - 5*mm;
+  G4Tubs * solid_rods = new G4Tubs("solid_rods", 0., rodsR, 0.5*rodsL, 0, 360.*deg);
+  G4LogicalVolume * logic_rods = new G4LogicalVolume(solid_rods, detMat->mSteel, "logic_rods");
+  
+  G4double rodPosR = mediumR - rodsR - 1*mm;
+  G4ThreeVector rodp1 = G4ThreeVector(rodPosR, 0, -(mediumZ-rodsL)/2);
+  new G4PVPlacement(0, rodp1, logic_rods, "phys_rod1", logic_medium, false, 0, checkOverlaps);
+  new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod2", logic_medium, false, 0, checkOverlaps);
+  new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod3", logic_medium, false, 0, checkOverlaps);
+            
   //--------------------------- SiPM volume (Box) ---------------------------//
   G4double sipmXY = 15*mm;
   G4Box * solid_sipm = new G4Box("solid_sipm", 0.5*sipmXY, 0.5*sipmXY, 0.5*sipmThick);

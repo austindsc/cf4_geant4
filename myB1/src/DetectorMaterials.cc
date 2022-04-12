@@ -7,7 +7,7 @@
 #include "G4Material.hh"
 #include "G4Element.hh"
 
-#include "HelperOptical.hh"
+#include "HelperFunctions.hh"
 
 #include "DetectorMaterials.hh"
 
@@ -21,8 +21,8 @@ DetectorMaterials::DetectorMaterials(){
   fDetectorMedium = &mGasCF4;  // default
   fmediumDensity = -1.* g/cm3;  // flagged as not set
   fmediumLY = -1./MeV;         // flagged as not set
-  fmediumTemp = 110. * kelvin;      // medium temperature
-  fmediumPressure = 1 * bar;
+  fmediumTemp = -110. * kelvin;      // medium temperature  
+  fmediumPressure = -1 * bar;
 }
 
 DetectorMaterials *DetectorMaterials::GetInstance(){
@@ -70,11 +70,14 @@ void DetectorMaterials::BuildMaterials(){
   
   // -- black paper -- //
   // G4MaterialPropertiesTable * mptPaper = new G4MaterialPropertiesTable();
+  // mBlackPaper = nist->FindOrBuildMaterial("G4_POLYSTYRENE");
   
   
   // -------------------- Misc Materials --------------------//
   // -- air -- //
   mAir = nist->FindOrBuildMaterial("G4_AIR");
+  G4MaterialPropertiesTable *mptAir = new G4MaterialPropertiesTable();
+  mptAir->AddProperty("RINDEX", "Air");
 
   // -- generic plastic -- //
   mGenericPlastic = nist->FindOrBuildMaterial("G4_POLYSTYRENE");
@@ -83,15 +86,28 @@ void DetectorMaterials::BuildMaterials(){
   mLead = nist->FindOrBuildMaterial("G4_Pb");
   
   // -------------------- Gas CF4 --------------------//
-  G4double density_cf4Gas = 0.0012*g/cm3; // default value? need to make P and T function to get density
   G4double cf4Gas_ly = 2500 /MeV;         // rough, taken from python work and slides
-  if(fmediumDensity > 0 && *fDetectorMedium == mGasCF4) density_cf4Gas = fmediumDensity;
-  if(fmediumLY > 0 && *fDetectorMedium == mGasCF4) cf4Gas_ly = fmediumLY;
+  G4double density_cf4Gas = 0.0012*g/cm3; // default value? need to make P and T function to get density
+  G4double cf4Gas_temp = 160*kelvin;
+  G4double cf4Gas_P = 0.5*bar;
+  
+  if(*fDetectorMedium == mGasCF4){
+    if(fmediumLY > 0) cf4Gas_ly = fmediumLY;
+    if(fmediumPressure > 0) cf4Gas_P = fmediumPressure;
+    if(fmediumTemp > 0) cf4Gas_temp = fmediumTemp;
+    if(fmediumDensity > 0) density_cf4Gas = fmediumDensity;
+    else if(fmediumTemp > 0){ // set density based on temperature
+      
+      
+      // do stuff to get the gas density
+    }
+  }
+  
   
   G4Element * elCarbon = new G4Element("Carbon", "C", 6, 12.01 * g/mole);
   G4Element * elFluorine = new G4Element("Fluorine", "F", 9,  19. * g/mole);
   
-  mGasCF4 = new G4Material("cf4Gas", density_cf4Gas, 2, kStateGas, fmediumTemp, fmediumPressure);
+  mGasCF4 = new G4Material("cf4Gas", density_cf4Gas, 2, kStateGas, cf4Gas_temp, cf4Gas_P);
   mGasCF4->AddElement(elCarbon, 1);
   mGasCF4->AddElement(elFluorine, 4);
     
@@ -99,12 +115,28 @@ void DetectorMaterials::BuildMaterials(){
   
   // -------------------- Liquid CF4 --------------------//
   
+  G4double cf4Liq_ly = 4700 /MeV;    // rough, taken from python work and slides
   G4double density_cf4Liq = 1.6*g/cm3;  // default value? unknown if correct
-  G4double cf4Liq_ly = 4700 /MeV;       // rough, taken from python work and slides
+  G4double cf4Liq_temp = 160*kelvin;
+  G4double cf4Liq_P = 0.5*bar;
   
-  if(fmediumDensity > 0 && *fDetectorMedium == mLiquidCF4) density_cf4Liq = fmediumDensity;
-  if(fmediumLY > 0 && *fDetectorMedium == mLiquidCF4) cf4Liq_ly = fmediumLY;
-  mLiquidCF4 = new G4Material("cf4Liq", density_cf4Liq, 2, kStateLiquid, fmediumTemp, fmediumPressure);
+  if(*fDetectorMedium == mLiquidCF4){
+    if(fmediumLY > 0) cf4Liq_ly = fmediumLY;
+    if(fmediumPressure > 0) cf4Liq_P = fmediumPressure;
+    if(fmediumTemp > 0) cf4Liq_temp = fmediumTemp;
+    if(fmediumDensity > 0) density_cf4Liq = fmediumDensity;
+    else if(fmediumTemp > 0){// set density based on temperature
+      
+      // G4cout << fmediumTemp/kelvin << G4endl;
+      // G4cout << PH::GetLiquidDensity_eqn(fmediumTemp)/(g/cm3) << G4endl;
+      PH::GetDensity_data(fmediumTemp, "data/density_liquidCF4.dat");
+      exit(0);
+      // do stuff to get the liquid density
+    }
+
+  }
+  
+  mLiquidCF4 = new G4Material("cf4Liq", density_cf4Liq, 2, kStateLiquid, cf4Liq_temp, cf4Liq_P);
   mLiquidCF4->AddElement(elCarbon, 1);
   mLiquidCF4->AddElement(elFluorine, 4);
   

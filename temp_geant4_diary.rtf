@@ -5,7 +5,14 @@
 \margl1440\margr1440\vieww14020\viewh12580\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
-\f0\b\fs26 \cf0 \ul \ulc0 \
+\f0\b\fs26 \cf0 \ul \ulc0 Analysis thoughts\
+
+\f1\b0 \ulnone - can we constrain UV efficiency?\
+- need RC correction, ~5-10% effective increase on large pulses\
+- also must remove CAs, do using paper values or from SPE data (no source)
+\f0\b \ul \
+\
+\
 temporary geant4 work diary
 \f1\b0 \ulnone \
 \
@@ -18,10 +25,17 @@ temporary geant4 work diary
 	- must add AOI dependance. scale with cos\\theta for now?\
 	- must add filter as well. with AOI (got information from NewPort)\
 \
+- SIPM sensitive only from \'91front\'92, other stuff around sipm (PCB), etc\
+\
+- Add Bi207 source without collimator\
+\
+- build ability to run with or without collimator\
+\
 - Output\
 	- total energy deposited in CF4\
 	- true NPE\
 	- detected NPE\
+	- control name of output file (messenger stuff)\
 	
 \f0\b to add\
 
@@ -39,6 +53,12 @@ temporary geant4 work diary
 	- boundary/surface properties\
 	- possible absorption? \
 	- more refractive indexes\
+\
+- optics, Absorption\
+	- look up values, or find isothermal compressibility to calculate it (see opRayleigh in optics, g4applications pdf)\
+		- probably no effect. other absorptive processes?\
+\
+- compare activity of source to rate in detector (how realistic is simulated geo)\
 \
 - proper physics list\
 	- EM default probably fine\
@@ -59,6 +79,12 @@ temporary geant4 work diary
 \
 
 \f0\b ==== DONE ====\
+
+\f1\b0 \
+- change my data loader to have a general \'91scaleX\'92 and \'91scaleY\'92 which are G4doubles, so i can use data more freely elsewhere.\
+	- DONE\
+
+\f0\b \
 
 \f1\b0 - add full vacuum geometry\
 	- DONE\

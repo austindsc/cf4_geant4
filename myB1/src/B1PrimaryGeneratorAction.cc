@@ -43,7 +43,7 @@ fgammaSource_volume(0), fgammaSource_tubs(0), fcollimator_volume(0), fdetconstru
   
   fAlphaIntensity = 10;
   fGammaIntensity = 10;
-  fGammaThetaMax = 5.*deg;
+  fGammaThetaMax = 1.5*deg;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -147,7 +147,15 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       fGun->GetCurrentSource()->SetParticleDefinition(G4IonTable::GetIonTable()->GetIon(27, 60, 0.*keV));
       fGun->GetCurrentSource()->SetParticleCharge(0*eplus);
     }
-    if(gs == "Cs137"){
+    else if(gs == "isoCo57"){
+      fGun->AddaSource(fGammaIntensity);
+      this->doSourcePlacement(finalgsVector, fgammaSource_tubs, "phys_gammaSource");
+      fGun->GetCurrentSource()->GetEneDist()->SetMonoEnergy(0.0*MeV);
+      fGun->GetCurrentSource()->SetParticleDefinition(G4IonTable::GetIonTable()->GetIon(27, 57, 0.*keV));
+      fGun->GetCurrentSource()->SetParticleCharge(0*eplus);
+      
+    }
+    else if(gs == "Cs137"){
       const int csN = 8;
       // taken from https://www.nndc.bnl.gov/nudat3/decaysearchdirect.jsp?nuc=137Cs&unc=NDS
       G4double myCsEnergy[csN] = {4.47*keV, 31.817*keV, 32.194*keV, 36.304*keV, 36.378*keV, 37.255*keV, 283.5*keV, 0.661*MeV};
@@ -163,11 +171,26 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       }
       
     }
-    if(gs == "Co60"){
+    else if(gs == "Co60"){
       const int coN = 8;
       // taken from https://www.nndc.bnl.gov/nudat3/decaysearchdirect.jsp?nuc=60Co&unc=NDS
       G4double myCoEnergy[coN] = {7.47*keV, 8.265*keV, 347.14*keV, 826.1*keV, 1173.228*keV, 1332.5*keV, 2158.6*keV, 2505.7*keV};
       G4double myCoIntensity[coN] = {0.000063+0.000032, 0.000015, 0.000075, 0.000076, 0.9985, 0.9998, 0.000012, 2e-8};
+      
+      for(int i = 0; i < coN; i++){
+        fGun->AddaSource(fGammaIntensity * myCoIntensity[i]);
+        fGun->GetCurrentSource()->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle("gammma"));
+        this->doSourcePlacement(finalgsVector, fgammaSource_tubs, "phys_gammaSource");
+        // this->doSourcePlacement(G4ThreeVector(0, 0, 4), fgammaSource_tubs, "phys_gammaSource"); // testing
+        this->setGammaDirection(fGammaThetaMax, fGun->GetCurrentSource());
+        fGun->GetCurrentSource()->GetEneDist()->SetMonoEnergy(myCoEnergy[i]);
+      }
+    }
+    else if(gs == "Co57"){
+      const int coN = 6;
+      // taken from https://www.nndc.bnl.gov/nudat3/decaysearchdirect.jsp?nuc=57Co&unc=NDS
+      G4double myCoEnergy[coN] = {6.4*keV, 7.058*keV, 14.4*keV, 122.06*keV, 136.47*keV, 230.4*keV, 339.7*keV, 352.33*keV, 366.8*keV, 570.*keV, 692.4*keV, 706.54*keV};
+      G4double myCoIntensity[coN] = {0.166 + 0.33, 0.059, 0.091, 0.856, 0.107, 4.e-6, 3.7e-5, 3.e-5, 1.2e-5, 1.58e-4, 0.00149, 5.e-5};
       
       for(int i = 0; i < coN; i++){
         fGun->AddaSource(fGammaIntensity * myCoIntensity[i]);

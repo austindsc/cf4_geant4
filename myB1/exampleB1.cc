@@ -37,7 +37,6 @@
 // physics lists
 #include "PhysicsList.hh"
 
-
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
 
@@ -82,7 +81,7 @@ int main(int argc,char** argv)
   if ( ! ui ) { 
     // batch mode
     G4cout << "\n\n---------------------- Script Settings ----------------------" << G4endl;
-    G4String command = "/control/execute ../myB1/";
+    G4String command = "/control/execute /Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/myB1/";
     G4String fileName = argv[1];
     UImanager->ApplyCommand(command+fileName);
   }

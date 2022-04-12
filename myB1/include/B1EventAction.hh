@@ -60,6 +60,7 @@ class B1EventAction : public G4UserEventAction
     G4double     fEdep;
     G4int        fmcNPE; // mc number of photons hitting detector (no efficiencies)
     G4int        fNPE;  // after efficiencies
+    
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
