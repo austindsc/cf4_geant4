@@ -43,6 +43,8 @@
 #include "G4AnalysisManager.hh"
 #include "G4GeneralParticleSource.hh"
 
+// #include "G4Random.hh"
+#include "Randomize.hh"
 // #include <TRandom3.h>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -67,6 +69,9 @@ void B1RunAction::BeginOfRunAction(const G4Run*)
 { 
   // inform the runManager to save random number seed
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
+  
+  G4int seed=time(0);
+  G4Random::setTheSeed(seed);
 
   // reset accumulables to their initial values
   G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();

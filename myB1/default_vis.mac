@@ -30,7 +30,7 @@
 
 /setDetector/useCollimator false        # default is true
 /setDetector/gammaHeight 4.4            # this turns on detConst.gammaStatus
-/setDetector/GammaThetaMax 90           # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
+/setDetector/GammaThetaMax 1           # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
 
 #/setDetector/gammaSource Cs137         # default, see available in detectorconstruction header and primary generator
 #/setDetector/gammaSource Co60

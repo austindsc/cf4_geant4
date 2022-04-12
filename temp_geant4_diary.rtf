@@ -49,7 +49,7 @@ temporary geant4 work diary
 - optical properties\
 	- must add aluminum and SS\
 	- boundary/surface properties\
-	- possible absorption? \
+	- possible absorption? everything with undefined n absorbs (good for now)\
 	- more refractive indexes\
 \
 - optics, Absorption\
@@ -58,17 +58,8 @@ temporary geant4 work diary
 \
 - compare activity of source to rate in detector (how realistic is simulated geo)\
 \
-- proper physics list\
-	- EM default probably fine\
-	- change to UG physics list\
-		- UG list doesn\'92t work\
-	- using modified physics list from advanced/amsEcal, (added optical physics)\
-	- must add in relevant stuff from DMX list\
-\
 - fix my user limits to only affect certain particles\
 	- currently done in construction\
-\
-- Set/change seed based on time (get same results everytime rerunning code)\
 \
 - must update google photos\
 \
@@ -77,9 +68,20 @@ temporary geant4 work diary
 \
 
 \f0\b ==== DONE ====\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
-\f1\b0 \
-- added user ability \
+\f1\b0 \cf0 \
+- Set/change seed based on time (don\'92t get same results everytime rerunning code)\
+	- in RunAction.cc call:   G4int seed=time(0); G4Random::setTheSeed(seed);\
+	- DONE
+\f0\b \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f1\b0 \cf0 \
+- add user ability to define gamma source thetaMax (for biased sources)\
+	- moved fGammaThetaMax to detectorConstruction, added messenger function\
+	- primary generator now gets thetaMax from detectorConstruction\
+	- DONE\
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 \cf0 - build ability to run with or without collimator\
@@ -89,6 +91,14 @@ temporary geant4 work diary
 \
 - change my data loader to have a general \'91scaleX\'92 and \'91scaleY\'92 which are G4doubles, so i can use data more freely elsewhere.\
 	- DONE\
+\
+- proper physics list\
+	- EM default probably fine\
+	- change to UG physics list\
+		- UG list doesn\'92t work\
+	- using modified physics list from advanced/amsEcal, (added optical physics)\
+	- must add in relevant stuff from DMX list\
+	- DONE (I think?)\
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
 \f0\b \cf0 \
