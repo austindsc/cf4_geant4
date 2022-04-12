@@ -42,6 +42,9 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     G4bool GetCollStatus(){ return fCollStatus; }
     void SetCollStatus(G4bool y){ fCollStatus = y; }
     
+    G4double GetGammaThetaMax(){ return fGammaThetaMax; }
+    void SetGammaThetaMax(G4double theta){ fGammaThetaMax = theta; }
+    
     G4String GetGammaSourceStr(){ return fGammaSource; }
     void SetGammaSourceStr(G4String sourceName){ fGammaSource = sourceName; }
 
@@ -73,10 +76,9 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     
     G4double  fGammaHeight;
     G4bool    fGammaStatus;
-    
     G4bool    fCollStatus;
-    
-    G4String fGammaSource;
+    G4String  fGammaSource;
+    G4double  fGammaThetaMax;
     
 };
 

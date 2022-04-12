@@ -29,21 +29,28 @@ private:
   // 0 - none of my outputs
   // 1 - event level outputs
   
-  
   G4UIcmdWithADouble     * SetAlphaDistanceCmd;
   // -1 no source (<0 in code), not working yet
   // other values are cm distance
   
   G4UIcmdWithADouble    * SetGammaHeightCmd;
-  // in cm
+  // in cm, Z above SiPM face
+  // this turns on gammaStatus in code
   
   G4UIcmdWithABool      * SetCollimatorStatusCmd;
+  // true/false
+  
+  G4UIcmdWithADouble    * SetGammaThetaMaxCmd;
+  // 0-180 (degrees)
+  
   G4UIcmdWithAString    * SetGammaSourceCmd;
   // /setDetector/gammaSource
   // isoCs137
   // isoCo60
+  // isoCo57
   // Cs137 (angle biasing, not complete decay information)
   // Co60 (angle biasing, not complete decay information)
+  // Co57 (angle biasing, not complete decay information)
   
   // 0 no source
   // 1...3 different positions

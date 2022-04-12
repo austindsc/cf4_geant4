@@ -43,7 +43,7 @@ class B1PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     
     G4double fAlphaIntensity; //index 0
     G4double fGammaIntensity;  //index 1
-    G4double fGammaThetaMax;
+    // G4double fGammaThetaMax;
     
     G4Tubs* fCF4_volume;
     G4VPhysicalVolume* famo2_volume;

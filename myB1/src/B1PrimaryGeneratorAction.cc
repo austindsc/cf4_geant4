@@ -43,7 +43,7 @@ fgammaSource_volume(0), fgammaSource_tubs(0), fcollimator_volume(0), fdetconstru
   
   fAlphaIntensity = 10;
   fGammaIntensity = 10;
-  fGammaThetaMax = 1.5*deg;
+  // fGammaThetaMax = 1.5*deg;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -60,7 +60,6 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   
   if(!fdetconstruction){
     fdetconstruction = (B1DetectorConstruction *)G4RunManager::GetRunManager()->GetUserDetectorConstruction();
-    
     if(!fdetconstruction){
       G4ExceptionDescription msg;
       msg << "Can't find B1DetectorConstruction\n"; 
@@ -131,6 +130,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     // G4cout << "\nOriginal source vector: " << ogsVec/cm << G4endl;
     // G4cout << "new source vector: " << newGSVec/cm << " cm" << G4endl;
   
+    G4double userThetaMax = fdetconstruction->GetGammaThetaMax();
     if((!fgammaSource_volume || !fgammaSource_tubs) || (!fcollimator_volume && fdetconstruction->GetCollStatus()==true)) {
       G4ExceptionDescription msg;
       msg << "Can't find fgammaSource_tubs, _volume or fcollimator_volume \n"; 
@@ -172,7 +172,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         fGun->GetCurrentSource()->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle("gamma"));
         this->doSourcePlacement(finalgsVector, fgammaSource_tubs, "phys_gammaSource");
         // this->doSourcePlacement(G4ThreeVector(0, 0, 4), fgammaSource_tubs, "phys_gammaSource"); // testing
-        this->setGammaDirection(fGammaThetaMax, fGun->GetCurrentSource());
+        this->setGammaDirection(userThetaMax, fGun->GetCurrentSource());
         fGun->GetCurrentSource()->GetEneDist()->SetMonoEnergy(myCsEnergy[i]);
       }
       
@@ -188,7 +188,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         fGun->GetCurrentSource()->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle("gammma"));
         this->doSourcePlacement(finalgsVector, fgammaSource_tubs, "phys_gammaSource");
         // this->doSourcePlacement(G4ThreeVector(0, 0, 4), fgammaSource_tubs, "phys_gammaSource"); // testing
-        this->setGammaDirection(fGammaThetaMax, fGun->GetCurrentSource());
+        this->setGammaDirection(userThetaMax, fGun->GetCurrentSource());
         fGun->GetCurrentSource()->GetEneDist()->SetMonoEnergy(myCoEnergy[i]);
       }
     }
@@ -203,7 +203,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         fGun->GetCurrentSource()->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle("gammma"));
         this->doSourcePlacement(finalgsVector, fgammaSource_tubs, "phys_gammaSource");
         // this->doSourcePlacement(G4ThreeVector(0, 0, 4), fgammaSource_tubs, "phys_gammaSource"); // testing
-        this->setGammaDirection(fGammaThetaMax, fGun->GetCurrentSource());
+        this->setGammaDirection(userThetaMax, fGun->GetCurrentSource());
         fGun->GetCurrentSource()->GetEneDist()->SetMonoEnergy(myCoEnergy[i]);
       }
     }

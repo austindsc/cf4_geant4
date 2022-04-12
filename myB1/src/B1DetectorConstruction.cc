@@ -49,7 +49,7 @@ B1DetectorConstruction::B1DetectorConstruction()
   fGammaHeight = -1. * cm;
   
   fCollStatus = true;
-  
+  fGammaThetaMax = 2. * deg;
   fGammaSource = "Cs137"; //default, other options are "Co60", etc (see header)
   
   // do messenger stuff to set variables in detMat

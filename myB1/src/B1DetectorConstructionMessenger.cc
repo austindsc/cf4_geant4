@@ -48,6 +48,11 @@ B1DetectorConstructionMessenger::B1DetectorConstructionMessenger(B1DetectorConst
   SetCollimatorStatusCmd->SetParameterName("useCollimator", false, true);
   SetCollimatorStatusCmd->SetDefaultValue(det->GetCollStatus());
   SetCollimatorStatusCmd->AvailableForStates(G4State_PreInit);
+  
+  SetGammaThetaMaxCmd = new G4UIcmdWithADouble("/setDetector/GammaThetaMax", this);
+  SetGammaThetaMaxCmd->SetParameterName("GammaThetaMax", false, true);
+  SetGammaThetaMaxCmd->SetDefaultValue(det->GetGammaThetaMax());
+  SetGammaThetaMaxCmd->AvailableForStates(G4State_PreInit);
 }
 
 B1DetectorConstructionMessenger::~B1DetectorConstructionMessenger(){
@@ -76,6 +81,9 @@ void B1DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4String
   }
   if(command == SetCollimatorStatusCmd){
     Detector->SetCollStatus(SetCollimatorStatusCmd->GetNewBoolValue(newVal));
+  }
+  if(command == SetGammaThetaMaxCmd){
+    Detector->SetGammaThetaMax(SetGammaThetaMaxCmd->GetNewDoubleValue(newVal) * deg);
   }
 
 }
