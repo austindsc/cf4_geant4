@@ -185,7 +185,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       
       for(int i = 0; i < coN; i++){
         fGun->AddaSource(fGammaIntensity * myCoIntensity[i]);
-        fGun->GetCurrentSource()->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle("gammma"));
+        fGun->GetCurrentSource()->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle("gamma"));
         this->doSourcePlacement(finalgsVector, fgammaSource_tubs, "phys_gammaSource");
         // this->doSourcePlacement(G4ThreeVector(0, 0, 4), fgammaSource_tubs, "phys_gammaSource"); // testing
         this->setGammaDirection(userThetaMax, fGun->GetCurrentSource());
@@ -196,11 +196,11 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       const int coN = 12;
       // taken from https://www.nndc.bnl.gov/nudat3/decaysearchdirect.jsp?nuc=57Co&unc=NDS
       G4double myCoEnergy[coN] = {6.4*keV, 7.058*keV, 14.4*keV, 122.06*keV, 136.47*keV, 230.4*keV, 339.7*keV, 352.33*keV, 366.8*keV, 570.*keV, 692.4*keV, 706.54*keV};
-      G4double myCoIntensity[coN] = {0.166 + 0.33, 0.059, 0.091, 0.856, 0.107, 4.e-6, 3.7e-5, 3.e-5, 1.2e-5, 1.58e-4, 0.00149, 5.e-5};
+      G4double myCoIntensity[coN] = { (0.166 + 0.33), 0.059, 0.091, 0.856, 0.107, 4.0e-6, 3.7e-5, 3.e-5, 1.2e-5, 1.58e-4, 0.00149, 5.0e-5};
       
       for(int i = 0; i < coN; i++){
         fGun->AddaSource(fGammaIntensity * myCoIntensity[i]);
-        fGun->GetCurrentSource()->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle("gammma"));
+        fGun->GetCurrentSource()->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle("gamma"));
         this->doSourcePlacement(finalgsVector, fgammaSource_tubs, "phys_gammaSource");
         // this->doSourcePlacement(G4ThreeVector(0, 0, 4), fgammaSource_tubs, "phys_gammaSource"); // testing
         this->setGammaDirection(userThetaMax, fGun->GetCurrentSource());
