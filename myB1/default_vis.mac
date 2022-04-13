@@ -29,7 +29,7 @@
 /setDetector/myVerbosity 1              # 1 outputs event level data
 
 /setDetector/useCollimator false        # default is true
-/setDetector/gammaHeight 4.4            # this turns on detConst.gammaStatus
+#/setDetector/gammaHeight 4.4            # this turns on detConst.gammaStatus
 /setDetector/GammaThetaMax 1           # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
 
 #/setDetector/gammaSource Cs137         # default, see available in detectorconstruction header and primary generator
@@ -37,7 +37,7 @@
 #/setDetector/gammaSource Co57
 #/setDetector/gammaSource isoCs137
 #/setDetector/gammaSource isoCo60
-#/setDetector/gammaSource isoCo57
+/setDetector/gammaSource isoCo57
 
 #/setDetector/alphaHeight 4.            # this sets alphaStatus to true
                                         # currently gamma and alpha source have same intensity (see primary generator constructor to change)
@@ -58,3 +58,4 @@
 ### run myVis ###
 /control/execute ../myB1/myVis.mac
 
+/control/execute ../myB1/testRun.mac

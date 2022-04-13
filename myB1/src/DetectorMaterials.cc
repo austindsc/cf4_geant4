@@ -146,13 +146,20 @@ void DetectorMaterials::BuildMaterials(){
 
 
 
-  // -------------------- Silicon --------------------//
+  // -------------------- SiPM Stuff --------------------//
+  // -- Silicon -- //
   G4double photonE_Si[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
   G4double nSi[2] = {1.20, 1.20};   
   G4MaterialPropertiesTable *mptSi = new G4MaterialPropertiesTable();
   mptSi->AddProperty("RINDEX", photonE_Si, nSi, 2); //2 is for length of arrays
   mSilicon = nist->FindOrBuildMaterial("G4_Si");
   mSilicon->SetMaterialPropertiesTable(mptSi);
+  
+  // -- Ceramic --//
+  //ceramic(Medical Physics, May 2000), from old BrachyMaterial class
+  mCeramic = new G4Material("Ceramic", 2.88*g/cm3, 2, kStateSolid);
+  mCeramic->AddElement(nist->FindOrBuildElement("Al"),2);
+  mCeramic->AddElement(nist->FindOrBuildElement("O"),3);
 
   // -------------------- Smoke Detector --------------------//
   mSilver = nist->FindOrBuildMaterial("G4_Ag");

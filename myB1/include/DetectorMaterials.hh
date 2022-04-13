@@ -48,12 +48,13 @@ protected:
   G4Material * mLead;
   G4Material * mGenericPlastic;
   G4Material * mAluminum;
-  G4Material * mBlackPaper;
+  // G4Material * mBlackPaper;
   
   // SiPM stuff
   G4Material * mSilicon;
-  G4Material * Si02;      //silicon dioxide (for SiPM surface?)
-  G4Material * mQuartz;
+  // G4Material * Si02;      //silicon dioxide (for SiPM surface?)
+  // G4Material * mQuartz;
+  G4Material * mCeramic;
   
   // smoke detector (alpha source)
   G4Material * mAmActiveMatrix; // gold mixed with AmO2

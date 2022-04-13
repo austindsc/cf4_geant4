@@ -25,9 +25,9 @@ temporary geant4 work diary
 	- must add AOI dependance. scale with cos\\theta for now?\
 	- must add filter as well. with AOI (got information from NewPort)\
 \
-- SIPM sensitive only from \'91front\'92, other stuff around sipm (PCB), etc\
+- define a second mSteel variable with a refractive index, to handle reflections from top of chamber and rods\
 \
-- Add Bi207 source without collimator\
+- Add Bi207 source with and/or without collimator\
 \
 - Output\
 	- total energy deposited in CF4\
@@ -68,9 +68,16 @@ temporary geant4 work diary
 \
 
 \f0\b ==== DONE ====\
+\
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
-\f1\b0 \cf0 \
+\f1\b0 \cf0 - SIPM sensitive only from \'91front\'92, other stuff around sipm (PCB), etc\
+	- added ceramic package around SiPM so photons can\'92t get through back\
+	- no step info or photon information used\
+	- DONE
+\f0\b \
+
+\f1\b0 \
 - Set/change seed based on time (don\'92t get same results everytime rerunning code)\
 	- in RunAction.cc call:   G4int seed=time(0); G4Random::setTheSeed(seed);\
 	- DONE
