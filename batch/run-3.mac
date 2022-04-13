@@ -27,4 +27,4 @@
 ### Initialize kernel (build detector) ###
 /run/initialize
 
-/run/beamOn 1000
+/run/beamOn 100000

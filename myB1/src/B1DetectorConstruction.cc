@@ -64,7 +64,6 @@ void B1DetectorConstruction::ConstructSDandField(){
     
     sensitiveSipm * ssipm = new sensitiveSipm("sensitiveSipm");
     fsipmVolume->SetSensitiveDetector(ssipm);
-    G4cout << "called Cosntruct Fields" << G4endl;
     
 }
 
