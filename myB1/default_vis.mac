@@ -21,25 +21,25 @@
 /setMaterial/detectionMedium lCF4       # see Optics/material for default LYs
 
 /setMaterial/mediumDensity 1.6047 g/cm3 # takes precendece over density from SetTemp. default densities given in DetectorMaterials.cc
-/setMaterial/mediumTemp 145 kelvin      # sets density based on saturation curve data (gas or liquid CF4)
-/setMaterial/mediumPressure 10.2 bar    # sets material property
+#/setMaterial/mediumTemp 145 kelvin      # sets density based on saturation curve data (gas or liquid CF4)
+#/setMaterial/mediumPressure 10.2 bar    # sets material property
 #/setMaterial/mediumLY 10. MeVLY        # these units are photons/MeV, keVLY also available
 
 ### detector configuration ###
 /setDetector/myVerbosity 1              # 1 outputs event level data
 
-/setDetector/useCollimator false        # default is true
-#/setDetector/gammaHeight 4.4            # this turns on detConst.gammaStatus
-/setDetector/GammaThetaMax 1           # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
+/setDetector/useCollimator true         # default is true
+/setDetector/gammaHeight 2.4           # this turns on detConst.gammaStatus
+/setDetector/GammaThetaMax 1            # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
 
-#/setDetector/gammaSource Cs137         # default, see available in detectorconstruction header and primary generator
+/setDetector/gammaSource Cs137         # default, see available in detectorconstruction header and primary generator
 #/setDetector/gammaSource Co60
 #/setDetector/gammaSource Co57
 #/setDetector/gammaSource isoCs137
 #/setDetector/gammaSource isoCo60
-/setDetector/gammaSource isoCo57
+#/setDetector/gammaSource isoCo57
 
-#/setDetector/alphaHeight 4.            # this sets alphaStatus to true
+#/setDetector/alphaHeight 4.              # this sets alphaStatus to true
                                         # currently gamma and alpha source have same intensity (see primary generator constructor to change)
 
 ## process toggling ##
@@ -58,4 +58,4 @@
 ### run myVis ###
 /control/execute ../myB1/myVis.mac
 
-/control/execute ../myB1/testRun.mac
+#/control/execute ../myB1/testRun.mac
