@@ -1,0 +1,43 @@
+
+G4Tubs * solid_mediumCyl = new G4Tubs("solid_mediumCyl", mediumR, mediumR + outerCyl_thick, 0.5*mediumZ, 0, 360.*deg);
+G4LogicalVolume * logic_mediumCyl = new G4LogicalVolume(solid_mediumCyl, detMat->mSteel, "logic_mediumCyl");
+new G4PVPlacement(0, moveMediumUP, logic_mediumCyl, "phys_mediumCyl", logicWorld, false, 0, checkOverlaps);
+
+// upper flanges of CF4 cylinder
+G4double flange_r = 6.9*cm/2;
+G4double upperFlange_thick = 1.3*cm;
+G4Tubs * solid_med_upperFlange = new G4Tubs("solid_med_upperFlange", mediumR + outerCyl_thick, flange_r, 0.5*upperFlange_thick, 0, 360*deg);
+G4LogicalVolume * logic_med_upperFlange = new G4LogicalVolume(solid_med_upperFlange, detMat->mSteel, "logic_med_upperFlange");
+new G4PVPlacement(0, moveMediumUP + G4ThreeVector(0, 0, mediumZ/2 - upperFlange_thick/2), logic_med_upperFlange, "phys_med_upperFlange", logicWorld, false, 0, checkOverlaps);
+
+// solid upper flange
+G4Tubs * solid_med_solidupperFlange = new G4Tubs("solid_med_solidupperFlange", 0, flange_r, 0.5*upperFlange_solid_thick, 0, 360*deg);
+G4LogicalVolume * logic_med_solidupperFlange = new G4LogicalVolume(solid_med_solidupperFlange, detMat->mSteel, "logic_med_solidupperFlange");
+new G4PVPlacement(0, moveMediumUP + G4ThreeVector(0, 0, mediumZ/2 + upperFlange_solid_thick/2), logic_med_solidupperFlange, "phys_med_solidupperFlange", logicWorld, false, 0, checkOverlaps);
+
+// lower flanges of CF4 cylinder
+G4double lowerFlange_thick = 3.8*cm;
+G4Tubs * solid_med_lowerFlange = new G4Tubs("solid_med_lowerFlange", mediumR + outerCyl_thick, flange_r, 0.5*lowerFlange_thick, 0, 360*deg);
+G4LogicalVolume * logic_med_lowerFlange = new G4LogicalVolume(solid_med_lowerFlange, detMat->mSteel, "logic_med_lowerFlange");
+new G4PVPlacement(0, moveMediumUP + G4ThreeVector(0, 0, -mediumZ/2 + lowerFlange_thick/2), logic_med_lowerFlange, "phys_med_lowerFlange", logicWorld, false, 0, checkOverlaps);
+
+// solid lower flange
+new G4PVPlacement(0, moveMediumUP + G4ThreeVector(0, 0, -mediumZ/2 - upperFlange_solid_thick/2), logic_med_solidupperFlange, "phys_med_solidlowerFlange", logicWorld, false, 0, checkOverlaps);
+
+// upper aluminum of shielding can 1 
+G4Tubs * solid_can1Plate = new G4Tubs("solid_can1Plate", 0, can1R, can1PlateZ/2, 0., 360.*deg);
+G4LogicalVolume * logic_can1Plate = new G4LogicalVolume(solid_can1Plate, detMat->mAluminum, "logic_can1Plate");
+new G4PVPlacement(0, can1PlateOffset, logic_can1Plate, "phys_can1Plate", logicWorld, false, 0, checkOverlaps);
+
+G4Tubs * solid_can1 = new G4Tubs("solid_can1", can1R, can1R+can1thick, can1Z/2, 0., 360.*deg);
+G4LogicalVolume * logic_can1 = new G4LogicalVolume(solid_can1, detMat->mSteel, "logic_can1");
+new G4PVPlacement(0, can1PlateOffset + G4ThreeVector(0, 0, -can1Z/2 + can1PlateZ/2), logic_can1, "phys_can1", logicWorld, false, 0, checkOverlaps);
+
+G4Tubs * solid_can1_bottom = new G4Tubs("solid_can1_bottom", 0, can1R, can1thick/2, 0., 360.*deg);
+G4LogicalVolume * logic_can1_bottom = new G4LogicalVolume(solid_can1_bottom, detMat->mSteel, "logic_can1_bottom");
+new G4PVPlacement(0, can1PlateOffset + G4ThreeVector(0, 0, -can1Z + can1PlateZ/2 + can1thick/2), logic_can1_bottom, "phys_can1_bottom", logicWorld, false, 0, checkOverlaps);
+
+// last outer cylinder
+G4Tubs * solid_outercan = new G4Tubs("solid_outercan", outercanR, outercanR+outercanThick, outercanZ/2, 0, 360.*deg);
+G4LogicalVolume * logic_outercan = new G4LogicalVolume(solid_outercan, detMat->mSteel, "logic_outercan");
+new G4PVPlacement(0, can1PlateOffset + G4ThreeVector(0, 0, -outercanZ/2 + outercanHeightFromPlate), logic_outercan, "phys_outercan", logicWorld, false, 0, checkOverlaps);

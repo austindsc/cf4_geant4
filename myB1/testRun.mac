@@ -1,0 +1,8 @@
+
+                                      
+/gps/particle opticalphoton
+/gps/energy 2.5 eV
+/gps/direction 0 0 1
+/gps/position 0 0 -4 cm
+
+/gps/number 10000
