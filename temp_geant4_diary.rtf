@@ -71,9 +71,8 @@ temporary geant4 work diary
 
 \f0\b ==== DONE ====\
 \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
-\f1\b0 \cf0 - SIPM sensitive only from \'91front\'92, other stuff around sipm (PCB), etc\
+\f1\b0 - SIPM sensitive only from \'91front\'92, other stuff around sipm (PCB), etc\
 	- added ceramic package around SiPM so photons can\'92t get through back\
 	- no step info or photon information used\
 	- DONE
@@ -84,16 +83,14 @@ temporary geant4 work diary
 	- in RunAction.cc call:   G4int seed=time(0); G4Random::setTheSeed(seed);\
 	- DONE
 \f0\b \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
-\f1\b0 \cf0 \
+\f1\b0 \
 - add user ability to define gamma source thetaMax (for biased sources)\
 	- moved fGammaThetaMax to detectorConstruction, added messenger function\
 	- primary generator now gets thetaMax from detectorConstruction\
 	- DONE\
 \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
-\cf0 - build ability to run with or without collimator\
+- build ability to run with or without collimator\
 	- added collimator flag to detconstruction. either build source directly in detconst, or in collimator()\
 	- then checked for flag in primary generator, and do translation accordingly.\
 	- DONE\
@@ -108,9 +105,8 @@ temporary geant4 work diary
 	- using modified physics list from advanced/amsEcal, (added optical physics)\
 	- must add in relevant stuff from DMX list\
 	- DONE (I think?)\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
-\f0\b \cf0 \
+\f0\b \
 
 \f1\b0 - add full vacuum geometry\
 	- DONE\
@@ -133,7 +129,8 @@ temporary geant4 work diary
 	- DONE\
 \
 - need to figure out user verbosity\
-\strike \strikec0 	- preprocessor commands. must set with a command\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \strike \strikec0 	- preprocessor commands. must set with a command\
 	- currently have MYVERBOSE in EventAction\strike0\striked0 \
 	- add \'91myGlobals.hh\'92 and control extern variable myVerbosity through that\
 	- DONE. \
@@ -155,8 +152,9 @@ temporary geant4 work diary
 	- 
 \f0\b added 0.05mm crack between horizontal blocks (attached together)
 \f1\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
-\f0\b 	- being too specific\
+\f0\b \cf0 	- being too specific\
 		- 
 \f1\b0 did exact block sizes and orientations (probably overkill)\
 		- added plastic tube (probably overkill). assumed mcdonalds straw waall thickness of 0.2mm\

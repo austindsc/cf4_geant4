@@ -63,7 +63,10 @@ B1EventAction::~B1EventAction()
 
 void B1EventAction::BeginOfEventAction(const G4Event*)
 {    
-  if(evMan->GetVerboseLevel() > 0 || MG::GetVerbosity() > 0) G4cout << "\n-------- Start Event --------" << G4endl;
+  G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+  if((MG::GetVerbosity() == 1 || evMan->GetVerboseLevel() > 0) && (evt < 100 || evt % 1000 == 0)){
+    G4cout << "\n-------- Start Event --------" << G4endl;
+  }
   fEdep = 0.;
   fmcNPE = 0;
   fNPE = 0;
@@ -78,15 +81,16 @@ void B1EventAction::EndOfEventAction(const G4Event*)
   // if(fEdep <= 10 * eV) return;
   
   G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+    if(fEdep > 0){
+    G4AnalysisManager *man = G4AnalysisManager::Instance();
+    man->FillNtupleIColumn(0, evt);
+    man->FillNtupleDColumn(1, fEdep/keV);
+    man->FillNtupleIColumn(2, fmcNPE);
+    man->FillNtupleIColumn(3, fNPE);
+    man->AddNtupleRow(0);
+  }
   
-  G4AnalysisManager *man = G4AnalysisManager::Instance();
-  man->FillNtupleIColumn(0, evt);
-  man->FillNtupleDColumn(1, fEdep/keV);
-  man->FillNtupleIColumn(2, fmcNPE);
-  man->FillNtupleIColumn(3, fNPE);
-  man->AddNtupleRow(0);
-  
-  if(MG::GetVerbosity() == 1 || evMan->GetVerboseLevel() > 0){
+  if((MG::GetVerbosity() == 1 || evMan->GetVerboseLevel() > 0) && (evt < 100 || evt % 1000 == 0)){
     G4cout << "\n---- My Event Info #" << evt << "  ----\n\n" 
     << "total MC PE = " << fmcNPE << "\n"
     << "total PE = " << fNPE << G4endl;
