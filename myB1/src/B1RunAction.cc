@@ -55,7 +55,21 @@ B1RunAction::B1RunAction()
   fEdep2(0.),
   favgEdep(0.)
 { 
-
+  
+  auto man = G4AnalysisManager::Instance();
+  man->SetDefaultFileType("root");
+  
+  man->SetFileName("cf4_outputStock");
+  man->CreateNtuple("ntup", "ntup");
+  
+  // man->CreateNtuple("ntup", "ntup");
+  man->CreateNtupleIColumn("fNEvent");        //0
+  man->CreateNtupleDColumn("fEdepInCyl_kev"); //1
+  
+  // MC truth values
+  man->CreateNtupleIColumn("fmcNPE");         //2
+  man->CreateNtupleIColumn("fNPE");           //3
+  man->FinishNtuple(0);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -79,17 +93,8 @@ void B1RunAction::BeginOfRunAction(const G4Run*)
   
   // TRandom * rand = new TRandom3();
   G4AnalysisManager *man = G4AnalysisManager::Instance();
-  man->OpenFile("b1Output.root");
-  
-  man->CreateNtuple("ntup", "ntup");
-  man->CreateNtupleIColumn("fNEvent");        //0
-  man->CreateNtupleDColumn("fEdepInCyl_kev"); //1
-  
-  // MC truth values
-  man->CreateNtupleIColumn("fmcNPE");         //2
-  man->CreateNtupleIColumn("fNPE");           //3
-  
-  man->FinishNtuple(0);
+  man->Reset();
+  man->OpenFile();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -113,11 +118,9 @@ void B1RunAction::EndOfRunAction(const G4Run* run)
   
   G4cout << "\nFinished run of " << nofEvents << " particles" << G4endl;
      
-     
-     // TRandom * rand = new TRandom3();
-     G4AnalysisManager *man = G4AnalysisManager::Instance();
-     man->Write();
-     man->CloseFile("b1Output.root");
+   G4AnalysisManager *man = G4AnalysisManager::Instance();
+   man->Write();
+   man->CloseFile();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

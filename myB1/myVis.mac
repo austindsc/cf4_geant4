@@ -54,6 +54,7 @@
 #/vis/modeling/trajectories/create/drawByCharge
 #/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
 #/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
+# (if too many tracks cause core dump => /tracking/storeTrajectory 0)
 
 /vis/modeling/trajectories/create/drawByParticleID
 /vis/modeling/trajectories/drawByParticleID-0/set e- red
@@ -61,8 +62,12 @@
 /vis/modeling/trajectories/drawByParticleID-0/set gamma green
 /vis/modeling/trajectories/drawByParticleID-0/set nu_e grey
 /vis/modeling/trajectories/drawByParticleID-0/set anti_nu_e grey
-#/vis/modeling/trajectories/drawByParticleID-0/set alpha yellow
+/vis/modeling/trajectories/drawByParticleID-0/set alpha yellow
 #/vis/modeling/trajectories/drawByParticleID-0/set GenericIon grey
+
+## draw only alphas ##
+#/vis/filtering/trajectories/create/particleFilter
+#/vis/filtering/trajectories/particleFilter-0/add alpha
 
 ## decorations ##
 /vis/scene/add/arrow -19 -19 0 -19 -19 5 cm # along +z, 5cm long
@@ -76,7 +81,7 @@
 
 /vis/viewer/set/autoRefresh true
 
-/vis/scene/endOfEventAction accumulate 1000
+/vis/scene/endOfEventAction accumulate
 #/vis/scene/endOfEventAction refresh
 #/vis/scene/endOfRunAction refresh
 

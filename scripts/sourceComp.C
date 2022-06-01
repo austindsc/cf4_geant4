@@ -4,9 +4,10 @@
 int sourceComp(){
 
 
-  TFile * fa = TFile::Open("Cs137/iso_coll_run29A.root", "READ");
+  string folder = "../goodB1Output/b1_april11";
+  TFile * fa = TFile::Open((folder + "/Cs137/iso_coll_run29A.root").c_str(), "READ");
   TTree * ta = (TTree *)fa->Get("ntup");
-  TFile * fa2 = TFile::Open("Cs137/iso_coll_run29B.root", "READ");
+  TFile * fa2 = TFile::Open((folder + "/Cs137/iso_coll_run29B.root").c_str(), "READ");
   TTree * ta2 = (TTree *)fa2->Get("ntup");
   TList * list = new TList;
   list->Add(ta);
@@ -17,7 +18,7 @@ int sourceComp(){
   tiso->SetLineWidth(3);
   tiso->SetName("tiso"); // iso tree
   
-  TFile * fb = TFile::Open("Cs137/run29.root", "READ");
+  TFile * fb = TFile::Open((folder + "/Cs137/run29.root").c_str(), "READ");
   TTree * tb = (TTree *)fb->Get("ntup"); // streight tree
   tb->SetLineColor(6);
   tb->SetLineWidth(10);
@@ -31,12 +32,27 @@ int sourceComp(){
   tb->Draw("fEdepInCyl_kev>>h_edep", "fEdepInCyl_kev > 0", "goff");
   h_edep->Scale(h_edepIso->GetEntries()/h_edep->GetEntries());
 
-  new TCanvas();
+  auto c0 = new TCanvas();
+  gStyle->SetOptStat(0);
+  c0->Divide(2, 1);
+  c0->cd(1);
+
   DSX::nameTH1(h_edep, "deposited energy", "energy (keV)");
+  h_edep->SetLineColor(2);
   h_edep->Draw("hist E");
+
+  h_edepIso->SetLineColor(3);
   h_edepIso->Draw("hist E same");
+
+  TLegend * leg0 = new TLegend();
+  leg0->SetHeader("-- Cs137 sources --", "C");
+  leg0->AddEntry(h_edep, "scaled, 2deg biased", "L");
+  leg0->AddEntry(h_edepIso, "isotropic ", "L");
+  leg0->Draw("same");
+  c0->cd(1)->SetLogy();
   
   ////---- photons ---- ////
+  c0->cd(2);
   TH1 * hIsoNPE = new TH1F("hIsoNPE", "", 100, 0, 100);
   tiso->Draw("fNPE>>hIsoNPE", "fEdepInCyl_kev > 0 && fNPE > 0", "goff");
   // h_edepIso->Rebin(4);
@@ -46,7 +62,7 @@ int sourceComp(){
   
   hNPE->Scale(hIsoNPE->GetEntries()/hNPE->GetEntries());
 
-  auto c1 = new TCanvas();
+  // auto c1 = new TCanvas();
   DSX::nameTH1(hNPE, "detected photons", "NPE");
   
   hNPE->SetLineColor(2);
@@ -60,7 +76,7 @@ int sourceComp(){
   leg->AddEntry(hNPE, "scaled, 2deg biased", "L");
   leg->AddEntry(hIsoNPE, "isotropic ", "L");
   leg->Draw("same");
-  c1->SetLogy();
+  c0->cd(2)->SetLogy();
 
   // tb->Draw("fEdepInCyl_kev", "fEdepInCyl_kev > 0", "hist same");
 

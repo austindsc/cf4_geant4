@@ -87,7 +87,7 @@ void DetectorMaterials::BuildMaterials(){
   
   // -------------------- Gas CF4 --------------------//
   G4double cf4Gas_ly = 2500 /MeV;         // rough, taken from python work and slides
-  G4double density_cf4Gas = 0.0012*g/cm3; // default value? need to make P and T function to get density
+  G4double density_cf4Gas = 0.0022*g/cm3; // default value? need to make P and T function to get density
   G4double cf4Gas_temp = 160*kelvin;
   G4double cf4Gas_P = 0.5*bar;
   

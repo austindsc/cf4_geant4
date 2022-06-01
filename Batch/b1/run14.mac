@@ -6,6 +6,9 @@
 
 /run/numberOfThreads 1
 
+/run/verbose 1
+#/run/printProgress 1
+/event/verbose 0
 /process/em/verbose 0
 /particle/verbose 0
 /tracking/verbose 0
@@ -16,15 +19,15 @@
 /setMaterial/mediumDensity 1.6047 g/cm3 # takes precendece over density from SetTemp. default densities given in DetectorMaterials.cc
 
 ### detector configuration ###
-/setDetector/myVerbosity 0              # 1 outputs event level data
+/setDetector/myVerbosity 1              # 1 outputs event level data
 
 /setDetector/useCollimator true         # default is true
-/setDetector/gammaHeight -3.           # this turns on detConst.gammaStatus
+/setDetector/gammaHeight 1.4           # this turns on detConst.gammaStatus
 /setDetector/GammaThetaMax 2.            # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
 
-/setDetector/gammaSource Cs137         # default, see available in detectorconstruction header and primary generator
+/setDetector/gammaSource Co57        # default, see available in detectorconstruction header and primary generator
 
 ### Initialize kernel (build detector) ###
 /run/initialize
 
-/run/beamOn 100000
+/run/beamOn 1000000
