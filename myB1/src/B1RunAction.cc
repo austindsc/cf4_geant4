@@ -60,9 +60,8 @@ B1RunAction::B1RunAction()
   man->SetDefaultFileType("root");
   
   man->SetFileName("cf4_outputStock");
-  man->CreateNtuple("ntup", "ntup");
+  man->CreateNtuple("simOutput", "simOutput");
   
-  // man->CreateNtuple("ntup", "ntup");
   man->CreateNtupleIColumn("fNEvent");        //0
   man->CreateNtupleDColumn("fEdepInCyl_kev"); //1
   

@@ -20,7 +20,7 @@
 #/setMaterial/detectionMedium gAr         # currently undefined
 #/setMaterial/detectionMedium lCF4        # see Optics/material for default LYs
 
-#/setMaterial/mediumDensity 1.6047 g/cm3  # takes precendece over density from SetTemp. default densities given in DetectorMaterials.cc
+#/setMaterial/mediumDensity 1.6047 g/cm3  # takes precendece over density calculated by SetTemp. default densities given in DetectorMaterials.cc
 #/setMaterial/mediumTemp 145 kelvin       # sets density based on saturation curve data (gas or liquid CF4)
 #/setMaterial/mediumPressure 10.2 bar     # sets material property
 #/setMaterial/mediumLY 1000.0 MeVLY       # these units are photons/MeV, keVLY also available

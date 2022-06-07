@@ -45,7 +45,6 @@
 /run/initialize
 
 /analysis/setFileName aNameIWant
-/analysis/ntuple/setFileName 0 anotherNameIWant
 
 ### no visualization ###
 /run/beamOn 100
