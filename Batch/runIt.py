@@ -40,11 +40,11 @@ if __name__ == "__main__":
     densityList = [0.001, 0.002, 0.005, 0.01, 0.0125, 0.015, 0.0175, 0.02, 0.03, 0.04, 0.05, 0.06]
     height = 0.5        #in cm
     ly = 5000        #max value at 5 bar, room temp, per MeV
-    Nrun = 1000
+    Nrun = 5000
         
     # output file list
     outputList = open(pBatch+"fileList-"+str(date.today())+".txt", 'w')
-    for rho in densityList[0:2]:
+    for rho in densityList:
         density = rho
         
         outputName = "h_"+str(height)+"-density_"+str(density)+"-LY_"+str(ly)
