@@ -9,7 +9,7 @@ from datetime import date
 # 	subprocess.run(command, shell = True)
 
 path = "/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/"
-pBatch = path+"Batch/alphas_v1/"
+pBatch = path+"Batch/alphas_v1_noQuenching/"
 pBuild = path+"build_myB1/"
 
 VERBOSITY = 0
@@ -37,10 +37,11 @@ if __name__ == "__main__":
     
     medium = "gCF4"
     # density = 0.002     #in g/cm3
-    densityList = [0.001, 0.002, 0.005, 0.01, 0.0125, 0.015, 0.0175, 0.02, 0.03, 0.04, 0.05, 0.06]
+    densityList = [0.002, 0.01, 0.02, 0.03, 0.04, 0.06]
+    # to repeat from 0.0125 onwards
     height = 0.5        #in cm
     ly = 5000        #max value at 5 bar, room temp, per MeV
-    Nrun = 5000
+    Nrun = 10000
         
     # output file list
     outputList = open(pBatch+"fileList-"+str(date.today())+".txt", 'w')

@@ -40,4 +40,5 @@ mpt_gascf4->AddConstProperty("SCINTILLATIONRISETIME2", 1*ns);
 mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD1", 1); // fast/total light
 mpt_gascf4->AddConstProperty("SCINTILLATIONYIELD2", 1); // fast/total light
 
-mGasCF4->GetIonisation()->SetBirksConstant(0.132 * mm/MeV); // guessed from other plastics
+mGasCF4->GetIonisation()->SetBirksConstant(0.0 * mm/MeV); // guessed from other plastics
+// mGasCF4->GetIonisation()->SetBirksConstant(0.132 * mm/MeV); // guessed from other plastics
