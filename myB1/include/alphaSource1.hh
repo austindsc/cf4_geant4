@@ -11,12 +11,15 @@ class DetectorMaterials;
 // track energy deposition. So this is essentially a wrapper for the alphaSource 
 // source code.
 
+G4double a = 10.0;
+
 class alphaSource1{
   
 public:
   alphaSource1(G4LogicalVolume* medium, G4double zheight, G4bool checkOverlaps);
   
 private:
+
   G4LogicalVolume * logic_local_medium;
   DetectorMaterials * detMat;
 

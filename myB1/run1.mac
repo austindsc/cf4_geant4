@@ -17,10 +17,13 @@
 
 ## Material Properties ##
 #/setMaterial/detectionMedium gCF4 #default
+#/setMaterial/detectionMedium gAr
 /setMaterial/detectionMedium lCF4
+
 /setMaterial/mediumDensity 1.6047 g/cm3 # can't use in combination with SetTemp or Pressure
 /setMaterial/mediumTemp 145 kelvin    # 
 /setMaterial/mediumPressure 10.2 bar  #
+
 #/setMaterial/mediumLY 10. MeVLY      # these units are photons/MeV, keVLY also available
 
 ## detector configuration ##
@@ -30,7 +33,7 @@
 #/setDetector/gammaSource Co60
 #/setDetector/gammaSource isoCs137
 #/setDetector/gammaSource isoCo60
-/setDetector/alphaHeight 4. #currently gamma and alpha source have same intensity (see primary generator constructor)
+/setDetector/alphaHeight 2. #currently gamma and alpha source have same intensity (see primary generator constructor)
 
 ## process toggling ##
 #/process/optical/processActivation Scintillation false

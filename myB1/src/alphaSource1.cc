@@ -36,7 +36,7 @@ alphaSource1::alphaSource1(G4LogicalVolume * medium, G4double zheight, G4bool ch
   {
   logic_local_medium = medium;
   detMat = DetectorMaterials::GetInstance();
-  
+
   G4double sourceCaseRadius = 4.3/2 * mm; //zhiheng measured 4.2mm diameter
   G4double sourceRadius = 2.45/2 * mm; // from Amersham certificate of approval
 

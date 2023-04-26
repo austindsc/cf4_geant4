@@ -17,6 +17,7 @@ public:
   G4VPhysicalVolume * doPlacement(G4double zheight, G4LogicalVolume * mother, G4bool checkOverlaps);
   
   G4double GetColTest();
+
   
 private:
   G4double gammaHeight;

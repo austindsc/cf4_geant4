@@ -53,7 +53,7 @@ int main(int argc,char** argv)
   // Construct the default run manager
   G4RunManager * runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
   runManager->SetVerboseLevel(0);
-  
+
   // Detector construction
   runManager->SetUserInitialization(new B1DetectorConstruction());
 
@@ -89,7 +89,7 @@ int main(int argc,char** argv)
   else {
     // interactive mode
     G4cout << "\n\n---------------------- Script Settings ----------------------\n" << G4endl;
-    UImanager->ApplyCommand("/control/execute ../myB1/default_vis.mac");
+    UImanager->ApplyCommand("/control/execute ../myB1/defaultRun.mac");
 
     ui->SessionStart();
     delete ui;

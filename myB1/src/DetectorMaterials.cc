@@ -115,10 +115,13 @@ void DetectorMaterials::BuildMaterials(){
   
   // -------------------- Liquid CF4 --------------------//
   
+  // default parameters baked in
   G4double cf4Liq_ly = 4700. /MeV;    // rough, taken from python work and slides
   G4double density_cf4Liq = 1.6*g/cm3;  // default value? unknown if correct
   G4double cf4Liq_temp = 160*kelvin;
   G4double cf4Liq_P = 0.5*bar;
+
+  G4double a = 10;
   
   if(*fDetectorMedium == mLiquidCF4){
     if(fmediumLY > 0) cf4Liq_ly = fmediumLY;
@@ -133,17 +136,15 @@ void DetectorMaterials::BuildMaterials(){
       exit(0);
       // do stuff to get the liquid density
     }
-
   }
   
   mLiquidCF4 = new G4Material("cf4Liq", density_cf4Liq, 2, kStateLiquid, cf4Liq_temp, cf4Liq_P);
   mLiquidCF4->AddElement(elCarbon, 1);
   mLiquidCF4->AddElement(elFluorine, 4);
-  
   #include "Optics/LiquidCF4.icc"
   
   // -------------------- Gaseous Argon --------------------//
-
+  // #include "Optics/testTwoScintillation.icc"
 
 
   // -------------------- SiPM Stuff --------------------//
