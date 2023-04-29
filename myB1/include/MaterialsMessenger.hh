@@ -20,12 +20,16 @@ public:
   
 private:
   
-  DetectorMaterials     * fdmat;
-  G4UIdirectory          * Dir;
+  DetectorMaterials        * fdmat;
+  G4UIdirectory            * Dir;
   
-  G4UIcmdWithAString     * SetDetectionMediumCmd;
+  G4UIcmdWithAString        * SetDetectionMediumCmd;
   G4UIcmdWithADoubleAndUnit * SetMediumDensityCmd;
   G4UIcmdWithADoubleAndUnit * SetMediumLYCmd;
+
+  G4UIcmdWithADouble        * SetMediumVisibleFractionCmd;
+  G4UIcmdWithADoubleAndUnit * SetMediumLYCmd_UV;
+  G4UIcmdWithADoubleAndUnit * SetMediumLYCmd_Vis;
   
   G4UIcmdWithADoubleAndUnit * SetMediumTempCmd;
   G4UIcmdWithADoubleAndUnit * SetMediumPressureCmd;

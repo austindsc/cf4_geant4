@@ -3,7 +3,8 @@
         {
             "name": "Mac",
             "forcedInclude": [
-                "${env:G4HOME}/include/Geant4/G4Types.hh"
+                "${env:G4HOME}/include/Geant4/G4Types.hh",
+                "${env:G4HOME}/include/Geant4/**"
             ],
             "includePath": [
                 "${workspaceFolder}/**",

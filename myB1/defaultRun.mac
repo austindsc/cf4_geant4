@@ -16,17 +16,22 @@
 /tracking/verbose 0
 
 ### Material Properties ###
-/setMaterial/detectionMedium gCF4         # default is gas
+#/setMaterial/detectionMedium gCF4         # default is gas
 #/setMaterial/detectionMedium gAr         # currently undefined
-#/setMaterial/detectionMedium lCF4        # see Optics/material for default LYs
+/setMaterial/detectionMedium lCF4        # see Optics/material for default LYs
 
 #/setMaterial/mediumDensity 1.6047 g/cm3  # takes precendece over density calculated by SetTemp. default densities given in DetectorMaterials.cc
 #/setMaterial/mediumTemp 145 kelvin       # sets density based on saturation curve data (gas or liquid CF4)
 #/setMaterial/mediumPressure 10.2 bar     # sets material property
-#/setMaterial/mediumLY 1000.0 MeVLY       # these units are photons/MeV, keVLY also available
+
+#/setMaterial/mediumLY 100.0 MeVLY       # these units are photons/MeV, keVLY also available
+#/setMaterial/mediumLY_VisFraction 0.0    # use this with total LY, or the two commands below
+/setMaterial/mediumLY_UV 0 MeVLY
+/setMaterial/mediumLY_Vis 1000 MeVLY
 
 ### detector configuration ###
-/setDetector/myVerbosity 1                # 1 outputs event level data
+/setDetector/myVerbosity 2                # 1 outputs event level data
+                                          #2 some photon level data
 
 #/setDetector/useCollimator true           # default is true
 #/setDetector/gammaHeight 2.4              # this turns on detConst.gammaStatus
@@ -39,7 +44,7 @@
 #/setDetector/gammaSource isoCo60
 #/setDetector/gammaSource isoCo57
 
-/setDetector/alphaHeight 4.5              # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
+/setDetector/alphaHeight 3.5              # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
                                           # currently gamma and alpha source have same intensity (see primary generator constructor to change)
 
 ## process toggling (some outdated?) ##

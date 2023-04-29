@@ -2,7 +2,10 @@
 #define DETECTORMATERIALS_H 1
 
 #include "globals.hh"
+#include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
+
+#include <CLHEP/Units/SystemOfUnits.h>
 
 class G4Material;
 class G4String;
@@ -23,8 +26,17 @@ public:
   void SetMediumDensity(G4double r){ fmediumDensity = r; }
   G4double GetMediumDensity(){ return fmediumDensity; }
   
-  void SetMediumLY(G4double ly){ if(ly == 0/MeV) ly = 0.1/MeV; fmediumLY = ly; }
+  void SetMediumLY(G4double ly){ if(ly == 0/MeV) ly = 0.001/MeV; fmediumLY = ly; } //must be non zero. Just make small
   G4double GetMediumLY(){ return fmediumLY; }
+
+  void SetMediumLY_VisFraction(G4double fraction){ fmedium_VisFraction = fraction; }
+  G4double GetMedium_VisFraction(){ return fmedium_VisFraction; }
+
+  void SetMediumLY_UV(G4double ly){ fmediumLY_UV = ly;}
+  G4double GetMediumLY_UV(){ return fmediumLY_UV; }
+
+  void SetMediumLY_Vis(G4double ly){ fmediumLY_Vis = ly;}
+  G4double GetMediumLY_Vis(){ return fmediumLY_Vis; }
   
   void SetMediumTemp(G4double temp){ fmediumTemp = temp; }
   G4double GetMediumTemp(){ return fmediumTemp; }
@@ -73,6 +85,10 @@ protected:
   
   // and their properties
   G4double fmediumLY;
+  G4double fmediumLY_UV;
+  G4double fmediumLY_Vis;
+  G4double fmedium_VisFraction;
+
   G4double fmediumDensity;
   G4double fmediumTemp;
   G4double fmediumPressure;

@@ -11,8 +11,6 @@ class DetectorMaterials;
 // track energy deposition. So this is essentially a wrapper for the alphaSource 
 // source code.
 
-G4double a = 10.0;
-
 class alphaSource1{
   
 public:
