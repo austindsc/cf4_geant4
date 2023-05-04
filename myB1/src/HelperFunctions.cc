@@ -73,6 +73,8 @@ namespace PH{
     G4PhysicsFreeVector * tandrho = new G4PhysicsFreeVector(false); // spline OFF
     OH::LoadTxt_OrderedVector(path, tandrho, 1, kelvin, 1e-3*g/cm3); // convert to g/cm3 with last argument
     
+    // this is density from saturation curve
+
     if(MG::GetVerbosity() > 0) tandrho->DumpValues();
     G4cout << "(In GetDensity_data), at temp = " << temp << " , Rho = " << tandrho->Value(temp)/(g/cm3) << " g/cm3" << G4endl;
     return tandrho->Value(temp/kelvin);
@@ -80,6 +82,8 @@ namespace PH{
 
   #ifdef USE_REFPROP // using REFPROP
   G4double GetREFPROP_density(std::string materialName, double ftemp, double fpressure){
+    // see REFPROP-headers main.cpp example file for full code where this was taken from
+    // and REFPROP documentation for function explanation
     // pass pressure in bar, temp in K
     // set paths
     std::string path = std::getenv("REFPROPDLLPATH");
@@ -93,37 +97,53 @@ namespace PH{
     SETPATHdll(const_cast<char*>(path.c_str()), 400); // idk, this was in example code
 
     // setup what I'm asking for (partially)
-    int ierr = 0;
-    int nc = 1; // pure fluid
-    char hfld[10000] = "water"; // what fluid!
-    char herr[255];
-    char hhmx[255] = "HMX.BNC"; // idk
-    char href[4] = "DEF"; // idk
-    SETUPdll(nc,hfld,hhmx,href,ierr,herr,10000,255,3,255);
+    int nc = 1; // pure fluid (number of components)
+    char hfld[10000];
+    std::strcpy(hfld,materialName.c_str()); // what fluid! (what files to load)
+
+    G4cout << hfld << G4endl;
+    // exit(0);
+    char hhmx[255] = "HMX.BNC"; // name of file with mixture coefficient?????
+    char href[4] = "DEF";       // something about thermo calc
+    int ierr = 0;               // track errors
+    char herr[255];             // error message
+    SETUPdll(nc,hfld,hhmx,href,ierr,herr,10000,255,3,255); // other args are some default stuff
 
     // if call to setupdll works
     if (ierr > 0) printf("This ierr: %d herr: %s\n", ierr, herr);{
-        int ierr = 0;
-        char herr[255];
-        double z[20] = {1.0}, x[20] = {1.0}, y[20] = {1.0}, d = -1, dl = -1, dv = -1, h = -1, s = -1, u = -1, cp = -1, cv = -1, q = -1, w = -1;
-        double T= 300, p = 101.325;
+        // int ierr = 0;
+        // char herr[255];
 
-        TPFLSHdll(T, p, z, d, dl, dv, x, y, h,s,u,cp,cv,w,q,ierr,herr,255);
+        // inputs
+        double T= ftemp;
+        double p = fpressure; // needed in kPa
+        double z[20] = {1.0}; // pure fluid
+
+        // output i care about
+        double density = -1.; // output in mol/L
+
+        // outputs i don't care about
+        double x[20] = {1.0}, y[20] = {1.0}, dl = -1, dv = -1, h = -1, s = -1, u = -1, cp = -1, cv = -1, q = -1, w = -1;
+        
+        TPFLSHdll(T, p, z, density, dl, dv, x, y, h,s,u,cp,cv,w,q,ierr,herr,255);
         // TPFLSHdll(T, p, z, d, dl, dv, x);
-        if (ierr > 0) printf("This ierr: %d herr: %s\n", ierr, herr);
-        printf("This d: %g mol/L\n", d);
-        {
-            double T = ftemp;
-            double z[20] = { 0.20209999999999995, 0.7979};
-            int kph = 1;
-            double P, rhol, rhov;
-            double x[20], y[20];
-            int ierr; char herr[255];
-            SATTdll(T, z, kph, P, rhol, rhov, x, y, ierr, herr, 255);
-            printf("This p: %g mol/L\n", p);
-
-            exit(0);
+        if (ierr > 0) {
+          printf("This ierr: %d herr: %s\n", ierr, herr);
+          G4Exception("DetectorMaterials::BuildMaterials() - HelperFunctions::GetREFPROP_density", "Austin's error message", 
+          FatalException, "something wrong with REFPROP density CALC");
         }
+
+        // Convert the density from mol/L to g/cm3
+        double MW = 0; // Molar mass of the substance (in g/mol)
+        int fortranIsStupid = 1;
+        WMOLIdll(fortranIsStupid, MW);
+
+        G4double rho_gcm3 = density * MW / 1000. * g/cm3; // mol/L x g/mol x 1L/1000cm3
+        
+        G4cout << "calculated density of " << materialName << " : " << rho_gcm3/(g/cm3) << "g/cm3" << G4endl;
+
+        exit(0);
+        return rho_gcm3;
     }
 
     // unload refprop

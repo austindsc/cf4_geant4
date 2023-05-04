@@ -21,8 +21,8 @@
 #/setMaterial/detectionMedium lCF4         # see Optics/material for default LYs
 
 #/setMaterial/mediumDensity 1.6047 g/cm3  # use this to set density directly. Takes precendece over density calculated by SetTemp. default densities given in DetectorMaterials.cc
-/setMaterial/mediumTemp 180 kelvin        # sets density based on saturation curve data (gas or liquid CF4)
-/setMaterial/mediumPressure 10.2 bar      # If pressure also set, and sim is built with REFPROP (default), 
+/setMaterial/mediumTemp 180 kelvin        # this alone sets density based on saturation curve data (gas or liquid CF4)
+/setMaterial/mediumPressure 1.2 bar      # If pressure also set, and sim is built with REFPROP (default), 
                                           # then REFPROP is used to calculate density with T, P for pure CF4
 
 #/setMaterial/mediumLY 100.0 MeVLY        # these units are photons/MeV, keVLY also available

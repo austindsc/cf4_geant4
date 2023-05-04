@@ -92,9 +92,12 @@ void DetectorMaterials::BuildMaterials(){
   // -- Lead -- //
   mLead = nist->FindOrBuildMaterial("G4_Pb");
 
-  //
+  // -------------------- Generic CF4 stuff --------------------//
+  // -- Elements in CF4 -- //
   G4Element * elCarbon = new G4Element("Carbon", "C", 6, 12.01 * g/mole);
   G4Element * elFluorine = new G4Element("Fluorine", "F", 9,  19. * g/mole);
+
+  // could do density globally (not separate for gas, liquid) but won't for now...
   
   // -------------------- Gas CF4 --------------------//
   // default parameters baked in
@@ -103,7 +106,8 @@ void DetectorMaterials::BuildMaterials(){
   G4double cf4Gas_temp = 160*kelvin;
   G4double cf4Gas_P = 0.5*bar;
   
-  if(*fDetectorMedium == mGasCF4){ // if using gas CF4, set values to those of medium (set via messenger)
+  if(*fDetectorMedium == mGasCF4){
+    // if using gas CF4, set values to those of medium (set via messenger)
     if(fmediumLY != DEFAULT_VALUE) cf4Gas_ly = fmediumLY;
     if(fmediumPressure != DEFAULT_VALUE) cf4Gas_P = fmediumPressure;
     if(fmediumTemp != DEFAULT_VALUE) cf4Gas_temp = fmediumTemp;
@@ -113,17 +117,22 @@ void DetectorMaterials::BuildMaterials(){
     if(fmediumPressure != DEFAULT_VALUE) cf4Gas_P = fmediumPressure;
 
     // setting density logic
-    if(fmediumDensity != DEFAULT_VALUE) density_cf4Gas = fmediumDensity; // just set density immediately
+    if(fmediumDensity != DEFAULT_VALUE) density_cf4Gas = fmediumDensity; //  set density immediately!
     else if (fmediumTemp != DEFAULT_VALUE && fmediumPressure == DEFAULT_VALUE){
+      // Set density from temperature only! Along saturation curve i think
       fmediumDensity = PH::GetDensity_data(fmediumTemp, "data/density_gasCF4.dat");
       density_cf4Gas = fmediumDensity;
       G4ExceptionDescription msg; msg << "Setting Gas density using some built in pressure, T= " << fmediumTemp/kelvin << " K, \n Rho = " << density_cf4Gas/(g/cm3) << " g/cm3\n"; 
       G4Exception("DetectorMaterials::BuildMaterials() - Gas CF4 option", "Austin's error message", JustWarning, msg);
     }
+
     else if(fmediumTemp != DEFAULT_VALUE && fmediumPressure != DEFAULT_VALUE && fmediumDensity == DEFAULT_VALUE){
-      // USING REFPROP - R14 is CF4 
+      // USING REFPROP - R14 is CF4. this is good stuff!
+      // arguments already converted to pure doubles with proper units (kelvin, kPa)
       fmediumDensity = PH::GetREFPROP_density("R14", fmediumTemp/kelvin, 100.*fmediumPressure/bar);
+      G4cout << "calculated density of " << "R14" << " : " << fmediumDensity/(g/cm3) << "g/cm3" << G4endl;
       density_cf4Gas = fmediumDensity;
+
       G4ExceptionDescription msg; msg << "Setting Rho with REFPROP";
       msg << " T= " << fmediumTemp/kelvin << " K, P = " << fmediumPressure/bar << " bar\n";
       msg << "P = " << density_cf4Gas/(g/cm3) << " g/cm3";
@@ -184,20 +193,26 @@ void DetectorMaterials::BuildMaterials(){
       G4Exception("DetectorMaterials::BuildMaterials() - Liquid CF4 option", "Austin's error message", JustWarning, msg);
     }// done with light yields
 
-
-    //// Density Logic
-    if(fmediumTemp > 0) cf4Liq_temp = fmediumTemp; // do these
-    if(fmediumDensity > 0) density_cf4Liq = fmediumDensity;
-    // else if(fmediumTemp > 0 && fmediumPressure < 0)
-    else if(fmediumTemp > 0 && fmediumPressure > 0 && fmediumDensity <= 0){ // set density based on temperature/pressure
-      G4ExceptionDescription msg; msg << "Setting density using T, P.\n"; 
-      G4Exception("DetectorMaterials::BuildMaterials() - Liquid CF4 option", "Austin's error message", FatalException, msg);
-      
-      // need to do units
-      fmediumDensity = PH::GetREFPROP_density("R14", fmediumTemp/kelvin, fmediumPressure);
+    // setting density logic (same code as for gas!)
+    if(fmediumDensity != DEFAULT_VALUE) density_cf4Liq = fmediumDensity; //  set density immediately!
+    else if (fmediumTemp != DEFAULT_VALUE && fmediumPressure == DEFAULT_VALUE){
+      // Set density from temperature only! Along saturation curve i think
+      fmediumDensity = PH::GetDensity_data(fmediumTemp, "data/density_liquidCF4.dat");
+      density_cf4Liq = fmediumDensity;
+      G4ExceptionDescription msg; msg << "Setting Liquid density using some built in pressure, T= " << fmediumTemp/kelvin << " K, \n Rho = " << density_cf4Liq/(g/cm3) << " g/cm3\n"; 
+      G4Exception("DetectorMaterials::BuildMaterials() - Liquid CF4 option", "Austin's error message", JustWarning, msg);
+    }
+    else if(fmediumTemp != DEFAULT_VALUE && fmediumPressure != DEFAULT_VALUE && fmediumDensity == DEFAULT_VALUE){
+      // USING REFPROP - R14 is CF4. this is good stuff!
+      // arguments already converted to pure doubles with proper units (kelvin, kPa)
+      fmediumDensity = PH::GetREFPROP_density("R14", fmediumTemp/kelvin, 100.*fmediumPressure/bar);
+      G4cout << "calculated density of " << "R14" << " : " << fmediumDensity/(g/cm3) << "g/cm3" << G4endl;
       density_cf4Liq = fmediumDensity;
 
-
+      G4ExceptionDescription msg; msg << "Setting Rho with REFPROP";
+      msg << " T= " << fmediumTemp/kelvin << " K, P = " << fmediumPressure/bar << " bar\n";
+      msg << "P = " << density_cf4Liq/(g/cm3) << " g/cm3";
+      G4Exception("DetectorMaterials::BuildMaterials() - Liquid CF4 option", "Austin's error message", JustWarning, msg);
     }
 
     mLiquidCF4 = new G4Material("cf4Liq", density_cf4Liq, 2, kStateLiquid, cf4Liq_temp, cf4Liq_P);

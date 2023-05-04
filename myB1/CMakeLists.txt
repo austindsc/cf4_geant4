@@ -3,6 +3,9 @@
 # cmake ../myB1_or_whatever_new_projectNameIs -DUSE_REFPROP=OFF
 # ^ if you don't want to build with REFPROP
 
+# see refpropNotes.txt for install instructions relevant to working with this project
+# some env variables and data locations are required
+
 
 #----------------------------------------------------------------------------
 # Setup the project
