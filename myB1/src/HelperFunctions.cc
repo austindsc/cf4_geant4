@@ -1,6 +1,18 @@
 
 #include "globals.hh"
 #include "HelperFunctions.hh"
+#include "myGlobals.hh"
+
+// REFPROP stuff //
+#ifdef USE_REFPROP // from CMAKE
+
+#define REFPROP_IMPLEMENTATION
+#define REFPROP_FUNCTION_MODIFIER
+#include "REFPROP_lib.h"
+#undef REFPROP_IMPLEMENTATION
+#undef REFPROP_FUNCTION_MODIFIER
+
+#endif
 
 #include "G4PhysicsOrderedFreeVector.hh"
 
@@ -57,12 +69,73 @@ namespace PH{
     return (2.25 - 3.64e-3*temp/kelvin - 0.54e-6*temp*temp/kelvin/kelvin )*g/cm3;
   }
   
-  G4double GetDensity_data(G4double temp, G4String path){
+  G4double GetDensity_data(G4double temp, G4String path){ // returns in g/cm3
     G4PhysicsFreeVector * tandrho = new G4PhysicsFreeVector(false); // spline OFF
-    OH::LoadTxt_OrderedVector(path, tandrho, 1, kelvin, 1e-3*g/cm3);
+    OH::LoadTxt_OrderedVector(path, tandrho, 1, kelvin, 1e-3*g/cm3); // convert to g/cm3 with last argument
     
-    tandrho->DumpValues();
-    G4cout << "at temp = " << tandrho->Value(temp)/(g/cm3) << " g/cm3" << G4endl;
+    if(MG::GetVerbosity() > 0) tandrho->DumpValues();
+    G4cout << "(In GetDensity_data), at temp = " << temp << " , Rho = " << tandrho->Value(temp)/(g/cm3) << " g/cm3" << G4endl;
     return tandrho->Value(temp/kelvin);
   }
+
+  #ifdef USE_REFPROP // using REFPROP
+  G4double GetREFPROP_density(std::string materialName, double ftemp, double fpressure){
+    // pass pressure in bar, temp in K
+    // set paths
+    std::string path = std::getenv("REFPROPDLLPATH");
+    std::string DLL_name = "librefprop.dylib";
+    std::string err;
+
+    // Load the shared library
+    bool loaded_REFPROP = load_REFPROP(err, path, DLL_name);
+    printf("Loaded refprop (in HelperFunctions.cc): %s @ address %zu\n", loaded_REFPROP ? "true" : "false", REFPROP_address());
+    if (!loaded_REFPROP) G4Exception("HelperFunctions::GetREFPROP_density", "Austin error message", FatalException, "Couldn't load REFPROP");
+    SETPATHdll(const_cast<char*>(path.c_str()), 400); // idk, this was in example code
+
+    // setup what I'm asking for (partially)
+    int ierr = 0;
+    int nc = 1; // pure fluid
+    char hfld[10000] = "water"; // what fluid!
+    char herr[255];
+    char hhmx[255] = "HMX.BNC"; // idk
+    char href[4] = "DEF"; // idk
+    SETUPdll(nc,hfld,hhmx,href,ierr,herr,10000,255,3,255);
+
+    // if call to setupdll works
+    if (ierr > 0) printf("This ierr: %d herr: %s\n", ierr, herr);{
+        int ierr = 0;
+        char herr[255];
+        double z[20] = {1.0}, x[20] = {1.0}, y[20] = {1.0}, d = -1, dl = -1, dv = -1, h = -1, s = -1, u = -1, cp = -1, cv = -1, q = -1, w = -1;
+        double T= 300, p = 101.325;
+
+        TPFLSHdll(T, p, z, d, dl, dv, x, y, h,s,u,cp,cv,w,q,ierr,herr,255);
+        // TPFLSHdll(T, p, z, d, dl, dv, x);
+        if (ierr > 0) printf("This ierr: %d herr: %s\n", ierr, herr);
+        printf("This d: %g mol/L\n", d);
+        {
+            double T = ftemp;
+            double z[20] = { 0.20209999999999995, 0.7979};
+            int kph = 1;
+            double P, rhol, rhov;
+            double x[20], y[20];
+            int ierr; char herr[255];
+            SATTdll(T, z, kph, P, rhol, rhov, x, y, ierr, herr, 255);
+            printf("This p: %g mol/L\n", p);
+
+            exit(0);
+        }
+    }
+
+    // unload refprop
+    bool unloaded_REFPROP = unload_REFPROP(err);
+    return 1;
+  }
+  #else 
+  G4double GetREFPROP_density(std::string materialName, double temp, double density){
+    G4ExceptionDescription msg; msg << "Asked for density via T, P, but REFPROP not built";
+    G4Exception("DetectorMaterials::BuildMaterials() - HelperFunctions", "Austin's error message", FatalException, msg);
+  }
+  #endif // end of function 
+
+
 }

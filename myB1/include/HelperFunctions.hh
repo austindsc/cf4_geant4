@@ -25,6 +25,12 @@ namespace PH{ //physical helper
   G4double GetDensity_data(G4double temp, G4String path); //return in g/cm3
   // from NIST: https://webbook.nist.gov/cgi/cbook.cgi?ID=C75730&Mask=B
   
+  // #ifdef USE_REFPROP // not needed, give two definitions
+  G4double GetREFPROP_density(std::string materialName, double temp, double pressure);
+  // pass pressure in kPa
+  // return in g/cm3, using REFPROP
+  // #endif
+
 }
 
 #endif

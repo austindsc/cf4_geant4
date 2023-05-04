@@ -46,6 +46,13 @@
 
 int main(int argc,char** argv)
 {
+
+  // cout << USE_REFPROP << endl;
+  // return 1;
+  // #ifdef USE_REFPROP
+  // exit(0);
+  // #endif
+
   // Detect interactive mode (if no arguments) and define UI session
   G4UIExecutive* ui = 0;
   if ( argc == 1 ) { ui = new G4UIExecutive(argc, argv);  }

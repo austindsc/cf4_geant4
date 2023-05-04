@@ -7,6 +7,10 @@
 
 #include <CLHEP/Units/SystemOfUnits.h>
 
+#ifndef DEFAULT_VALUE
+#define DEFAULT_VALUE -69
+#endif
+
 class G4Material;
 class G4String;
 

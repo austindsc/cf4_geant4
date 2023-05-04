@@ -21,15 +21,15 @@ DetectorMaterials * DetectorMaterials::singleton=nullptr;
 DetectorMaterials::DetectorMaterials(){
   
   // default values here
-  fDetectorMedium = &mGasCF4;  // default is gas
-  fmediumDensity = -1.* g/cm3;  // flagged as not set
-  fmediumTemp = -110. * kelvin;      // medium temperature  
-  fmediumPressure = -1 * bar;
+  fDetectorMedium = &mGasCF4;     //        default is gas
+  fmediumDensity = DEFAULT_VALUE; // g/cm3  flagged as not set
+  fmediumTemp = DEFAULT_VALUE;    // kelvin      medium temperature  
+  fmediumPressure = DEFAULT_VALUE;// bar
 
-  fmediumLY = -1./MeV;  
-  fmedium_VisFraction = -1.;       // flagged as not set
-  fmediumLY_UV = -1/MeV;          // default is even sharing
-  fmediumLY_Vis = -1/MeV;
+  fmediumLY = DEFAULT_VALUE;  
+  fmedium_VisFraction = DEFAULT_VALUE;   // flagged as not set
+  fmediumLY_UV = DEFAULT_VALUE;          // default is even sharing
+  fmediumLY_Vis = DEFAULT_VALUE;         
 }
 
 DetectorMaterials *DetectorMaterials::GetInstance(){
@@ -104,26 +104,38 @@ void DetectorMaterials::BuildMaterials(){
   G4double cf4Gas_P = 0.5*bar;
   
   if(*fDetectorMedium == mGasCF4){ // if using gas CF4, set values to those of medium (set via messenger)
-    if(fmediumLY > 0) cf4Gas_ly = fmediumLY;
-    if(fmediumPressure > 0) cf4Gas_P = fmediumPressure;
-    if(fmediumTemp > 0) cf4Gas_temp = fmediumTemp;
+    if(fmediumLY != DEFAULT_VALUE) cf4Gas_ly = fmediumLY;
+    if(fmediumPressure != DEFAULT_VALUE) cf4Gas_P = fmediumPressure;
+    if(fmediumTemp != DEFAULT_VALUE) cf4Gas_temp = fmediumTemp;
+
+    // always set temperature/ pressure if available
+    if(fmediumTemp != DEFAULT_VALUE) cf4Gas_temp = fmediumTemp;
+    if(fmediumPressure != DEFAULT_VALUE) cf4Gas_P = fmediumPressure;
 
     // setting density logic
-    if(fmediumTemp > 0) cf4Gas_temp = fmediumTemp;
-    if(fmediumDensity > 0) density_cf4Gas = fmediumDensity;
-    else if(fmediumTemp > 0 && fmediumPressure > 0 && fmediumDensity < 0){ // set density based on temperature
-      // do stuff to get the gas density
-      G4ExceptionDescription msg; msg << "Setting density using T, P. CODE NOT READY\n"; 
-      G4Exception("DetectorMaterials::BuildMaterials() - Gas CF4 option", "Austin's error message", FatalException, msg);
+    if(fmediumDensity != DEFAULT_VALUE) density_cf4Gas = fmediumDensity; // just set density immediately
+    else if (fmediumTemp != DEFAULT_VALUE && fmediumPressure == DEFAULT_VALUE){
+      fmediumDensity = PH::GetDensity_data(fmediumTemp, "data/density_gasCF4.dat");
+      density_cf4Gas = fmediumDensity;
+      G4ExceptionDescription msg; msg << "Setting Gas density using some built in pressure, T= " << fmediumTemp/kelvin << " K, \n Rho = " << density_cf4Gas/(g/cm3) << " g/cm3\n"; 
+      G4Exception("DetectorMaterials::BuildMaterials() - Gas CF4 option", "Austin's error message", JustWarning, msg);
     }
-    else if(fmediumTemp > 0 && fmediumPressure > 0 && fmediumDensity < 0){
-      G4ExceptionDescription msg; msg << "User set T, P and density. Only set T,P or Density\n"; 
-      G4Exception("DetectorMaterials::BuildMaterials() - Gas CF4 option", "Austin's error message", FatalException, msg);
+    else if(fmediumTemp != DEFAULT_VALUE && fmediumPressure != DEFAULT_VALUE && fmediumDensity == DEFAULT_VALUE){
+      // USING REFPROP - R14 is CF4 
+      fmediumDensity = PH::GetREFPROP_density("R14", fmediumTemp/kelvin, 100.*fmediumPressure/bar);
+      density_cf4Gas = fmediumDensity;
+      G4ExceptionDescription msg; msg << "Setting Rho with REFPROP";
+      msg << " T= " << fmediumTemp/kelvin << " K, P = " << fmediumPressure/bar << " bar\n";
+      msg << "P = " << density_cf4Gas/(g/cm3) << " g/cm3";
+      G4Exception("DetectorMaterials::BuildMaterials() - Gas CF4 option", "Austin's error message", JustWarning, msg);
     }
 
+    // include elements
     mGasCF4 = new G4Material("cf4Gas", density_cf4Gas, 2, kStateGas, cf4Gas_temp, cf4Gas_P);
     mGasCF4->AddElement(elCarbon, 1);
     mGasCF4->AddElement(elFluorine, 4);
+
+    // all physics happens in optics files
     #include "Optics/GasCF4.icc"
   }
   
@@ -176,12 +188,16 @@ void DetectorMaterials::BuildMaterials(){
     //// Density Logic
     if(fmediumTemp > 0) cf4Liq_temp = fmediumTemp; // do these
     if(fmediumDensity > 0) density_cf4Liq = fmediumDensity;
-    else if(fmediumTemp > 0 && fmediumPressure > 0 && fmediumDensity < 0){ // set density based on temperature/pressure
-      G4ExceptionDescription msg; msg << "Setting density using T, P. CODE NOT READY\n"; 
+    // else if(fmediumTemp > 0 && fmediumPressure < 0)
+    else if(fmediumTemp > 0 && fmediumPressure > 0 && fmediumDensity <= 0){ // set density based on temperature/pressure
+      G4ExceptionDescription msg; msg << "Setting density using T, P.\n"; 
       G4Exception("DetectorMaterials::BuildMaterials() - Liquid CF4 option", "Austin's error message", FatalException, msg);
       
-      // do stuff to get the liquid density
-      PH::GetDensity_data(fmediumTemp, "data/density_liquidCF4.dat");
+      // need to do units
+      fmediumDensity = PH::GetREFPROP_density("R14", fmediumTemp/kelvin, fmediumPressure);
+      density_cf4Liq = fmediumDensity;
+
+
     }
 
     mLiquidCF4 = new G4Material("cf4Liq", density_cf4Liq, 2, kStateLiquid, cf4Liq_temp, cf4Liq_P);

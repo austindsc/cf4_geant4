@@ -1,3 +1,9 @@
+# mkdir buildName
+# cd buildName
+# cmake ../myB1_or_whatever_new_projectNameIs -DUSE_REFPROP=OFF
+# ^ if you don't want to build with REFPROP
+
+
 #----------------------------------------------------------------------------
 # Setup the project
 cmake_minimum_required(VERSION 3.8...3.18)
@@ -45,7 +51,14 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-#add_library(OpticalHelper )
+# add_library(OpticalHelper )
+# instead this is just a header/source file with a namespace
+
+# handling refprop (in case something goes wrong with the install)
+option(USE_REFPROP "Enable use of REFPROP cpp library to get density" ON)
+if(USE_REFPROP)
+    add_definitions(-DUSE_REFPROP)
+endif()
 
 add_executable(exampleB1 exampleB1.cc ${sources} ${headers})
 target_link_libraries(exampleB1 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
