@@ -101,7 +101,6 @@ namespace PH{
     char hfld[10000];
     std::strcpy(hfld,materialName.c_str()); // what fluid! (what files to load)
 
-    G4cout << hfld << G4endl;
     // exit(0);
     char hhmx[255] = "HMX.BNC"; // name of file with mixture coefficient?????
     char href[4] = "DEF";       // something about thermo calc
@@ -111,8 +110,6 @@ namespace PH{
 
     // if call to setupdll works
     if (ierr > 0) printf("This ierr: %d herr: %s\n", ierr, herr);{
-        // int ierr = 0;
-        // char herr[255];
 
         // inputs
         double T= ftemp;
@@ -126,7 +123,6 @@ namespace PH{
         double x[20] = {1.0}, y[20] = {1.0}, dl = -1, dv = -1, h = -1, s = -1, u = -1, cp = -1, cv = -1, q = -1, w = -1;
         
         TPFLSHdll(T, p, z, density, dl, dv, x, y, h,s,u,cp,cv,w,q,ierr,herr,255);
-        // TPFLSHdll(T, p, z, d, dl, dv, x);
         if (ierr > 0) {
           printf("This ierr: %d herr: %s\n", ierr, herr);
           G4Exception("DetectorMaterials::BuildMaterials() - HelperFunctions::GetREFPROP_density", "Austin's error message", 
@@ -139,10 +135,7 @@ namespace PH{
         WMOLIdll(fortranIsStupid, MW);
 
         G4double rho_gcm3 = density * MW / 1000. * g/cm3; // mol/L x g/mol x 1L/1000cm3
-        
         G4cout << "calculated density of " << materialName << " : " << rho_gcm3/(g/cm3) << "g/cm3" << G4endl;
-
-        exit(0);
         return rho_gcm3;
     }
 

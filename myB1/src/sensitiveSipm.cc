@@ -12,11 +12,12 @@
 sensitiveSipm::sensitiveSipm(G4String name) : G4VSensitiveDetector(name )
 {
   fEventAction = (B1EventAction *) G4RunManager::GetRunManager()->GetUserEventAction();
+
   // adding PDE
   ovecPDE = new G4PhysicsFreeVector(true);
   
   OH::LoadTxt_OrderedVector("data/SiPMeff_Ham_5V.dat", ovecPDE, MG::GetVerbosity(), 1, 1./100);
-  // ovecPDE->DumpValues();
+  //ovecPDE->DumpValues();
   //ovecPDE->SetSpline(false); // okay? large interpolation can cause errors
 }
 

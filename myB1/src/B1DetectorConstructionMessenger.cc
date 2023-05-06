@@ -69,6 +69,7 @@ void B1DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4String
   // do something
   if(command == SetMyVerbosityCmd){
     MG::SetVerbosity((int) SetMyVerbosityCmd->GetNewIntValue(newVal));
+    G4cout << "Setting MyVerbosity to " << SetMyVerbosityCmd->GetNewIntValue(newVal) << G4endl;
   }
   if(command == SetAlphaDistanceCmd){
     Detector->SetAlphaHeight(SetAlphaDistanceCmd->GetNewDoubleValue(newVal) * cm);

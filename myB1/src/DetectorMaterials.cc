@@ -11,6 +11,7 @@
 // #include <algorithm>
 
 #include "HelperFunctions.hh"
+#include "myGlobals.hh"
 
 #include "DetectorMaterials.hh"
 
@@ -106,7 +107,8 @@ void DetectorMaterials::BuildMaterials(){
   G4double cf4Gas_temp = 160*kelvin;
   G4double cf4Gas_P = 0.5*bar;
   
-  if(*fDetectorMedium == mGasCF4){
+  if(fDetectorMedium == &mGasCF4){
+
     // if using gas CF4, set values to those of medium (set via messenger)
     if(fmediumLY != DEFAULT_VALUE) cf4Gas_ly = fmediumLY;
     if(fmediumPressure != DEFAULT_VALUE) cf4Gas_P = fmediumPressure;
@@ -130,13 +132,14 @@ void DetectorMaterials::BuildMaterials(){
       // USING REFPROP - R14 is CF4. this is good stuff!
       // arguments already converted to pure doubles with proper units (kelvin, kPa)
       fmediumDensity = PH::GetREFPROP_density("R14", fmediumTemp/kelvin, 100.*fmediumPressure/bar);
-      G4cout << "calculated density of " << "R14" << " : " << fmediumDensity/(g/cm3) << "g/cm3" << G4endl;
       density_cf4Gas = fmediumDensity;
 
-      G4ExceptionDescription msg; msg << "Setting Rho with REFPROP";
-      msg << " T= " << fmediumTemp/kelvin << " K, P = " << fmediumPressure/bar << " bar\n";
-      msg << "P = " << density_cf4Gas/(g/cm3) << " g/cm3";
-      G4Exception("DetectorMaterials::BuildMaterials() - Gas CF4 option", "Austin's error message", JustWarning, msg);
+      if(MG::GetVerbosity() > 0){
+        G4ExceptionDescription msg; msg << "Setting Rho with REFPROP";
+        msg << " T= " << fmediumTemp/kelvin << " K, P = " << fmediumPressure/bar << " bar\n";
+        msg << "rho = " << density_cf4Gas/(g/cm3) << " g/cm3";
+        G4Exception("DetectorMaterials::BuildMaterials() - Gas CF4 option", "Austin's error message", JustWarning, msg);
+      }
     }
 
     // include elements
@@ -160,7 +163,7 @@ void DetectorMaterials::BuildMaterials(){
   G4double cf4Liq_temp = 160*kelvin;
   G4double cf4Liq_P = 0.5*bar;
   
-  if(*fDetectorMedium == mLiquidCF4){
+  if(fDetectorMedium == &mLiquidCF4){
 
     //// LY stuff /////
     if (fmedium_VisFraction >=0. && (fmediumLY_UV >= 0 || fmediumLY_Vis >= 0)){
@@ -206,20 +209,21 @@ void DetectorMaterials::BuildMaterials(){
       // USING REFPROP - R14 is CF4. this is good stuff!
       // arguments already converted to pure doubles with proper units (kelvin, kPa)
       fmediumDensity = PH::GetREFPROP_density("R14", fmediumTemp/kelvin, 100.*fmediumPressure/bar);
-      G4cout << "calculated density of " << "R14" << " : " << fmediumDensity/(g/cm3) << "g/cm3" << G4endl;
       density_cf4Liq = fmediumDensity;
 
-      G4ExceptionDescription msg; msg << "Setting Rho with REFPROP";
-      msg << " T= " << fmediumTemp/kelvin << " K, P = " << fmediumPressure/bar << " bar\n";
-      msg << "P = " << density_cf4Liq/(g/cm3) << " g/cm3";
-      G4Exception("DetectorMaterials::BuildMaterials() - Liquid CF4 option", "Austin's error message", JustWarning, msg);
+      if(MG::GetVerbosity() > 0){
+        G4ExceptionDescription msg; msg << "Setting Rho with REFPROP";
+        msg << " T= " << fmediumTemp/kelvin << " K, P = " << fmediumPressure/bar << " bar\n";
+        msg << "P = " << density_cf4Liq/(g/cm3) << " g/cm3";
+        G4Exception("DetectorMaterials::BuildMaterials() - Liquid CF4 option", "Austin's error message", JustWarning, msg);
+      }
     }
 
     mLiquidCF4 = new G4Material("cf4Liq", density_cf4Liq, 2, kStateLiquid, cf4Liq_temp, cf4Liq_P);
     mLiquidCF4->AddElement(elCarbon, 1);
     mLiquidCF4->AddElement(elFluorine, 4);
-    #include "Optics/testTwoScintillation.icc" // all the physics is in here!
-    // #include "Optics/LiquidCF4.icc"
+    #include "Optics/LiquidCF4.icc" // all the physics is in here!
+    // #include "Optics/oldLiquidCF4.icc"
   }
   
   
