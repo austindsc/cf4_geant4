@@ -26,11 +26,6 @@ stock_verbosities = """
 /tracking/verbose {0}
 """.format(VERBOSITY)
 
-# do i need this?
-def makeMacro():
-    # make macro in here
-    return "here is some string"
-
 
 if __name__ == "__main__":
     print("""------------------runIt------------------\n""")

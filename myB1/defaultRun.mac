@@ -16,36 +16,36 @@
 /tracking/verbose 0
 
 ### Material Properties ###
-/setMaterial/detectionMedium gCF4        # default is gas
+#/setMaterial/detectionMedium gCF4        # default is gas
 #/setMaterial/detectionMedium gAr         # currently undefined
-#/setMaterial/detectionMedium lCF4         # see Optics/material for default LYs
+/setMaterial/detectionMedium lCF4         # see Optics/material for default LYs
 
-#/setMaterial/mediumDensity 1.6047 g/cm3  # use this to set density directly. Takes precendece over density calculated by SetTemp. default densities given in DetectorMaterials.cc
-/setMaterial/mediumTemp 180 kelvin        # this alone sets density based on saturation curve data (gas or liquid CF4)
-/setMaterial/mediumPressure 1.2 bar      # If pressure also set, and sim is built with REFPROP (default), 
+#/setMaterial/mediumDensity 1.69 g/cm3  # use this to set density directly. Takes precendece over density calculated by SetTemp. default densities given in DetectorMaterials.cc
+/setMaterial/mediumTemp 128 kelvin        # this alone sets density based on saturation curve data (gas or liquid CF4)
+/setMaterial/mediumPressure 10.7 bar      # If pressure also set, and sim is built with REFPROP (default), 
                                           # then REFPROP is used to calculate density with T, P for pure CF4
 
-#/setMaterial/mediumLY 100.0 MeVLY        # these units are photons/MeV, keVLY also available
-#/setMaterial/mediumLY_VisFraction 0.0    # use this with total LY, or the two commands below
+/setMaterial/mediumLY 1000.0 MeVLY        # these units are photons/MeV, keVLY also available
+/setMaterial/mediumLY_VisFraction 0.80    # use this with total LY, or the two commands below
 #/setMaterial/mediumLY_UV 0 MeVLY
-#/setMaterial/mediumLY_Vis 1000 MeVLY
+#/setMaterial/mediumLY_Vis 5000 MeVLY
 
 ### detector configuration ###
-/setDetector/myVerbosity 2                # 1 outputs event level data
-                                          # 2 some photon level data
+/setDetector/myVerbosity 1                # 1 outputs event level data
+                                          # 2 some photon level data, all data that is used
 
-#/setDetector/useCollimator true           # default is true
-#/setDetector/gammaHeight 2.4              # this turns on detConst.gammaStatus
-#/setDetector/GammaThetaMax 1              # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
+/setDetector/useCollimator true           # default is true
+/setDetector/gammaHeight 0.0              # this turns on detConst.gammaStatus
+/setDetector/GammaThetaMax 1              # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
 
-#/setDetector/gammaSource Cs137            # default, see those available in detectorconstruction header and primary generator
+/setDetector/gammaSource Cs137            # default, see those available in detectorconstruction header and primary generator
 #/setDetector/gammaSource Co60
 #/setDetector/gammaSource Co57
-#/setDetector/gammaSource isoCs137
+#/setDetector/gammaSource isoCs137         # iso uses the built-in G4 gammas. This is energetically more correct but takes WAY longer to build statistics if using collimator (for obvious reasons)
 #/setDetector/gammaSource isoCo60
 #/setDetector/gammaSource isoCo57
 
-/setDetector/alphaHeight 3.5              # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
+#/setDetector/alphaHeight 3.5             # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
                                           # currently gamma and alpha source have same intensity (see primary generator constructor to change)
 
 ## process toggling (some outdated?) ##
@@ -62,7 +62,7 @@
 /run/initialize
 
 ### Naming Output ###
-/analysis/setFileName aNameIWant
+/analysis/setFileName aNameIWant                  # use either of these functions. whatever is last overrides
 /analysis/ntuple/setFileName 0 anotherNameIWant
 
 ### no visualization ###
@@ -70,5 +70,3 @@
 
 ### run visualization ###
 /control/execute ../myB1/myVis.mac
-
-# /control/execute ../myB1/myRun.mac

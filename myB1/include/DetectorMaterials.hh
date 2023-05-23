@@ -60,7 +60,7 @@ protected:
   G4Material * mVacuum; // vacuum
   G4Material * mAir;
   G4Material * mWalls; // black absorptive paper stuff  
-  G4Material * mSteel;
+  G4Material * mSteel;  // stainless
   G4Material * mLead;
   G4Material * mGenericPlastic;
   G4Material * mAluminum;
