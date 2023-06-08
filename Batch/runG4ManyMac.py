@@ -1,5 +1,5 @@
-from G4_runClasses import *
-from G4_macHelpers import *
+from helpers.G4_runClasses import *
+from helpers.G4_macHelpers import *
 
 LYlow = 3000.
 
@@ -16,9 +16,18 @@ if __name__ == "__main__":
   runPars = RunParameters(macPath=baseMacro)
   # print(runPars.to_Mac_string())
 
-  heights = {-0.5, 0, 0.5, 1.5, 4.0, 5.5}
-  ly = {3000., 4000., 5000., 6000.}
+  heights = {0, 1.5, 4.0}
+  lys = {3000., 3500, 4000., 4500, 5000., 5500, 6000.}
 
-  build_mac_from_items(physPar=physPars, detPar=detPars, runPar=runPars)
+  for ly in lys:
+    physPars.ly = ly
 
-  
+    for h in heights:
+      runPars.gammaHeight = h
+      runPars.fname = "Cs137_ly_"+str(int(ly))+"_h_"+str(h)+"_ly"
+      runPars.Nbeam = 10000
+
+      build_mac_from_items(physPar=physPars, detPar=detPars, runPar=runPars, 
+                            fname = runPars.fname, savePath="./test1")
+
+      

@@ -1,21 +1,55 @@
+
+import sys
+import os
+import numpy as np
+
+current_directory = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_directory)
+
 from G4_macHelpers import *
+import FileGetters as FG
+import uproot
+import os
 
 # the space is required on the "str_*" members,
 # otherwise lines of text like mediumLY and mediumLY_visFraction will get mixed together
 # when looking for "mediumLY"
 
+## Handle all this using Uproot
 class FullMCRun(object):
 
-  def __init__(self, ttree, mac):
+  # pass the full path to the mac and root files
+  def __init__(self, macName):
+    fullMac = macName+".mac"
     
     # expand the mac file
-    self.mRunPars = RunParameters(macPath=mac)
-    self.mDetPars = DetectorParameters(macPath=mac)
-    self.mPhysPars = PhysicsParameters(macPath=mac)
+    self.mRunPars = RunParameters(macPath=fullMac)
+    self.mDetPars = DetectorParameters(macPath=fullMac)
+    self.mPhysPars = PhysicsParameters(macPath=fullMac)
 
+    file, ttree = FG.openMyROOT_2(sfile = macName) # get just the file name with no suffix
+    self.file = file
     self.mTtree = ttree # using the uproot ttree object
-
+    NPE = self.mTtree["fNPE"].array()
+    self.mNPE = NPE[NPE > 0]
     return
+  
+  def setup_forComparison(self, Nbins, lowRange=0, maxRange=100):
+    # do a bunch of stuff to get some bins. moving to ROOT agnostic approach
+    Raw_counts, self.mBin_Edges = np.histogram(self.mNPE, bins = int(Nbins), range=(lowRange, maxRange))
+    self.mRaw_Counts = np.array(Raw_counts)
+    self.mBinX = self.mBin_Edges[:-1]
+    return True
+
+  def scale(self, scaleFactor):
+    self.mScaled_counts = self.mRaw_Counts * scaleFactor
+  
+  # def normAndscale(self, desiredArea, binStart=0, binEnd=100):
+  #   area = np.sum(self.mRaw_counts[binStart:binEnd])
+  #   self.mNorm_Counts = np.array(self.mRaw_counts)/area
+    
+  #   self.mNorm_Counts *= desiredArea
+  #   return area * desiredArea
 
 # this tracks things like radiation source location,
 # how many events are simulated, what medium is inside
@@ -30,6 +64,8 @@ class RunParameters(object):
     self.str_gammaColl = "/setDetector/useCollimator "
     self.str_alphaHeight = "/setDetector/alphaHeight "
     self.str_beamOn = "/run/beamOn "
+
+    self.str_fname="/analysis/setFileName "
 
     if macPath is None:
       self.gammaHeight = gammaHeight
@@ -65,6 +101,9 @@ class RunParameters(object):
     
     if self.alphaHeight is not None:
       outStr += self.str_alphaHeight + str(self.alphaHeight) + "\n"
+    
+    if self.fname is not None:
+      outStr += self.str_fname + self.fname + "\n"
   
     return outStr
 
