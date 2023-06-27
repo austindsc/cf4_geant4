@@ -2,6 +2,7 @@
 import sys
 import os
 import numpy as np
+import numpy.random as npRand
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_directory)
@@ -34,6 +35,8 @@ class FullMCRun(object):
     self.mNPE = NPE[NPE > 0]
     return
   
+  # def doCAcorrection(self, nCA):
+  
   def setup_forComparison(self, Nbins, lowRange=0, maxRange=100):
     # do a bunch of stuff to get some bins. moving to ROOT agnostic approach
     Raw_counts, self.mBin_Edges = np.histogram(self.mNPE, bins = int(Nbins), range=(lowRange, maxRange))
@@ -41,8 +44,8 @@ class FullMCRun(object):
     self.mBinX = self.mBin_Edges[:-1]
     return True
 
-  def scale(self, scaleFactor):
-    self.mScaled_counts = self.mRaw_Counts * scaleFactor
+  # def scale(self, scaleFactor):
+  #   self.mScaled_counts = self.mRaw_Counts * scaleFactor
   
   # def normAndscale(self, desiredArea, binStart=0, binEnd=100):
   #   area = np.sum(self.mRaw_counts[binStart:binEnd])

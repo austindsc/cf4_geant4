@@ -35,7 +35,7 @@
                                           # 2 some photon level data, all data that is used
 
 /setDetector/useCollimator true           # default is true
-/setDetector/gammaHeight 0.0              # this turns on detConst.gammaStatus
+/setDetector/gammaHeight 6.0              # this turns on detConst.gammaStatus
 /setDetector/GammaThetaMax 1              # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
 
 /setDetector/gammaSource Cs137            # default, see those available in detectorconstruction header and primary generator
@@ -63,7 +63,7 @@
 
 ### Naming Output ###
 /analysis/setFileName aNameIWant                  # use either of these functions. whatever is last overrides
-/analysis/ntuple/setFileName 0 anotherNameIWant
+#/analysis/ntuple/setFileName 0 anotherNameIWant
 
 ### no visualization ###
 #/run/beamOn 1000

@@ -4,6 +4,7 @@ import uproot
 
 from ROOT import TFile
 
+# returns a list of file names in a directory
 def get_all_root_files(directory: "path to directory"):
   
   # Get all files in the directory
@@ -14,6 +15,7 @@ def get_all_root_files(directory: "path to directory"):
   
   return root_files
 
+# open using uproot, returns ttree and file
 def openMyROOT_2(sfile: str, treeName = "simOutput"):
     if os.path.exists(sfile+".root") and os.path.exists(sfile+".mac"):
         f = uproot.open(sfile+".root")
@@ -28,7 +30,7 @@ def openMyROOT_2(sfile: str, treeName = "simOutput"):
     return None, None
 
 
-# returns file f and ttree
+# using pyroot, returns file f and ttree
 def openMyROOT(sfile: str, treename = "simOutput"):
     if os.path.exists(sfile+".root") and os.path.exists(sfile+".mac"):
         f = TFile(sfile+".root", "READ")

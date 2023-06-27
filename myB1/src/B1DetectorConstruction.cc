@@ -105,7 +105,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   //--------------------------- CF4 metal Cylinders ---------------------------//
   
   G4double mediumR = 3.48*cm/2;
-  G4double mediumZ = 15*cm;
+  G4double mediumZ = 15.*cm;
   G4double sipmHeightFromBottom = 8.8*cm;
   G4ThreeVector moveMediumUP(0, 0, mediumZ/2 - sipmHeightFromBottom); //so SiPM face is still at 0, 0, 0
   
