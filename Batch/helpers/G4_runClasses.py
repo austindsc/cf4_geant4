@@ -2,7 +2,7 @@
 import sys
 import os
 import numpy as np
-import numpy.random as npRand
+import time
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_directory)
@@ -32,14 +32,27 @@ class FullMCRun(object):
     self.file = file
     self.mTtree = ttree # using the uproot ttree object
     NPE = self.mTtree["fNPE"].array()
-    self.mNPE = NPE[NPE > 0]
+    self.mNPE = np.array(NPE[NPE > 0])
     return
   
-  # def doCAcorrection(self, nCA):
+  def doCAcorrection_GeometricMC(self, nCA, rand = np.random.default_rng(seed = int(time.time()))):
+    pGeo = 1./(1 + nCA)
+    self.mCA = nCA
+    self.mNPE_corrGeo = np.array([np.sum(rand.geometric(p = pGeo, size = pe)) for pe in self.mNPE])
+    self.mNPE_corr = self.mNPE_corrGeo
+    return self.mNPE_corrGeo
+
+  def doCAcorrection_BinomialMC(self, nCA):
+    self.mCA = nCA
+    self.mNPE_corrBinomial = self.mNPE + np.random.binomial(self.mNPE, nCA)
+    self.mNPE_corr = self.mNPE_corrBinomial
+    return self.mNPE_corrBinomial
   
-  def setup_forComparison(self, Nbins, lowRange=0, maxRange=100):
+  # options are mNPE_corrBinomial, mNPE_corrGeo, mNPE
+  def setup_forComparison(self, Nbins, lowRange=0, maxRange=100, variable = "mNPE"):
+    npe = getattr(self, variable)
     # do a bunch of stuff to get some bins. moving to ROOT agnostic approach
-    Raw_counts, self.mBin_Edges = np.histogram(self.mNPE, bins = int(Nbins), range=(lowRange, maxRange))
+    Raw_counts, self.mBin_Edges = np.histogram(npe, bins = int(Nbins), range=(lowRange, maxRange))
     self.mRaw_Counts = np.array(Raw_counts)
     self.mBinX = self.mBin_Edges[:-1]
     return True
@@ -208,7 +221,7 @@ class PhysicsParameters(object):
     
 
 ## building the .mac files from the three objects
-def build_mac_from_items(physPar, detPar, runPar, fname = "testMacOutput", myVerbosity = 0, savePath=".", g4Verbosity=0):
+def build_mac_from_items(physPar, detPar, runPar, fname = "testMacOutput", myVerbosity = 0, savePath="", g4Verbosity=0):
 
   verbosities = """
 /vis/verbose {0}
@@ -223,8 +236,8 @@ def build_mac_from_items(physPar, detPar, runPar, fname = "testMacOutput", myVer
 """.format(g4Verbosity)
 
   ## make filename in other code
-  
-  with open(savePath+"/"+fname+".mac", "w") as file:
+  finalName = savePath+fname+".mac"
+  with open(finalName, "w") as file:
 
     ## normal intro stuff
     file.write(verbosities + "\n\n")
@@ -247,4 +260,4 @@ def build_mac_from_items(physPar, detPar, runPar, fname = "testMacOutput", myVer
     ## runBeam
     file.write(runPar.get_str_nbeam())
 
-  return
+  return finalName
