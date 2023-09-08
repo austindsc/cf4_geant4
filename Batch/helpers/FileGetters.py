@@ -4,28 +4,31 @@ import uproot
 
 from ROOT import TFile
 
-# returns a list of file names in a directory
+# returns a list of file names in a directory (without suffixes)
 def get_all_root_files(directory: "path to directory"):
   
   # Get all files in the directory
   files = os.listdir(directory)
   
   # Filter for .root files
-  root_files = [f for f in files if f.endswith('.root')]
+  root_files = [directory+f for f in files if f.endswith('.root')]
   
   return root_files
 
 # open using uproot, returns ttree and file
-def openMyROOT_2(sfile: str, treeName = "simOutput"):
+def openMyROOT_2(sfile: str, treeName = "simOutput", verbose = 1):
     if os.path.exists(sfile+".root") and os.path.exists(sfile+".mac"):
         f = uproot.open(sfile+".root")
-        print("loaded in:", sfile+".root")
+        if verbose:
+            print("loaded in:", sfile+".root")
         return f, f[treeName]
     elif not os.path.exists(sfile+".root"):
-        print("does not exist:", sfile+".root")
+        if verbose:
+            print("does not exist:", sfile+".root")
         exit(1)
     elif not os.path.exists(sfile+".mac"):
-        print("does not exist:", sfile+".mac")
+        if verbose:
+            print("does not exist:", sfile+".mac")
         exit(1)
     return None, None
 

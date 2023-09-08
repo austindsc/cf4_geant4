@@ -20,7 +20,7 @@ import os
 class FullMCRun(object):
 
   # pass the full path to the mac and root files
-  def __init__(self, macName):
+  def __init__(self, macName, verbose = 1):
     fullMac = macName+".mac"
     
     # expand the mac file
@@ -28,7 +28,7 @@ class FullMCRun(object):
     self.mDetPars = DetectorParameters(macPath=fullMac)
     self.mPhysPars = PhysicsParameters(macPath=fullMac)
 
-    file, ttree = FG.openMyROOT_2(sfile = macName) # get just the file name with no suffix
+    file, ttree = FG.openMyROOT_2(sfile = macName, verbose=verbose) # get just the file name with no suffix
     self.file = file
     self.mTtree = ttree # using the uproot ttree object
     NPE = self.mTtree["fNPE"].array()
@@ -56,6 +56,9 @@ class FullMCRun(object):
     self.mRaw_Counts = np.array(Raw_counts)
     self.mBinX = self.mBin_Edges[:-1]
     return True
+  
+  def getPEMean(self):
+    return np.mean(self.mNPE), np.mean(self.mNPE_corrGeo)
 
   # def scale(self, scaleFactor):
   #   self.mScaled_counts = self.mRaw_Counts * scaleFactor
@@ -72,7 +75,7 @@ class FullMCRun(object):
 class RunParameters(object):
 
   def __init__(self, gammaHeight:'cm above SiPM' = None, fname = None, macPath = None,
-               gammaSrc = None, alphaHeight = None, gammaAngle = 2.5, Nbeam = 1e6, gammaCollimator = True) -> None:
+               gammaSrc = None, alphaHeight = None, gammaAngle = 2.5, Nbeam = 1e6, gammaCollimator = True, LPfilter = False) -> None:
 
     self.str_gammaHeight = "/setDetector/gammaHeight "
     self.str_gammaAngle = "/setDetector/GammaThetaMax "
@@ -80,6 +83,8 @@ class RunParameters(object):
     self.str_gammaColl = "/setDetector/useCollimator "
     self.str_alphaHeight = "/setDetector/alphaHeight "
     self.str_beamOn = "/run/beamOn "
+
+    self.str_lpFilter = "/setDetector/lpFilter "
 
     self.str_fname="/analysis/setFileName "
 
@@ -91,15 +96,20 @@ class RunParameters(object):
       self.Nbeam = Nbeam
       self.gammaAngle = gammaAngle
       self.fname = fname
+      self.lpFilter = LPfilter
 
     elif macPath is not None:
-      self.gammaHeight = extract_words_after_string(macPath, self.str_gammaHeight)
+      self.gammaHeight = float(extract_words_after_string(macPath, self.str_gammaHeight))
       self.gammaSrc = extract_words_after_string(macPath, self.str_gammaSrc)
       self.gammaColl = extract_words_after_string(macPath, self.str_gammaColl)
       self.alphaHeight = extract_words_after_string(macPath, self.str_alphaHeight)
       self.Nbeam = extract_words_after_string(macPath, self.str_beamOn)
       self.gammaAngle = extract_words_after_string(macPath, self.str_gammaAngle)
       self.fname = macPath
+
+      # xxLP
+      #self.lpFilter = extract_words_after_string(macPath, self.str_lpFilter)
+      self.lpFilter = LPfilter
     return None
   
   # this returns a string with everything we need to build the mac file
@@ -117,6 +127,9 @@ class RunParameters(object):
     
     if self.alphaHeight is not None:
       outStr += self.str_alphaHeight + str(self.alphaHeight) + "\n"
+
+    # if self.lpFilter is not None:
+    #   outStr += self.str_lpFilter + str(self.lpFilter) + "\n"
     
     if self.fname is not None:
       outStr += self.str_fname + self.fname + "\n"
@@ -143,6 +156,11 @@ class DetectorParameters(object):
       # self.noiseFrac = extract_words_after_string(macPath, "/setMaterial/mediumLY_VisFraction")
       pass
     return None
+  
+  def __eq__(self, otherClass):
+    if isinstance(otherClass, self.__class__):
+      return all(self.__dict__.get(key) == otherClass.__dict__.get(key) for key in self.__dict__.keys())
+    return False
   
   def to_Mac_string(self):
 
@@ -218,6 +236,15 @@ class PhysicsParameters(object):
 
     # birks, UV attenuation
     return stringOut
+  
+  def __str__(self):
+    return self.to_Mac_string()
+  
+  def __eq__(self, otherClass):
+    if isinstance(otherClass, self.__class__):
+      return all(self.__dict__.get(key) == otherClass.__dict__.get(key) for key in self.__dict__.keys())
+    return False
+  
     
 
 ## building the .mac files from the three objects
