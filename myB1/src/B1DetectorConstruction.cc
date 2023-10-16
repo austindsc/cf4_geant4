@@ -54,7 +54,7 @@ B1DetectorConstruction::B1DetectorConstruction()
   
   fCollStatus = true;
   fGammaThetaMax = 2. * deg;
-  fGammaSource = "Cs137"; //default, other options are "Co60", etc (see header)
+  fGammaSource = "Cs137"; //default, other options are "Co57", etc (see header)
 
 }
 

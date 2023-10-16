@@ -19,7 +19,7 @@
 /setDetector/myVerbosity 1
 
 /setDetector/useCollimator true
-/setDetector/GammaThetaMax 2.5
+/setDetector/GammaThetaMax 1.5
 
 /setDetector/gammaSource Cs137 
 
@@ -28,4 +28,4 @@
 /run/initialize
 /analysis/setFileName ../Cs137_69
 
-/run/beamOn 1000
+/run/beamOn 10000

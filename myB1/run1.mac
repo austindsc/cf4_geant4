@@ -30,10 +30,10 @@
 /setDetector/myVerbosity 1
 #/setDetector/gammaHeight 4.4
 #/setDetector/gammaSource Cs137 #default
-#/setDetector/gammaSource Co60
+/setDetector/gammaSource Co57
 #/setDetector/gammaSource isoCs137
-#/setDetector/gammaSource isoCo60
-/setDetector/alphaHeight 2. #currently gamma and alpha source have same intensity (see primary generator constructor)
+#/setDetector/gammaSource isoCo57
+#/setDetector/alphaHeight 2. #currently gamma and alpha source have same intensity (see primary generator constructor)
 
 ## process toggling ##
 #/process/optical/processActivation Scintillation false

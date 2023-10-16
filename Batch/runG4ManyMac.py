@@ -8,7 +8,7 @@ from helpers.G4_macHelpers import *
 
 path = "/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/"
 # pBatch = path+"batchOutput/"
-pBatch = path+"batchTest/"
+pBatch = path+"batchOutput2_oct16/"
 pBuild = path+"build/"
 # VERBOSE = False
 global VERBOSE # unneeded but cute
@@ -37,32 +37,49 @@ def run_process(command, verbose = VERBOSE):
 
 if __name__ == "__main__":
 
-  baseMacro = "gammaCs137_base.mac"
+  baseMacro = "gammaCo57_base.mac"
+  baseName = "Co57"
+  # baseMacro = "gammaCs137_base.mac"
 
   ## build the base objects to run off
   physPars = PhysicsParameters(macPath=baseMacro)
-  # print(physPars.to_Mac_string())
   detPars = DetectorParameters(macPath = baseMacro)
-  # print(detPars.to_Mac_string())
   runPars = RunParameters(macPath=baseMacro)
+  # print(physPars.to_Mac_string())
+  # print(detPars.to_Mac_string())
   # print(runPars.to_Mac_string())
 
   # arranging runs and parameter space
-  heights = {0, 1.5, 4.0, 5.5}
-  lys = np.arange(3000, 6000, 500)
-
+  heights = {1.5, 4.0, 5.5}
+  lys = np.arange(2000, 8000, 500).tolist() + np.arange(8000, 13000, 1000).tolist()
+  # lys = [2000., 2500., 3000., 3500., 4000., ]
+  # lys = [11000, 12000, 13000]
+  NBEAM_END = int(3e6)
   geantCommandList = [] # list of things that should work as long as in G4build directory
 
+  ## getting the list of folders that already exist
+  all_items = os.listdir(pBatch)
+  folders = [int(item) for item in all_items if os.path.isdir(os.path.join(pBatch, item))]
+  lastFolder = 0
+  if len(folders) > 0:
+    folders = sorted(folders, key=lambda x: x)
+    lastFolder = max(folders) + 1
+
+  # make new folders
   for iID, ly in enumerate(lys):
 
+    NBEAM = NBEAM_END * lys[-1] / ly
     # set the physics parameters
     physPars.ly = ly
 
-    # make a uniquely named directory
-    subprocess.run(f"cd {pBatch} ; mkdir {iID}", shell = True)
-    parDirID = str(iID)
-    # control parameter ID here
+    folderID = iID + lastFolder
+    # print(folderID)
+    # break
 
+    # make a uniquely named directory
+    subprocess.run(f"cd {pBatch} ; mkdir {folderID}", shell = True)
+    parDirID = str(folderID)
+    # control parameter ID here
     for h in heights:
 
       # set the run parameters
@@ -70,9 +87,9 @@ if __name__ == "__main__":
 
       # this is the important line for file naming and location
       hstr = str(h).replace(".", "d")
-      runPars.fname = pBatch + f"{parDirID}/" + "Cs137_ly_"+str(int(ly))+"_h_"+hstr+"_ly"
+      runPars.fname = pBatch + f"{parDirID}/" + baseName + "_ly_"+str(int(ly))+"_h_"+hstr+"_ly"
 
-      runPars.Nbeam = 1000
+      runPars.Nbeam = int(NBEAM)
 
       # it works with savepath empty. all info is in the fname member
       # runPars.fname has no suffix
@@ -87,7 +104,7 @@ if __name__ == "__main__":
   
   # done paramter space (nested) forloops
   # done building G4 command list
-
+  
   #### executing G4 commands ####
   nProc = 4
   # Create a pool of worker processes
@@ -117,7 +134,3 @@ if __name__ == "__main__":
   print("----------------------------------------------------------------")
   print("-------- Done running G4 over paremeter space --------")
   print("----------------------------------------------------------------")
-
-      
-
-      

@@ -15,6 +15,17 @@ def get_all_root_files(directory: "path to directory"):
   
   return root_files
 
+def get_all_mac_files(directory: "path to directory"):
+  
+  # Get all files in the directory
+  files = os.listdir(directory)
+#   print(files)
+  
+  # Filter for .root files
+  mac_files = [directory+f for f in files if f.endswith('.mac')]
+  
+  return mac_files
+
 # open using uproot, returns ttree and file
 def openMyROOT_2(sfile: str, treeName = "simOutput", verbose = 1):
     if os.path.exists(sfile+".root") and os.path.exists(sfile+".mac"):

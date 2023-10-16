@@ -35,12 +35,12 @@
                                           # 2 some photon level data, all data that is used
 
 /setDetector/useCollimator true           # default is true
-/setDetector/gammaHeight 6.0              # this turns on detConst.gammaStatus
-/setDetector/GammaThetaMax 1              # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
+/setDetector/gammaHeight 4.0              # this turns on detConst.gammaStatus
+/setDetector/GammaThetaMax 2              # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
 
-/setDetector/gammaSource Cs137            # default, see those available in detectorconstruction header and primary generator
+#/setDetector/gammaSource Cs137            # default, see those available in detectorconstruction header and primary generator
 #/setDetector/gammaSource Co60
-#/setDetector/gammaSource Co57
+/setDetector/gammaSource Co57
 #/setDetector/gammaSource isoCs137         # iso uses the built-in G4 gammas. This is energetically more correct but takes WAY longer to build statistics if using collimator (for obvious reasons)
 #/setDetector/gammaSource isoCo60
 #/setDetector/gammaSource isoCo57

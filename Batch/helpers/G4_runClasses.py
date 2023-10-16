@@ -33,6 +33,10 @@ class FullMCRun(object):
     self.mTtree = ttree # using the uproot ttree object
     NPE = self.mTtree["fNPE"].array()
     self.mNPE = np.array(NPE[NPE > 0])
+
+    self.MtotalMeasured = len(self.mNPE)
+    self.Nbeam = self.mRunPars.Nbeam
+    self.eff = self.MtotalMeasured/self.Nbeam
     return
   
   def doCAcorrection_GeometricMC(self, nCA, rand = np.random.default_rng(seed = int(time.time()))):
@@ -49,16 +53,20 @@ class FullMCRun(object):
     return self.mNPE_corrBinomial
   
   # options are mNPE_corrBinomial, mNPE_corrGeo, mNPE
-  def setup_forComparison(self, Nbins, lowRange=0, maxRange=100, variable = "mNPE"):
+  # do a bunch of stuff to get some bins. moving to ROOT agnostic approach
+  def setup_forComparison(self, Nbins = 100, lowRange=0.5, maxRange=100.5, variable = "mNPE"):
     npe = getattr(self, variable)
-    # do a bunch of stuff to get some bins. moving to ROOT agnostic approach
-    Raw_counts, self.mBin_Edges = np.histogram(npe, bins = int(Nbins), range=(lowRange, maxRange))
+    Raw_counts, edges = np.histogram(npe, bins = int(Nbins), range=(lowRange, maxRange))
+    self.mBin_Edges = np.array(edges)
     self.mRaw_Counts = np.array(Raw_counts)
     self.mBinX = self.mBin_Edges[:-1]
     return True
   
   def getPEMean(self):
     return np.mean(self.mNPE), np.mean(self.mNPE_corrGeo)
+
+  # def getScaledPE(self, scaling = 1):
+    
 
   # def scale(self, scaleFactor):
   #   self.mScaled_counts = self.mRaw_Counts * scaleFactor
@@ -111,6 +119,9 @@ class RunParameters(object):
       #self.lpFilter = extract_words_after_string(macPath, self.str_lpFilter)
       self.lpFilter = LPfilter
     return None
+  
+  def __str__(self):
+    return f"RunParams print: {self.gammaSrc}, h:{self.gammaHeight}, id: {id(self)}"
   
   # this returns a string with everything we need to build the mac file
   def to_Mac_string(self):
@@ -205,7 +216,7 @@ class PhysicsParameters(object):
 
       ly, unit = extract_words_after_string(macPath, self.str_ly)
       if unit == "MeVLY":
-        self.ly = ly
+        self.ly = float(ly)
       else:
         print("error in unit on LY from .mac, in func", __name__)
         exit(0)
@@ -238,7 +249,7 @@ class PhysicsParameters(object):
     return stringOut
   
   def __str__(self):
-    return self.to_Mac_string()
+    return "PhysicsParams print:\n" + self.to_Mac_string()
   
   def __eq__(self, otherClass):
     if isinstance(otherClass, self.__class__):
