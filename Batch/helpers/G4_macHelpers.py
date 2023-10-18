@@ -1,5 +1,8 @@
 ## Some functions to help build mac files, or build python objects from mac files
 
+# def removeMacFromString(string):
+#   return string.rstrip('.mac')
+
 def extract_words_after_string(file_path, string):
     with open(file_path, 'r') as file:
         words = []

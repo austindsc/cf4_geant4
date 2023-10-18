@@ -19,9 +19,12 @@ VERBOSE = False
 # don't need unique directories, but i like that for organization
 # will make another code that builds the 'master' csv to track parameter space and assign ID
 
-# how can I use this to easily load in the data?
-
 # should improve the wrapping or ownership of the 'build_from_mac_items" function
+def parseStringMyWay(sin, first = "exampleB1", second="geant4_cf4"):
+  ind = sin.find("exampleB1 ")
+  newOut = sin[ind+len("exampleB1"):]
+  ind = newOut.find("geant4_cf4")
+  return newOut[ind+len("geant4_cf4"):]
 
 def run_process(command, verbose = VERBOSE):
   if verbose == False:
@@ -33,13 +36,14 @@ def run_process(command, verbose = VERBOSE):
   # or change this command to be more 'complex', taking in the mac object, and
   # building the G4 command here. Then I can have this return whatever info I need
   # to have a nice printed output
-  return 69
+  return parseStringMyWay(command)
 
 if __name__ == "__main__":
 
-  baseMacro = "gammaCo57_base.mac"
-  baseName = "Co57"
-  # baseMacro = "gammaCs137_base.mac"
+  # baseMacro = "gammaCo57_base.mac"
+  # baseName = "Co57"
+  baseMacro = "gammaCs137_base.mac"
+  baseName = "Cs137"
 
   ## build the base objects to run off
   physPars = PhysicsParameters(macPath=baseMacro)
@@ -50,11 +54,11 @@ if __name__ == "__main__":
   # print(runPars.to_Mac_string())
 
   # arranging runs and parameter space
-  heights = {1.5, 4.0, 5.5}
+  heights = {0.0, 1.5, 4.0, 5.5}
   lys = np.arange(2000, 8000, 500).tolist() + np.arange(8000, 13000, 1000).tolist()
   # lys = [2000., 2500., 3000., 3500., 4000., ]
   # lys = [11000, 12000, 13000]
-  NBEAM_END = int(3e6)
+  NBEAM_END = int(1e6)
   geantCommandList = [] # list of things that should work as long as in G4build directory
 
   ## getting the list of folders that already exist
@@ -87,8 +91,7 @@ if __name__ == "__main__":
 
       # this is the important line for file naming and location
       hstr = str(h).replace(".", "d")
-      runPars.fname = pBatch + f"{parDirID}/" + baseName + "_ly_"+str(int(ly))+"_h_"+hstr+"_ly"
-
+      runPars.fname = pBatch + f"{parDirID}/" + baseName + "_ly_"+str(int(ly))+"_h_"+hstr
       runPars.Nbeam = int(NBEAM)
 
       # it works with savepath empty. all info is in the fname member
@@ -115,7 +118,7 @@ if __name__ == "__main__":
       # Use pool.imap() to execute the function in parallel
       # Update the progress bar after each task completion
       for result in pool.imap(run_process, geantCommandList):
-          # print("") # put something here to write about what physics run was done
+          print(f"finished: {result}") # put something here to write about what physics run was done
           progress_bar.update(1)
         
       # results = pool.imap(run_process, geantCommandList)

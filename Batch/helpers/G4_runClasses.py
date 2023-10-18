@@ -113,7 +113,7 @@ class RunParameters(object):
       self.alphaHeight = extract_words_after_string(macPath, self.str_alphaHeight)
       self.Nbeam = extract_words_after_string(macPath, self.str_beamOn)
       self.gammaAngle = extract_words_after_string(macPath, self.str_gammaAngle)
-      self.fname = macPath
+      self.fname = macPath.rstrip(".mac")
 
       # xxLP
       #self.lpFilter = extract_words_after_string(macPath, self.str_lpFilter)
