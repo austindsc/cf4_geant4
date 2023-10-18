@@ -94,17 +94,10 @@ def mergeTTrees(macName, macName2):
   return outname
 
 
-argsToRun = ["/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/0/Co57_ly_2000_h_1d5.mac", 
-"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/0/Co57_ly_2000_h_4d0.mac", 
-"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/1/Co57_ly_2500_h_1d5.mac", 
-"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/1/Co57_ly_2500_h_4d0.mac", 
-"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/2/Co57_ly_3000_h_1d5.mac", 
-"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/2/Co57_ly_3000_h_4d0.mac", 
-"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/3/Co57_ly_3500_h_1d5.mac", 
-"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/4/Co57_ly_4000_h_1d5.mac", 
-"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/4/Co57_ly_4000_h_4d0.mac", 
-"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/5/Co57_ly_4500_h_1d5.mac", 
-"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/6/Co57_ly_5000_h_1d5.mac"]
+argsToRun = ["/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/0/Co57_ly_2000_h_1d5_MERGED.mac", 
+"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/1/Co57_ly_2500_h_1d5_MERGED.mac", 
+"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/2/Co57_ly_3000_h_1d5_MERGED.mac", 
+"/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/batchOutput2_oct16/3/Co57_ly_3500_h_1d5_MERGED.mac"]
 
 # argsToRun = argsToRun[0:2]
 fnames = []
