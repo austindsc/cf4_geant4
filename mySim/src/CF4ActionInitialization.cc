@@ -1,0 +1,44 @@
+/// \file CF4ActionInitialization.cc
+/// \brief Implementation of the CF4ActionInitialization class
+
+#include "CF4ActionInitialization.hh"
+#include "CF4PrimaryGeneratorAction.hh"
+#include "CF4RunAction.hh"
+#include "CF4EventAction.hh"
+#include "CF4SteppingAction.hh"
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+CF4ActionInitialization::CF4ActionInitialization()
+ : G4VUserActionInitialization()
+{}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+CF4ActionInitialization::~CF4ActionInitialization()
+{}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void CF4ActionInitialization::BuildForMaster() const
+{
+  CF4RunAction* runAction = new CF4RunAction;
+  SetUserAction(runAction);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void CF4ActionInitialization::Build() const
+{
+  SetUserAction(new CF4PrimaryGeneratorAction);
+
+  CF4RunAction* runAction = new CF4RunAction;
+  SetUserAction(runAction);
+  
+  CF4EventAction* eventAction = new CF4EventAction(runAction);
+  SetUserAction(eventAction);
+  
+  SetUserAction(new CF4SteppingAction(eventAction));
+}  
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

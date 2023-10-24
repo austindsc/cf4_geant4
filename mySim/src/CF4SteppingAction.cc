@@ -24,12 +24,12 @@
 // ********************************************************************
 //
 //
-/// \file B1SteppingAction.cc
-/// \brief Implementation of the B1SteppingAction class
+/// \file CF4SteppingAction.cc
+/// \brief Implementation of the CF4SteppingAction class
 
-#include "B1SteppingAction.hh"
-#include "B1EventAction.hh"
-#include "B1DetectorConstruction.hh"
+#include "CF4SteppingAction.hh"
+#include "CF4EventAction.hh"
+#include "CF4DetectorConstruction.hh"
 
 #include "G4Step.hh"
 #include "G4Event.hh"
@@ -41,7 +41,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B1SteppingAction::B1SteppingAction(B1EventAction* eventAction)
+CF4SteppingAction::CF4SteppingAction(CF4EventAction* eventAction)
 : G4UserSteppingAction(),
   fEventAction(eventAction),
   fScoringVolume(0)
@@ -49,16 +49,16 @@ B1SteppingAction::B1SteppingAction(B1EventAction* eventAction)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B1SteppingAction::~B1SteppingAction()
+CF4SteppingAction::~CF4SteppingAction()
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void B1SteppingAction::UserSteppingAction(const G4Step* step)
+void CF4SteppingAction::UserSteppingAction(const G4Step* step)
 {
   if (!fScoringVolume) { 
-    const B1DetectorConstruction* detectorConstruction
-      = static_cast<const B1DetectorConstruction*>
+    const CF4DetectorConstruction* detectorConstruction
+      = static_cast<const CF4DetectorConstruction*>
         (G4RunManager::GetRunManager()->GetUserDetectorConstruction());
     fScoringVolume = detectorConstruction->GetScoringVolume();   
   }

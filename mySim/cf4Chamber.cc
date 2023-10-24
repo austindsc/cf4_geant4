@@ -24,11 +24,11 @@
 // ********************************************************************
 //
 //
-/// \file exampleB1.cc
-/// \brief Main program of the B1 example
+/// \file cf4Chamber.cc
+/// \brief Main program of the CF4 example
 
-#include "B1DetectorConstruction.hh"
-#include "B1ActionInitialization.hh"
+#include "CF4DetectorConstruction.hh"
+#include "CF4ActionInitialization.hh"
 
 #include "G4RunManagerFactory.hh"
 
@@ -62,7 +62,7 @@ int main(int argc,char** argv)
   runManager->SetVerboseLevel(0);
 
   // Detector construction
-  runManager->SetUserInitialization(new B1DetectorConstruction());
+  runManager->SetUserInitialization(new CF4DetectorConstruction());
 
   // Physics list
   // G4VUserPhysicsList * physList = new myPhysList();
@@ -72,7 +72,7 @@ int main(int argc,char** argv)
 
   
   // User action initialization
-  runManager->SetUserInitialization(new B1ActionInitialization());
+  runManager->SetUserInitialization(new CF4ActionInitialization());
   runManager->SetVerboseLevel(0);
   
   // Initialize visualization
@@ -96,7 +96,7 @@ int main(int argc,char** argv)
   else {
     // interactive mode
     G4cout << "\n\n---------------------- Script Settings ----------------------\n" << G4endl;
-    UImanager->ApplyCommand("/control/execute ../myB1/defaultRun.mac");
+    UImanager->ApplyCommand("/control/execute ../mySim/defaultRun.mac");
 
     ui->SessionStart();
     delete ui;

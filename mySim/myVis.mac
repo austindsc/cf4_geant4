@@ -32,7 +32,7 @@
 
 ## drawing the gammma stuff ##
 /vis/geometry/set/forceWireframe logic_collWorld 0 1
-/vis/geometry/set/colour logic_b1 1 43 45 47 0.4
+/vis/geometry/set/colour logic_CF4 1 43 45 47 0.4
 /vis/geometry/set/colour logic_b2 1 43 45 47 0.4
 /vis/geometry/set/colour logic_b3 1 43 45 47 0.4
 /vis/geometry/set/colour logic_b4 1 43 45 47 0.4

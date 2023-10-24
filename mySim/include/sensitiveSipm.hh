@@ -2,7 +2,7 @@
 #define SENSITIVESIPM_H
 
 #include "G4VSensitiveDetector.hh"
-#include "B1EventAction.hh"
+#include "CF4EventAction.hh"
 #include "G4PhysicsOrderedFreeVector.hh"
 
 class G4UniformRand;
@@ -14,7 +14,7 @@ public:
   ~sensitiveSipm();  
   
 private:
-  B1EventAction * fEventAction;
+  CF4EventAction * fEventAction;
 
   virtual G4bool ProcessHits(G4Step *, G4TouchableHistory *);
   

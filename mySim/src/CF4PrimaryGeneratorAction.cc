@@ -1,7 +1,7 @@
-/// \file B1PrimaryGeneratorAction.cc
-/// \brief Implementation of the B1PrimaryGeneratorAction class
+/// \file CF4PrimaryGeneratorAction.cc
+/// \brief Implementation of the CF4PrimaryGeneratorAction class
 
-#include "B1PrimaryGeneratorAction.hh"
+#include "CF4PrimaryGeneratorAction.hh"
 
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
@@ -21,7 +21,7 @@
 #include "G4SingleParticleSource.hh"
 
 #include "G4RunManager.hh"
-#include "B1DetectorConstruction.hh"
+#include "CF4DetectorConstruction.hh"
 #include "myGlobals.hh"
 
 #include "Randomize.hh"
@@ -33,7 +33,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B1PrimaryGeneratorAction::B1PrimaryGeneratorAction()
+CF4PrimaryGeneratorAction::CF4PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(), fCF4_volume(0), famo2_volume(0), famo2_tubs(0),
 fgammaSource_volume(0), fgammaSource_tubs(0), fcollimator_volume(0), fdetconstruction(0)
 {
@@ -48,22 +48,22 @@ fgammaSource_volume(0), fgammaSource_tubs(0), fcollimator_volume(0), fdetconstru
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B1PrimaryGeneratorAction::~B1PrimaryGeneratorAction()
+CF4PrimaryGeneratorAction::~CF4PrimaryGeneratorAction()
 {
   delete fGun;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
+void CF4PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   
   if(!fdetconstruction){
-    fdetconstruction = (B1DetectorConstruction *)G4RunManager::GetRunManager()->GetUserDetectorConstruction();
+    fdetconstruction = (CF4DetectorConstruction *)G4RunManager::GetRunManager()->GetUserDetectorConstruction();
     if(!fdetconstruction){
       G4ExceptionDescription msg;
-      msg << "Can't find B1DetectorConstruction\n"; 
-      G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()", "Austin's warning message", FatalException, msg);
+      msg << "Can't find CF4DetectorConstruction\n"; 
+      G4Exception("CF4PrimaryGeneratorAction::GeneratePrimaries()", "Austin's warning message", FatalException, msg);
     }
   }
   
@@ -81,7 +81,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     if(!famo2_tubs || !famo2_volume) {
       G4ExceptionDescription msg;
       msg << "Can't find famo2_volume (alpha source volume)\n"; 
-      G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()",
+      G4Exception("CF4PrimaryGeneratorAction::GeneratePrimaries()",
       "Austin's warning message", FatalException, msg);
     }
 
@@ -134,7 +134,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     if((!fgammaSource_volume || !fgammaSource_tubs) || (!fcollimator_volume && fdetconstruction->GetCollStatus()==true)) {
       G4ExceptionDescription msg;
       msg << "Can't find fgammaSource_tubs, _volume or fcollimator_volume \n"; 
-      G4Exception("B1PrimaryGeneratorAction::GeneratePrimaries()",
+      G4Exception("CF4PrimaryGeneratorAction::GeneratePrimaries()",
       "Austin's warning message", FatalException, msg);
     } // all good, found source volume. Now set 'default' properties (do one time hopefully)
   
@@ -212,7 +212,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   fGun->GeneratePrimaryVertex(anEvent);
 }
 
-void B1PrimaryGeneratorAction::doSourcePlacement(G4ThreeVector position, G4Tubs * tube, G4String name){
+void CF4PrimaryGeneratorAction::doSourcePlacement(G4ThreeVector position, G4Tubs * tube, G4String name){
   G4SingleParticleSource * tSource = fGun->GetCurrentSource();
   tSource->GetPosDist()->SetPosDisType("Volume");
   tSource->GetPosDist()->SetPosDisShape("Cylinder");
@@ -223,7 +223,7 @@ void B1PrimaryGeneratorAction::doSourcePlacement(G4ThreeVector position, G4Tubs 
   return;
 }
 
-void B1PrimaryGeneratorAction::setGammaDirection(G4double thetaSpread, G4SingleParticleSource* gun){
+void CF4PrimaryGeneratorAction::setGammaDirection(G4double thetaSpread, G4SingleParticleSource* gun){
   // angular distribution
   gun->GetAngDist()->DefineAngRefAxes("angref1", G4ThreeVector(0, 0, -1));
   gun->GetAngDist()->DefineAngRefAxes("angref2", G4ThreeVector(0, 1, 0));
@@ -233,8 +233,8 @@ void B1PrimaryGeneratorAction::setGammaDirection(G4double thetaSpread, G4SingleP
   return;
 }
 
-// void B1PrimaryGeneratorAction::build_Cs137(G4ThreeVector position, G4Tubs * tube);
-// void B1PrimaryGeneratorAction::build_Co60(G4ThreeVector position, G4Tubs * tube);
+// void CF4PrimaryGeneratorAction::build_Cs137(G4ThreeVector position, G4Tubs * tube);
+// void CF4PrimaryGeneratorAction::build_Co60(G4ThreeVector position, G4Tubs * tube);
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

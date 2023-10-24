@@ -1,8 +1,8 @@
-/// \file B1PrimaryGeneratorAction.hh
-/// \brief Definition of the B1PrimaryGeneratorAction class
+/// \file CF4PrimaryGeneratorAction.hh
+/// \brief Definition of the CF4PrimaryGeneratorAction class
 
-#ifndef B1PrimaryGeneratorAction_h
-#define B1PrimaryGeneratorAction_h 1
+#ifndef CF4PrimaryGeneratorAction_h
+#define CF4PrimaryGeneratorAction_h 1
 
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "G4ParticleGun.hh"
@@ -12,7 +12,7 @@ class G4GeneralParticleSource;
 class G4Event;
 class G4Tubs;
 class G4VPhysicalVolume;
-class B1DetectorConstruction;
+class CF4DetectorConstruction;
 class G4SingleParticleSource;
 
 /// The primary generator action class with particle gun.
@@ -20,11 +20,11 @@ class G4SingleParticleSource;
 /// The default kinematic is a 6 MeV gamma, randomly distribued 
 /// in front of the phantom across 80% of the (X,Y) phantom size.
 
-class B1PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
+class CF4PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
-    B1PrimaryGeneratorAction();    
-    virtual ~B1PrimaryGeneratorAction();
+    CF4PrimaryGeneratorAction();    
+    virtual ~CF4PrimaryGeneratorAction();
 
     // method from the base class
     virtual void GeneratePrimaries(G4Event*);
@@ -53,7 +53,7 @@ class B1PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4Tubs* fgammaSource_tubs;
     G4VPhysicalVolume* fcollimator_volume;
     
-    B1DetectorConstruction * fdetconstruction;
+    CF4DetectorConstruction * fdetconstruction;
     
 };
 

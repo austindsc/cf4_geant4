@@ -1,5 +1,5 @@
-#include "B1DetectorConstruction.hh"
-#include "B1DetectorConstructionMessenger.hh"
+#include "CF4DetectorConstruction.hh"
+#include "CF4DetectorConstructionMessenger.hh"
 #include "sensitiveSipm.hh"
 
 #include "G4RunManager.hh"
@@ -34,11 +34,11 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B1DetectorConstruction::B1DetectorConstruction()
+CF4DetectorConstruction::CF4DetectorConstruction()
 : G4VUserDetectorConstruction(),
   fScoringVolume(0)
 {
-  fDetMessenger = new B1DetectorConstructionMessenger(this);
+  fDetMessenger = new CF4DetectorConstructionMessenger(this);
   
   // still control some things with this
   // detMat = new DetectorMaterials();
@@ -60,7 +60,7 @@ B1DetectorConstruction::B1DetectorConstruction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void B1DetectorConstruction::ConstructSDandField(){
+void CF4DetectorConstruction::ConstructSDandField(){
     
     sensitiveSipm * ssipm = new sensitiveSipm("sensitiveSipm");
     fsipmVolume->SetSensitiveDetector(ssipm);
@@ -68,7 +68,7 @@ void B1DetectorConstruction::ConstructSDandField(){
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-B1DetectorConstruction::~B1DetectorConstruction()
+CF4DetectorConstruction::~CF4DetectorConstruction()
 {
   delete fDetMessenger;
   delete detMat;
@@ -76,7 +76,7 @@ B1DetectorConstruction::~B1DetectorConstruction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VPhysicalVolume* B1DetectorConstruction::Construct()
+G4VPhysicalVolume* CF4DetectorConstruction::Construct()
 { 
   detMat->BuildMaterials(); //PUT THIS HERE! (not in consturctor)
   
@@ -162,6 +162,8 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod3", logic_medium, false, 0, checkOverlaps);
             
   //--------------------------- SiPM volumes (Box) ---------------------------//
+  // if(fAlphaHeight >= 0 && fAlphaStatus == true) new alphaSource1(logic_medium, fAlphaHeight - moveMediumUP.getZ(), checkOverlaps);
+
   G4double sipmXY = 5.9 * 2 * mm;
   G4double sipmThick = 0.2*mm; // guess
   G4Box * solid_sipm = new G4Box("solid_sipm", 0.5*sipmXY, 0.5*sipmXY, 0.5*sipmThick);
@@ -190,6 +192,11 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
                     "phys_package",
                     logic_medium,
                     false, 0, checkOverlaps);
+  
+  // setting all headers
+  fScoringVolume = logic_medium;
+  fsipmVolume = logic_sipm;
+
   // 
   //--------------------------- Collimator ---------------------------//
   // if(fGammaStatus == true)collimator * logic_coll = new collimator(checkOverlaps);
@@ -216,10 +223,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   if(fAlphaHeight >= 0 && fAlphaStatus == true) new alphaSource1(logic_medium, fAlphaHeight - moveMediumUP.getZ(), checkOverlaps);
   
  //--------------------------- Done Source ---------------------------//
-  
-  // setting all headers
-  fScoringVolume = logic_medium;
-  fsipmVolume = logic_sipm;
+
 
   G4cout << "\n---------------------- Done Construct() ----------------------" << G4endl;
 

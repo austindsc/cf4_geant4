@@ -1,4 +1,4 @@
-# Macro file for the initialization of example B1
+# Macro file for the initialization of example CF4
 # in interactive session
 
 ## Verbosities ##
@@ -69,4 +69,4 @@
 #/run/beamOn 1000
 
 ### run visualization ###
-/control/execute ../myB1/myVis.mac
+/control/execute ../mySim/myVis.mac

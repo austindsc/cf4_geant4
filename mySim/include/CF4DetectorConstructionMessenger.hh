@@ -1,11 +1,11 @@
-#ifndef B1DetectorConstructionMessenger_h
-#define B1DetectorConstructionMessenger_h 1
+#ifndef CF4DetectorConstructionMessenger_h
+#define CF4DetectorConstructionMessenger_h 1
 
 #include "globals.hh"
 #include "G4UImessenger.hh"
 #include "G4String.hh"
 
-class B1DetectorConstruction;
+class CF4DetectorConstruction;
 class G4UIdirectory;
 class G4UIcmdWithADouble;
 class G4UIcmdWithADoubleAndUnit;
@@ -13,16 +13,16 @@ class G4UIcmdWithAString;
 class G4UIcmdWithAnInteger;
 class G4UIcmdWithABool;
 
-class B1DetectorConstructionMessenger : public G4UImessenger{
+class CF4DetectorConstructionMessenger : public G4UImessenger{
 public:
-  B1DetectorConstructionMessenger(B1DetectorConstruction *);
-  ~B1DetectorConstructionMessenger();
+  CF4DetectorConstructionMessenger(CF4DetectorConstruction *);
+  ~CF4DetectorConstructionMessenger();
   
   void SetNewValue(G4UIcommand *, G4String );
   
 private:
   
-  B1DetectorConstruction * Detector;
+  CF4DetectorConstruction * Detector;
   G4UIdirectory          * Dir;
   
   G4UIcmdWithAnInteger   * SetMyVerbosityCmd;

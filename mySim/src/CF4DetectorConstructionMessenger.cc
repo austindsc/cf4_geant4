@@ -9,13 +9,13 @@
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 
-#include "B1DetectorConstruction.hh"
-#include "B1DetectorConstructionMessenger.hh"
+#include "CF4DetectorConstruction.hh"
+#include "CF4DetectorConstructionMessenger.hh"
 
 #include "myGlobals.hh"
 
 
-B1DetectorConstructionMessenger::B1DetectorConstructionMessenger(B1DetectorConstruction * det)
+CF4DetectorConstructionMessenger::CF4DetectorConstructionMessenger(CF4DetectorConstruction * det)
 :Detector(det)
 {
   
@@ -55,7 +55,7 @@ B1DetectorConstructionMessenger::B1DetectorConstructionMessenger(B1DetectorConst
   SetGammaThetaMaxCmd->AvailableForStates(G4State_PreInit);
 }
 
-B1DetectorConstructionMessenger::~B1DetectorConstructionMessenger(){
+CF4DetectorConstructionMessenger::~CF4DetectorConstructionMessenger(){
   
   delete Dir;
   delete SetMyVerbosityCmd;
@@ -64,7 +64,7 @@ B1DetectorConstructionMessenger::~B1DetectorConstructionMessenger(){
   delete SetGammaSourceCmd;
 }
 
-void B1DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4String newVal){
+void CF4DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4String newVal){
   
   // do something
   if(command == SetMyVerbosityCmd){

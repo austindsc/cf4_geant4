@@ -53,8 +53,8 @@ collimator::collimator(G4bool checkOverlaps)
   G4double crack = 1.*mm;
 
   // block dimensions
-  G4double b1_w = 2.5*cm;
-  G4double b1_h = 2.5*cm;
+  G4double CF4_w = 2.5*cm;
+  G4double CF4_h = 2.5*cm;
   G4double b2_w = 2.*cm;
   G4double b2_h = 2.5*cm;
   G4double b3_w = 2.5*cm;
@@ -63,18 +63,18 @@ collimator::collimator(G4bool checkOverlaps)
   G4double b4_h = 2.5*cm - 1.5*mm; // 1.5mm is extra
   
   // blocks 2, 4 are equal
-  G4Box * solid_b1 = new G4Box("solid_b1", b1_w/2, b1_h/2, leadLength/2);
+  G4Box * solid_CF4 = new G4Box("solid_CF4", CF4_w/2, CF4_h/2, leadLength/2);
   G4Box * solid_b2 = new G4Box("solid_b2", b2_h/2, b2_w/2, leadLength/2);
   G4Box * solid_b3 = new G4Box("solid_b3", b3_h/2, b3_w/2, leadLength/2);
   G4Box * solid_b4 = new G4Box("solid_b4", b4_h/2, b4_w/2, leadLength/2);
   
-  G4LogicalVolume * logic_b1 = new G4LogicalVolume(solid_b1, dmat->mLead, "logic_b1");
+  G4LogicalVolume * logic_CF4 = new G4LogicalVolume(solid_CF4, dmat->mLead, "logic_CF4");
   G4LogicalVolume * logic_b2 = new G4LogicalVolume(solid_b2, dmat->mLead, "logic_b2");
   G4LogicalVolume * logic_b3 = new G4LogicalVolume(solid_b3, dmat->mLead, "logic_b3");
   G4LogicalVolume * logic_b4 = new G4LogicalVolume(solid_b4, dmat->mLead, "logic_b4");
   
-  G4double shift_x1 = b1_h/2 + holeD/2;
-  G4double shift_y1 = b1_w/2 - holeD/2 + paper;
+  G4double shift_x1 = CF4_h/2 + holeD/2;
+  G4double shift_y1 = CF4_w/2 - holeD/2 + paper;
   
   G4double shift_x2 = b2_h/2 - holeD/2 + 2*paper;
   G4double shift_y2 = b2_w/2 + holeD/2;
@@ -85,8 +85,8 @@ collimator::collimator(G4bool checkOverlaps)
   G4double shift_x4 = b4_h/2 - holeD/2 + crack;
   G4double shift_y4 = b4_w/2 + holeD/2;
   
-  //big one, b1, is on top right (+, +) quadrant
-  new G4PVPlacement(0, G4ThreeVector(shift_x1, shift_y1 , extraSpace), logic_b1, "phys_box1", this, 0, 0, checkOverlaps);
+  //big one, CF4, is on top right (+, +) quadrant
+  new G4PVPlacement(0, G4ThreeVector(shift_x1, shift_y1 , extraSpace), logic_CF4, "phys_box1", this, 0, 0, checkOverlaps);
   new G4PVPlacement(0, G4ThreeVector(shift_x2, -shift_y2, extraSpace), logic_b2, "phys_box2", this, 0, 0, checkOverlaps);
   new G4PVPlacement(0, G4ThreeVector(-shift_x3, -shift_y3, extraSpace), logic_b3, "phys_box3", this, 0, 0, checkOverlaps);
   new G4PVPlacement(0, G4ThreeVector(-shift_x4, shift_y4, extraSpace), logic_b4, "phys_box4", this, 0, 0, checkOverlaps);

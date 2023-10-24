@@ -24,26 +24,26 @@
 // ********************************************************************
 //
 //
-/// \file B1EventAction.hh
-/// \brief Definition of the B1EventAction class
+/// \file CF4EventAction.hh
+/// \brief Definition of the CF4EventAction class
 
-#ifndef B1EventAction_h
-#define B1EventAction_h 1
+#ifndef CF4EventAction_h
+#define CF4EventAction_h 1
 
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 
-class B1RunAction;
+class CF4RunAction;
 class G4EventManager;
 
 /// Event action class
 ///
 
-class B1EventAction : public G4UserEventAction
+class CF4EventAction : public G4UserEventAction
 {
   public:
-    B1EventAction(B1RunAction* runAction);
-    virtual ~B1EventAction();
+    CF4EventAction(CF4RunAction* runAction);
+    virtual ~CF4EventAction();
 
     virtual void BeginOfEventAction(const G4Event* event);
     virtual void EndOfEventAction(const G4Event* event);
@@ -56,7 +56,7 @@ class B1EventAction : public G4UserEventAction
   private:
     G4EventManager * evMan;
     
-    B1RunAction* fRunAction;
+    CF4RunAction* fRunAction;
     G4double     fEdep;
     G4int        fmcNPE; // mc number of photons hitting detector (no efficiencies)
     G4int        fNPE;  // after efficiencies

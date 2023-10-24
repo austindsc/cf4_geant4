@@ -24,36 +24,40 @@
 // ********************************************************************
 //
 //
-/// \file B1SteppingAction.hh
-/// \brief Definition of the B1SteppingAction class
+/// \file CF4RunAction.hh
+/// \brief Definition of the CF4RunAction class
 
-#ifndef B1SteppingAction_h
-#define B1SteppingAction_h 1
+#ifndef CF4RunAction_h
+#define CF4RunAction_h 1
 
-#include "G4UserSteppingAction.hh"
+#include "G4UserRunAction.hh"
+#include "G4Accumulable.hh"
 #include "globals.hh"
 
-class B1EventAction;
+class G4Run;
 
-class G4LogicalVolume;
+/// Run action class
+///
+/// In EndOfRunAction(), it calculates the dose in the selected volume 
+/// from the energy deposit accumulated via stepping and event actions.
+/// The computed dose is then printed on the screen.
 
-/// Stepping action class
-/// 
-
-class B1SteppingAction : public G4UserSteppingAction
+class CF4RunAction : public G4UserRunAction
 {
   public:
-    B1SteppingAction(B1EventAction* eventAction);
-    virtual ~B1SteppingAction();
+    CF4RunAction();
+    virtual ~CF4RunAction();
 
-    // method from the base class
-    virtual void UserSteppingAction(const G4Step*);
+    // virtual G4Run* GenerateRun();
+    virtual void BeginOfRunAction(const G4Run*);
+    virtual void   EndOfRunAction(const G4Run*);
 
   private:
-    B1EventAction*  fEventAction;
-    G4LogicalVolume* fScoringVolume;
+    G4Accumulable<G4double> fEdep;
+    G4Accumulable<G4double> fEdep2;
+    
+    G4double favgEdep;
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 #endif
+

@@ -1,7 +1,6 @@
 #include "sensitiveSipm.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicsOrderedFreeVector.hh"
-// #include "G"
 #include "G4RunManager.hh"
 
 #include "HelperFunctions.hh"
@@ -11,7 +10,7 @@
 
 sensitiveSipm::sensitiveSipm(G4String name) : G4VSensitiveDetector(name )
 {
-  fEventAction = (B1EventAction *) G4RunManager::GetRunManager()->GetUserEventAction();
+  fEventAction = (CF4EventAction *) G4RunManager::GetRunManager()->GetUserEventAction();
 
   // adding PDE
   ovecPDE = new G4PhysicsFreeVector(true);

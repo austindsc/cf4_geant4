@@ -24,13 +24,13 @@
 // ********************************************************************
 //
 //
-/// \file B1RunAction.cc
-/// \brief Implementation of the B1RunAction class
+/// \file CF4RunAction.cc
+/// \brief Implementation of the CF4RunAction class
 
-#include "B1RunAction.hh"
-#include "B1PrimaryGeneratorAction.hh"
-#include "B1DetectorConstruction.hh"
-// #include "B1Run.hh"
+#include "CF4RunAction.hh"
+#include "CF4PrimaryGeneratorAction.hh"
+#include "CF4DetectorConstruction.hh"
+// #include "CF4Run.hh"
 
 #include "G4RunManager.hh"
 #include "G4Run.hh"
@@ -49,7 +49,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B1RunAction::B1RunAction()
+CF4RunAction::CF4RunAction()
 : G4UserRunAction(),
   fEdep(0.),
   fEdep2(0.),
@@ -73,12 +73,12 @@ B1RunAction::B1RunAction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B1RunAction::~B1RunAction()
+CF4RunAction::~CF4RunAction()
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void B1RunAction::BeginOfRunAction(const G4Run*)
+void CF4RunAction::BeginOfRunAction(const G4Run*)
 { 
   // inform the runManager to save random number seed
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
@@ -98,7 +98,7 @@ void B1RunAction::BeginOfRunAction(const G4Run*)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void B1RunAction::EndOfRunAction(const G4Run* run)
+void CF4RunAction::EndOfRunAction(const G4Run* run)
 {
   G4int nofEvents = run->GetNumberOfEvent();
   if (nofEvents == 0) return;
@@ -124,7 +124,7 @@ void B1RunAction::EndOfRunAction(const G4Run* run)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-// void B1RunAction::AddEdep(G4double edep)
+// void CF4RunAction::AddEdep(G4double edep)
 // {
 //   fEdep  += edep;
 //   fEdep2 += edep*edep;

@@ -1,6 +1,6 @@
 # mkdir buildName
 # cd buildName
-# cmake ../myB1_or_whatever_new_projectNameIs -DUSE_REFPROP=OFF
+# cmake ../myCF4_or_whatever_new_projectNameIs -DUSE_REFPROP=OFF
 # ^ if you don't want to build with REFPROP
 
 # see refpropNotes.txt for install instructions relevant to working with this project
@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 3.8...3.18)
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
-project(B1)
+project(projCF4)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -63,17 +63,17 @@ if(USE_REFPROP)
     add_definitions(-DUSE_REFPROP)
 endif()
 
-add_executable(exampleB1 exampleB1.cc ${sources} ${headers})
-target_link_libraries(exampleB1 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+add_executable(cf4 cf4Chamber.cc ${sources} ${headers})
+target_link_libraries(cf4 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
-# build B1. This is so that we can run the executable directly because it
+# build CF4. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
-# set(EXAMPLEB1_SCRIPTS
-#   exampleB1.in
-#   exampleB1.out
+# set(EXAMPLECF4_SCRIPTS
+#   exampleCF4.in
+#   exampleCF4.out
 #   init_vis.mac
 #   run1.mac
 #   run2.mac
@@ -82,7 +82,7 @@ target_link_libraries(exampleB1 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 #   vis.mac
 #   )
 
-# foreach(_script ${EXAMPLEB1_SCRIPTS})
+# foreach(_script ${EXAMPLECF4_SCRIPTS})
 #   configure_file(
 #     ${PROJECT_SOURCE_DIR}/${_script}
 #     ${PROJECT_BINARY_DIR}/${_script}
@@ -98,9 +98,9 @@ file(COPY ${DATA_FOLDER} DESTINATION ${PROJECT_BINARY_DIR})
 # For internal Geant4 use - but has no effect if you build this
 # example standalone
 #
-add_custom_target(B1 DEPENDS exampleB1)
+add_custom_target(projCF4 DEPENDS cf4)
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS exampleB1 DESTINATION bin)
+install(TARGETS cf4 DESTINATION bin)

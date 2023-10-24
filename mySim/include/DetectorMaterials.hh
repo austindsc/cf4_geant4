@@ -15,7 +15,7 @@ class G4Material;
 class G4String;
 
 class DetectorMaterials{
-  friend class B1DetectorConstruction;
+  friend class CF4DetectorConstruction;
   friend class MaterialsMessenger;
   friend class collimator;
   friend class alphaSource1;

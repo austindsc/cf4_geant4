@@ -24,11 +24,11 @@
 // ********************************************************************
 //
 //
-/// \file B1EventAction.cc
-/// \brief Implementation of the B1EventAction class
+/// \file CF4EventAction.cc
+/// \brief Implementation of the CF4EventAction class
 
-#include "B1EventAction.hh"
-#include "B1RunAction.hh"
+#include "CF4EventAction.hh"
+#include "CF4RunAction.hh"
 
 #include "G4Event.hh"
 #include "G4RunManager.hh"
@@ -45,7 +45,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B1EventAction::B1EventAction(B1RunAction* runAction)
+CF4EventAction::CF4EventAction(CF4RunAction* runAction)
 : G4UserEventAction(),
   fRunAction(runAction),
   fEdep(0.),
@@ -56,12 +56,12 @@ B1EventAction::B1EventAction(B1RunAction* runAction)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B1EventAction::~B1EventAction()
+CF4EventAction::~CF4EventAction()
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void B1EventAction::BeginOfEventAction(const G4Event*)
+void CF4EventAction::BeginOfEventAction(const G4Event*)
 {    
   G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
   if((MG::GetVerbosity() == 1 || evMan->GetVerboseLevel() > 0) && (evt < 100 || evt % 1000 == 0)){
@@ -74,7 +74,7 @@ void B1EventAction::BeginOfEventAction(const G4Event*)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void B1EventAction::EndOfEventAction(const G4Event*)
+void CF4EventAction::EndOfEventAction(const G4Event*)
 {   
   // not doing any event skipping or anything yet
   // G4cout << fEdep / keV << G4endl;
@@ -94,13 +94,13 @@ void B1EventAction::EndOfEventAction(const G4Event*)
     G4cout << "\n---- My Event Info #" << evt << "  ----\n\n" 
     << "total MC PE = " << fmcNPE << "\n"
     << "total PE = " << fNPE << G4endl;
-    G4cout << "b1eventAction::EOEA fEdep = " << fEdep/keV << " keV" << G4endl;
+    G4cout << "CF4eventAction::EOEA fEdep = " << fEdep/keV << " keV" << G4endl;
     G4cout << "\n---- Event Complete ----\n" << G4endl;
   }
 }
 
- void B1EventAction::AddEdep(G4double edep){ fEdep += edep; }
- void B1EventAction::AddmcPE(){fmcNPE++;}
- void B1EventAction::AddPE(){fNPE++;}
+ void CF4EventAction::AddEdep(G4double edep){ fEdep += edep; }
+ void CF4EventAction::AddmcPE(){fmcNPE++;}
+ void CF4EventAction::AddPE(){fNPE++;}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
