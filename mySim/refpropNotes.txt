@@ -1,0 +1,33 @@
+downloaded REFPROP from Mathieu's slack message
+did nothing with it other than copy it
+
+refprop cmake
+https://github.com/usnistgov/REFPROP-cmake
+brew install gcc
+gfortran --version
+done, following standard instructions
+* FLUIDS and MIXTURES folder need to be in the build directory
+(or same directory as .dylib/.so/.DLL file)
+
+compile coolprop headers?
+https://github.com/CoolProp/REFPROP-headers 
+
+compiled using instructions.
+cmake ../to/src -DCMAKE_BUILD_TYPE=Release
+the example 'other_file.cpp' didn't work unless given complete path to .FLD files
+
+
+defined environment variables:
+## REFPROP stuff ##                                                                                                                  
+export REFPROPDLLPATH="/Users/austindestcroix/Desktop/school_holders/projects/sbc/refprop1/REFPROP-cmake/build"
+export REFPROPPATH="/Users/austindestcroix/Desktop/school_holders/projects/sbc/refprop1/REFPROP-headers"
+if [ -z "$CPLUS_INCLUDE_PATH" ]; then
+    export CPLUS_INCLUDE_PATH="$REFPROPPATH"
+else
+    export CPLUS_INCLUDE_PATH="$REFPROPPATH:$CPLUS_INCLUDE_PATH"
+fi
+
+https://github.com/usnistgov/REFPROP-wrappers
+compile wrappers. Followed instructions, got python wrapper working
+
+this just points to REFPROP-headers

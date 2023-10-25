@@ -1,0 +1,22 @@
+// make colours (all with 0.5 transparency)
+G4Colour  white   (1.0, 1.0, 1.0, 0.5) ;
+G4Colour  black   (0.0, 0.0, 0.0, 0.5) ;
+G4Colour  grey    (0.5, 0.5, 0.5, 0.5) ;
+G4Colour  lgrey   (.85, .85, .85, 0.5) ;
+G4Colour  red     (1.0, 0.0, 0.0, 0.5) ;
+G4Colour  blue    (0.0, 0.0, 1.0, 0.5) ;
+G4Colour  cyan    (0.0, 1.0, 1.0, 0.5) ;
+G4Colour  magenta (1.0, 0.0, 1.0, 0.5) ;
+G4Colour  yellow  (1.0, 1.0, 0.0, 0.5) ;
+G4Colour  orange  (.75, .55, 0.0, 0.5) ;
+G4Colour  lblue   (0.0, 0.0, .75, 0.5) ;
+G4Colour  lgreen  (0.0, .75, 0.0, 0.5) ;
+G4Colour  green   (0.0, 1.0, 0.0, 0.5) ;
+G4Colour  brown   (0.7, 0.4, 0.1, 0.5) ;
+
+G4VisAttributes* world_transparent = new G4VisAttributes(false);
+G4VisAttributes* vacuum_white = new G4VisAttributes(true, white);
+G4VisAttributes* ssteel_blue = new G4VisAttributes(true, blue);
+G4VisAttributes* cf4_yellow = new G4VisAttributes(true, yellow);
+G4VisAttributes* kapton_grey = new G4VisAttributes(true, grey);
+G4VisAttributes* si_magenta = new G4VisAttributes(true, magenta);
