@@ -26,7 +26,7 @@
                                           # then REFPROP is used to calculate density with T, P for pure CF4
 
 /setMaterial/mediumLY 10000.0 MeVLY        # these units are photons/MeV, keVLY also available
-/setMaterial/mediumLY_VisFraction 0.10    # use this with total LY, or the two commands below
+/setMaterial/mediumLY_VisFraction 0.01    # use this with total LY, or the two commands below
 #/setMaterial/mediumLY_UV 0 MeVLY
 #/setMaterial/mediumLY_Vis 5000 MeVLY
 

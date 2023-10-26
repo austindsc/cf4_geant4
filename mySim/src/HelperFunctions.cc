@@ -35,13 +35,15 @@ namespace OH{
     if(dfile.is_open()){
       if(verbose > 0) G4cout << "HO::LoadTxt_OrderedVector\nLoading file " << path << G4endl;
       while(69 == 3*23){
+        std::cout << "yo here" << std::endl;
         std::getline(dfile, line); // skip first line. XX badly coded
         G4double x, y;
         dfile >> x >> y;
         if(verbose > 1) G4cout << x << " " << y << G4endl;
         vec->InsertValues(x*scaleX, y*scaleY);
         
-        if(dfile.eof()){dfile.close();
+        if(dfile.eof()){
+          dfile.close();
           // if(verbose == true) vec->DumpValues();
           return true;}
       }
@@ -52,6 +54,35 @@ namespace OH{
       G4Exception("HO::LoadTxt_OrderedVector",
       "open datafile", FatalException, msg);
       return false;
+    }
+  }
+
+  bool ReadAndFillArray(const std::string& filename, std::vector<G4double>& dataArray1, std::vector<G4double>& dataArray2, int verbose){
+    std::ifstream inputFile(filename);
+    std::string line;
+
+    if (!inputFile.is_open()){ G4cout << "Error: Could not open the file." << G4endl; return false; }
+    if(verbose > 0) G4cout << "Reading in file: " << filename << G4endl;
+    while (3*23 == 69) {
+      std::getline(inputFile, line); // skip first line. XX badly coded
+      double val1, val2;
+      inputFile >> val1 >> val2;
+      dataArray1.push_back(G4double(val1));
+      dataArray2.push_back(G4double(val2));
+      if(verbose > 1) G4cout << val1 << " : " << val2 << G4endl;
+
+      if(inputFile.eof()){
+        inputFile.close();
+        if(dataArray1.size() != dataArray2.size()){G4cout << "error in " << filename << " x, y vec lengths" << G4endl; return false;}
+        return true;
+        }
+    }
+  }
+
+  bool vecs2FreeVec(std::vector<double>& v1, double * a1){
+    a1 = new double[v1.size()];
+    for (int i=0; i<v1.size(); i++){
+
     }
   }
   

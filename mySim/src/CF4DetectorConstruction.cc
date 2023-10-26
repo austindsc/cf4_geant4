@@ -27,6 +27,7 @@
 #include "G4PhysicalVolumeStore.hh"
 #include "G4UserLimits.hh"
 
+#include "myGlobals.hh"
 #include "DetectorMaterials.hh"
 #include "MaterialsMessenger.hh"
 #include "collimator.hh"
