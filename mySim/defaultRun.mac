@@ -31,7 +31,7 @@
 #/setMaterial/mediumLY_Vis 5000 MeVLY
 
 ### detector configuration ###
-/setDetector/myVerbosity 2                # 1 outputs event level data
+/setDetector/myVerbosity 1                # 1 outputs event level data
                                           # 2 some photon level data, all data that is used
 
 /setDetector/useCollimator true           # default is true
@@ -56,7 +56,7 @@
 #/process/optical/processActivation OpBoundary false
 
 #/process/optical/verbose 2
-#/process/optical/scintillation/verbose 2
+#/process/optical/scintillation/verbose 1
 
 ### Initialize kernel (build detector) ###
 /run/initialize

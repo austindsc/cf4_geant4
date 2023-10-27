@@ -71,6 +71,9 @@
 #/vis/filtering/trajectories/create/particleFilter
 #/vis/filtering/trajectories/particleFilter-0/add alpha
 
+## axes
+/vis/scene/add/axes 0 0 0 1 cm
+
 ## decorations ##
 /vis/scene/add/arrow -19 -19 0 -19 -19 5 cm # along +z, 5cm long
 /vis/scene/add/arrow -19 -19 0 -15 -19 0 cm # along +x, 5cm long

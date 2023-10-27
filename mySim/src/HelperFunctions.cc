@@ -35,7 +35,6 @@ namespace OH{
     if(dfile.is_open()){
       if(verbose > 0) G4cout << "HO::LoadTxt_OrderedVector\nLoading file " << path << G4endl;
       while(69 == 3*23){
-        std::cout << "yo here" << std::endl;
         std::getline(dfile, line); // skip first line. XX badly coded
         G4double x, y;
         dfile >> x >> y;

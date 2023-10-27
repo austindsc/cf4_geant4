@@ -103,7 +103,8 @@
     "vec4": "cpp",
     "vector3": "cpp",
     "event": "cpp",
-    "point": "cpp"
+    "point": "cpp",
+    "file": "cpp"
   },
   "cmake.sourceDirectory": "/Users/austindestcroix/Desktop/school_holders/projects/sbc/geant4_cf4/myB1",
   "C_Cpp.errorSquiggles": "disabled"

@@ -33,7 +33,7 @@ G4double rev_intensity_Vis_5bar[nVis];
 for (size_t i = 0; i < nUV; i++){
   photonE_UV_5bar[nUV - i - 1] = CLHEP::h_Planck * CLHEP::c_light/ (wls_UV_5bar[i] * nm);
   rev_intensity_UV_5bar[nUV - i -1] = intensity_UV_5bar[i];
-  G4cout << CLHEP::h_Planck * CLHEP::c_light/ (wls_UV_5bar[i] * nm) / eV << " eV" << G4endl;
+  // G4cout << CLHEP::h_Planck * CLHEP::c_light/ (wls_UV_5bar[i] * nm) / eV << " eV" << G4endl;
 }
 for (size_t i = 0; i < nVis; i++){
   photonE_Vis_5bar[nVis - i - 1] = CLHEP::h_Planck * CLHEP::c_light/ (wls_Vis_5bar[i] * nm);
@@ -42,12 +42,8 @@ for (size_t i = 0; i < nVis; i++){
 
 // this isn't exactly correct... the Vis light should come after the UV light
 G4double zRiseTime = 1.0*ns;
-G4double zUVfallTime = 5.*ns;
+G4double zUVfallTime = 5.0*ns;
 G4double zVisfallTime = 20.*ns;
-
-// test
-// std::vector<G4double> lxe_Energy = {7.0*eV, 7.07*eV, 7.14*eV};
-// std::vector<G4double> lxe_SCINT = {0.1, 1.0, 0.1};
 
 // UV component
 mpt_liquidCF4->AddProperty("SCINTILLATIONCOMPONENT1", photonE_UV_5bar , rev_intensity_UV_5bar, nUV);
