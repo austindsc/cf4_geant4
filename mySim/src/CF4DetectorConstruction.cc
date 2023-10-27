@@ -185,10 +185,9 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
 
   // setup rotation vector (10 ish degrees down), about x axis, so perpendicular to the gamma direction
   G4RotationMatrix* rotateSiPM = new G4RotationMatrix();
-  // rotateSiPM->rotateX(10.0 * degree); // some rotation
+  rotateSiPM->rotateX(10.0 * degree); // some rotation
 
   //// doing package first ////
-  // G4Box * solid_subSiPM = new G4Box("solid_subSiPM", 0.5*(2*sipmXY + sipmMiddleGap + packageSideGap), 0.5*(2*sipmXY + sipmMiddleGap + packageSideGap), 0.5*(PackageZGap + sipmThick)); // double tall
   G4Box * solid_BoxPackage = new G4Box("solid_BoxPackage", 0.5*packageXY, 0.5*packageXY, 0.5*packageThick);
   G4Box * solid_allQuads_toSubtract = new G4Box("solid_allQuads", 0.5*(2*sipmXY + sipmMiddleGap + packageSideGap), 0.5*(2*sipmXY + sipmMiddleGap + packageSideGap), 0.5*(PackageZGap + sipmThick));
   G4Box * solid_rectangleToSubtract = new G4Box("solid_RectangleSubtract", 0.5*(20.*mm), 0.5*packageSideChannel, solid_allQuads_toSubtract->GetZHalfLength()); // this is to add the entry in the side of packaging
@@ -198,11 +197,9 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
               0, G4ThreeVector(0, 0, + solid_BoxPackage->GetZHalfLength() - solid_allQuads_toSubtract->GetZHalfLength() + 0.5*sipmThick)); // not sure if + sipmThick is right
   G4LogicalVolume * logic_package = new G4LogicalVolume(sub_package, detMat->mCeramic, "logic_package");
 
-  // G4ThreeVector temp = G4ThreeVector(0, 0, phys_sipm1->GetTranslation().z() + -sipmThick/2.-packageThick/2. + 0.5*(PackageZGap + sipmThick)); // wrong
-  // G4ThreeVector temp2 = G4ThreeVector(0, 0, phys_sipm1->GetTranslation().z() - solid_BoxPackage->GetZHalfLength() - solid_sipmQuad->GetZHalfLength() + 2*solid_allQuads_toSubtract->GetZHalfLength());
-  G4ThreeVector temp3 = G4ThreeVector(0, 0, -phys_medium->GetTranslation().getZ() - solid_BoxPackage->GetZHalfLength()); // top of package is at origin
+  G4ThreeVector movePackage = G4ThreeVector(0, 0, -phys_medium->GetTranslation().getZ() - solid_BoxPackage->GetZHalfLength()); // top of package is at origin
   G4VPhysicalVolume* phys_package = new G4PVPlacement(rotateSiPM,
-                    temp3,
+                    movePackage,
                     logic_package,
                     "phys_package",
                     logic_medium,
@@ -211,45 +208,51 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
 
   // silicon quadrants
   // locations
-  G4double sipmSurfaceZ = sipmThick + -2*solid_allQuads_toSubtract->GetZHalfLength() - phys_medium->GetTranslation().getZ(); // SiPM face is at (0, 0, 0) bc translation is within mother volume
-  // G4double sipmSurfaceZ = - phys_medium->GetTranslation().getZ(); // SiPM face is at (0, 0, 0) bc translation is within mother volume
+  // G4double sipmSurfaceZ = sipmThick + -2*solid_allQuads_toSubtract->GetZHalfLength() - phys_medium->GetTranslation().getZ(); // SiPM face is at (0, 0, 0) bc translation is within mother volume
   G4double sipmQuad_xyOffset = 0.5 * (sipmMiddleGap + sipmXY);
 
   G4Box * solid_sipmQuad = new G4Box("solid_sipmQuad", 0.5*sipmXY, 0.5*sipmXY, 0.5*sipmThick);
   G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipmQuad, detMat->mSilicon, "logic_sipm");
   logic_sipm->SetVisAttributes(si_magenta);
 
+  // sipm wrt origin of solid_BoxPackage is y, z to rotate
+  // G4double bottomThickness = 2*(solid_BoxPackage->GetZHalfLength() - )
+  G4double goodZ = solid_sipmQuad->GetZHalfLength() + solid_BoxPackage->GetZHalfLength() - 2*solid_allQuads_toSubtract->GetZHalfLength();
+  // G4ThreeVector firstVec = rotateSiPM->inverse() * G4ThreeVector(sipmQuad_xyOffset, sipmQuad_xyOffset, goodZ);
+
   // ++ 
   G4VPhysicalVolume* phys_sipm1 = new G4PVPlacement(rotateSiPM, // rotation
-                    (*rotateSiPM) * G4ThreeVector(sipmQuad_xyOffset, sipmQuad_xyOffset, sipmSurfaceZ),
+                    movePackage + rotateSiPM->inverse() * G4ThreeVector(sipmQuad_xyOffset, sipmQuad_xyOffset, goodZ),
                     logic_sipm,
                     "phys_sipm1",
                     logic_medium,         // mother volume
                     false, 0, checkOverlaps);
   // +-
-  G4VPhysicalVolume* phys_sipm2 = new G4PVPlacement(0,
-                  G4ThreeVector(sipmQuad_xyOffset, -sipmQuad_xyOffset, sipmSurfaceZ),
+  G4VPhysicalVolume* phys_sipm2 = new G4PVPlacement(rotateSiPM,
+                  movePackage + rotateSiPM->inverse() * G4ThreeVector(sipmQuad_xyOffset, -sipmQuad_xyOffset, goodZ),
                   logic_sipm,
                   "phys_sipm2",
                   logic_medium,         // mother volume
                   false, 0, checkOverlaps);
   
   // --
-  G4VPhysicalVolume* phys_sipm3 = new G4PVPlacement(0,
-                  G4ThreeVector(-sipmQuad_xyOffset, -sipmQuad_xyOffset, sipmSurfaceZ),
+  G4VPhysicalVolume* phys_sipm3 = new G4PVPlacement(rotateSiPM,
+                  movePackage + rotateSiPM->inverse() *G4ThreeVector(-sipmQuad_xyOffset, -sipmQuad_xyOffset, goodZ),
                   logic_sipm,
                   "phys_sipm3",
                   logic_medium,         // mother volume
                   false, 0, checkOverlaps);
   
   // -+
-  G4VPhysicalVolume* phys_sipm4 = new G4PVPlacement(0,
-                  G4ThreeVector(-sipmQuad_xyOffset, sipmQuad_xyOffset, sipmSurfaceZ),
+  G4VPhysicalVolume* phys_sipm4 = new G4PVPlacement(rotateSiPM,
+                  movePackage + rotateSiPM->inverse() * G4ThreeVector(-sipmQuad_xyOffset, sipmQuad_xyOffset, goodZ),
                   logic_sipm,
                   "phys_sipm4",
                   logic_medium,         // mother volume
                   false, 0, checkOverlaps);
   
+
+  //--------------------------- Longpass filter? Need option from messenger ---------------------------//
 
   
   // setting all headers
