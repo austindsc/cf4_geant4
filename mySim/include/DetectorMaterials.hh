@@ -18,6 +18,7 @@ class DetectorMaterials{
   friend class CF4DetectorConstruction;
   friend class MaterialsMessenger;
   friend class collimator;
+  friend class LongPassFilter;
   friend class alphaSource1;
   
 public:

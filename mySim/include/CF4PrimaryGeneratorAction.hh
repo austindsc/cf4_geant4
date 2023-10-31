@@ -22,6 +22,8 @@ class G4SingleParticleSource;
 
 class CF4PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
+  friend class CF4RunAction;
+  friend class CF4EventAction;
   public:
     CF4PrimaryGeneratorAction();    
     virtual ~CF4PrimaryGeneratorAction();

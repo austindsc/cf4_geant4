@@ -36,7 +36,9 @@
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4AnalysisManager.hh"
-#include "G4RunManager.hh"
+#include "G4RootAnalysisManager.hh"
+
+#include "G4GeneralParticleSource.hh"
 
 #include <stdlib.h>
 
@@ -79,9 +81,13 @@ void CF4EventAction::EndOfEventAction(const G4Event*)
   // not doing any event skipping or anything yet
   // G4cout << fEdep / keV << G4endl;
   // if(fEdep <= 10 * eV) return;
+
+  // tracking some stuff for photon testing
+  fRunAction->ftotalMCPE += fmcNPE;
+  fRunAction->ftotalFired += fRunAction->fGenerator->fGun->GetNumberOfParticles();
   
   G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-    if(fEdep > 0){
+    if(fEdep > 0 || MG::GetVerbosity() == -1 || MG::GetVerbosity() > 0){
     G4AnalysisManager *man = G4AnalysisManager::Instance();
     man->FillNtupleIColumn(0, evt);
     man->FillNtupleDColumn(1, fEdep/keV);
@@ -90,7 +96,7 @@ void CF4EventAction::EndOfEventAction(const G4Event*)
     man->AddNtupleRow(0);
   }
   
-  if((MG::GetVerbosity() == 1 || evMan->GetVerboseLevel() > 0) && (evt < 100 || evt % 1000 == 0)){
+  if((MG::GetVerbosity() >= 1 || evMan->GetVerboseLevel() > 0) && (evt < 100 || evt % 1000 == 0)){
     G4cout << "\n---- My Event Info #" << evt << "  ----\n\n" 
     << "total MC PE = " << fmcNPE << "\n"
     << "total PE = " << fNPE << G4endl;

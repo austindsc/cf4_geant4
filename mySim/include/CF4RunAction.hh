@@ -33,8 +33,10 @@
 #include "G4UserRunAction.hh"
 #include "G4Accumulable.hh"
 #include "globals.hh"
+#include "CF4PrimaryGeneratorAction.hh"
 
 class G4Run;
+// class CF4PrimaryGeneratorAction;
 
 /// Run action class
 ///
@@ -44,8 +46,10 @@ class G4Run;
 
 class CF4RunAction : public G4UserRunAction
 {
+  friend class CF4EventAction;
+  friend class CF4PrimaryGeneratorAction;
   public:
-    CF4RunAction();
+    CF4RunAction(CF4PrimaryGeneratorAction * genny);
     virtual ~CF4RunAction();
 
     // virtual G4Run* GenerateRun();
@@ -55,8 +59,12 @@ class CF4RunAction : public G4UserRunAction
   private:
     G4Accumulable<G4double> fEdep;
     G4Accumulable<G4double> fEdep2;
+
+    CF4PrimaryGeneratorAction * fGenerator;
     
     G4double favgEdep;
+    G4int    ftotalMCPE;
+    G4int    ftotalFired;
 };
 
 #endif

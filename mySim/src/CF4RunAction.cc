@@ -40,35 +40,34 @@
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 
-#include "G4AnalysisManager.hh"
 #include "G4GeneralParticleSource.hh"
+
+#include "G4AnalysisManager.hh"
+// #include "G4AnalysisUtilities.hh"
+#include "G4RootAnalysisManager.hh"
 
 // #include "G4Random.hh"
 #include "Randomize.hh"
+#include "myGlobals.hh"
 // #include <TRandom3.h>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-CF4RunAction::CF4RunAction()
+CF4RunAction::CF4RunAction(CF4PrimaryGeneratorAction * genny)
 : G4UserRunAction(),
   fEdep(0.),
   fEdep2(0.),
   favgEdep(0.)
 { 
+  fGenerator = genny; // for photon testing if multiple photons are shot
+  ftotalMCPE = 0;
+  ftotalFired = 0;
   
-  auto man = G4AnalysisManager::Instance();
+  G4AnalysisManager * man = G4AnalysisManager::Instance();
   man->SetDefaultFileType("root");
-  
   man->SetFileName("cf4_outputStock");
   man->CreateNtuple("simOutput", "simOutput");
-  
-  man->CreateNtupleIColumn("fNEvent");        //0
-  man->CreateNtupleDColumn("fEdepInCyl_kev"); //1
-  
-  // MC truth values
-  man->CreateNtupleIColumn("fmcNPE");         //2
-  man->CreateNtupleIColumn("fNPE");           //3
-  man->FinishNtuple(0);
+  // but if you don't do this, you can't name the file from the macro
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -92,7 +91,13 @@ void CF4RunAction::BeginOfRunAction(const G4Run*)
   
   // TRandom * rand = new TRandom3();
   G4AnalysisManager *man = G4AnalysisManager::Instance();
-  man->Reset();
+  
+  man->CreateNtupleIColumn("fNEvent");        //0
+  man->CreateNtupleDColumn("fEdepInCyl_kev"); //1
+  man->CreateNtupleIColumn("fmcNPE");         //2 - MC truth value for photons
+  man->CreateNtupleIColumn("fNPE");           //3
+  man->FinishNtuple(0);
+
   man->OpenFile();
 }
 
@@ -115,11 +120,23 @@ void CF4RunAction::EndOfRunAction(const G4Run* run)
      << "--------------------End of Local Run------------------------";
   }
   
-  G4cout << "\nFinished run of " << nofEvents << " particles" << G4endl;
-     
-   G4AnalysisManager *man = G4AnalysisManager::Instance();
+  G4cout << "\nFinished run of " << nofEvents << " events" << G4endl;
+
+  // getting the ntuple
+  G4RootAnalysisManager * man = (G4RootAnalysisManager *) G4AnalysisManager::Instance();
+
+  if(MG::GetVerbosity() > 0) {
+    
+    G4cout << ftotalFired << " particles fired, " << ftotalMCPE << " photons hit" << G4endl;
+    G4cout << (double) ftotalMCPE/ftotalFired << G4endl;
+
+  }
+    
+
+  
    man->Write();
    man->CloseFile();
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -22,17 +22,24 @@ CF4ActionInitialization::~CF4ActionInitialization()
 
 void CF4ActionInitialization::BuildForMaster() const
 {
-  CF4RunAction* runAction = new CF4RunAction;
-  SetUserAction(runAction);
+  // no multithreading
+  
+  // G4cout << "In here" << G4endl;
+  // exit(0);
+  // CF4PrimaryGeneratorAction * genny = new CF4PrimaryGeneratorAction();
+  // SetUserAction(genny);
+  // CF4RunAction* runAction = new CF4RunAction(genny);
+  // SetUserAction(runAction);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void CF4ActionInitialization::Build() const
 {
-  SetUserAction(new CF4PrimaryGeneratorAction);
+  CF4PrimaryGeneratorAction * genny = new CF4PrimaryGeneratorAction();
+  SetUserAction(genny);
 
-  CF4RunAction* runAction = new CF4RunAction;
+  CF4RunAction* runAction = new CF4RunAction(genny);
   SetUserAction(runAction);
   
   CF4EventAction* eventAction = new CF4EventAction(runAction);

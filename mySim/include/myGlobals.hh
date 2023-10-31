@@ -9,6 +9,9 @@ namespace MG{
 extern int atownsNumber; // testing
 extern int myVerbose;
 
+// i could define all of my ntuple integer stuff here, but don't need it
+// extern
+
 extern G4String whatSource;
 
 // numbers aren't private, so getters/setters aren't needed
