@@ -1,5 +1,4 @@
 /vis/verbose 0
-/tracking/verbose 0
 /event/verbose 0
 /run/verbose 0
 
@@ -24,12 +23,9 @@
 /gps/pos/centre 0.0 0.0 2 cm
 /gps/direction 0 0 -1
 
-/analysis/setFileName photonTest
+/analysis/setFileName photonTest2
 #/analysis/ntuple/setFileName 0 anotherNameIWant3
 
-/run/initialize
+#/run/initialize
 
-
-#/tracking/verbose 1
-
-/run/beamOn 100
+#/run/beamOn 1

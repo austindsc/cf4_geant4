@@ -92,6 +92,5 @@
 
 /vis/ogl/set/displayListLimit 20000
 
-
-# temporary, for testing
-/control/execute ../mySim/photonTest.mac
+# for testing
+/control/execute ../mySim/livePhotonTest.mac

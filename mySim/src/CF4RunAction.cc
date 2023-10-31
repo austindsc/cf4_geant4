@@ -79,6 +79,8 @@ CF4RunAction::~CF4RunAction()
 
 void CF4RunAction::BeginOfRunAction(const G4Run*)
 { 
+  ftotalMCPE = 0;
+  ftotalFired = 0;
   // inform the runManager to save random number seed
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
   
@@ -123,7 +125,7 @@ void CF4RunAction::EndOfRunAction(const G4Run* run)
   G4cout << "\nFinished run of " << nofEvents << " events" << G4endl;
 
   // getting the ntuple
-  G4RootAnalysisManager * man = (G4RootAnalysisManager *) G4AnalysisManager::Instance();
+  G4AnalysisManager * man = G4AnalysisManager::Instance();
 
   if(MG::GetVerbosity() > 0) {
     

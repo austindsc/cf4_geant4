@@ -46,8 +46,11 @@
 #/setDetector/gammaSource isoCo60
 #/setDetector/gammaSource isoCo57
 
-/setDetector/alphaHeight 3.5             # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
+#/setDetector/alphaHeight 3.5             # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
                                           # currently gamma and alpha source have same intensity (see primary generator constructor to change)
+
+# or load anything you want here
+/control/execute ../mySim/livePhotonTest.mac
 
 ## process toggling (some outdated?) ##
 #/process/optical/processActivation Scintillation false
@@ -67,7 +70,7 @@
 /run/initialize
 
 ### no visualization ###
-/run/beamOn 100
+#/run/beamOn 10
 
 ### run visualization ###
-#/control/execute ../mySim/myVis.mac
+/control/execute ../mySim/myVis.mac

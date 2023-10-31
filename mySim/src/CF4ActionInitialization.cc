@@ -23,9 +23,9 @@ CF4ActionInitialization::~CF4ActionInitialization()
 void CF4ActionInitialization::BuildForMaster() const
 {
   // no multithreading
-  
-  // G4cout << "In here" << G4endl;
-  // exit(0);
+
+  G4cout << "In multithreading mode (BuildForMaster) " << "EXITING" << G4endl;
+  exit(0);
   // CF4PrimaryGeneratorAction * genny = new CF4PrimaryGeneratorAction();
   // SetUserAction(genny);
   // CF4RunAction* runAction = new CF4RunAction(genny);
