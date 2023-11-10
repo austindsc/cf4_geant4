@@ -11,7 +11,7 @@
 #/run/numberOfThreads 1 # defaults to zero
 
 /process/em/verbose 0
-/process/had/deex/verbose 0
+#/process/had/deex/verbose 0
 /particle/verbose 0
 /tracking/verbose 0
 
@@ -35,9 +35,11 @@
                                           # 2 some photon level data, all data that is used
                                           # -1 means fill ntuple regardless (good for optical photon testing where eDep == 0)
 
+/setDetector/useLPFilter                 # just calling this makes it true, there is no argument
+
 #/setDetector/useCollimator true           # default is true
 #/setDetector/gammaHeight 4.0              # this turns on detConst.gammaStatus
-#/setDetector/GammaThetaMax 2              # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
+#/setDetector/GammaThetaMax 1.0              # user-bias angle of non-iso gamma sources, default is 2degrees, see detectorconstruction()
 
 #/setDetector/gammaSource Cs137            # default, see those available in detectorconstruction header and primary generator
 #/setDetector/gammaSource Co60

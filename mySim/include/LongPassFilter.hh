@@ -11,11 +11,14 @@ class DetectorMaterials;
 class LongPassFilter : public G4LogicalVolume{
   
 public:
-  LongPassFilter(G4bool checkOverlaps);
+  LongPassFilter(G4bool checkOverlaps = false);
   
-  G4VPhysicalVolume * doPlacement(G4ThreeVector * vec, G4RotationMatrix * rot, G4LogicalVolume * mother, G4bool checkOverlaps);
+  G4VPhysicalVolume * DoPlacement(G4ThreeVector * vec, G4RotationMatrix * rot, G4LogicalVolume * mother, G4bool checkOverlaps);
+  G4VPhysicalVolume * DoPlacement(G4VPhysicalVolume * theSiPMPackage, G4LogicalVolume * mother, G4bool checkOverlaps){}
   
   bool SetupOptics(const std::string& fname, G4double Transmission);
+
+  // G4double 
 
 private:
   DetectorMaterials * dmat;

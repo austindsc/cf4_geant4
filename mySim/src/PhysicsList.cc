@@ -37,6 +37,9 @@
 #include "G4EmStandardPhysics_option2.hh"
 #include "G4EmStandardPhysics_option3.hh"
 
+// optics
+#include "G4OpticalPhysics.hh"
+
 #include "G4LossTableManager.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
@@ -278,8 +281,9 @@ void PhysicsList::ConstructOptical(){
   opParams->SetCerenkovTrackSecondariesFirst(true);
   opParams->SetScintFiniteRiseTime(true);
   
-  // // optical physics
+  // optical physics
   // G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
+  // ((G4VUserPhysicsList*)this)->RegisterPhysics(opticalPhysics);
   
   // Scintillation
   G4Scintillation* theScintProcessDef = new G4Scintillation("Scintillation");

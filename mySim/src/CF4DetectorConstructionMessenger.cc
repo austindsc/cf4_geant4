@@ -48,6 +48,11 @@ CF4DetectorConstructionMessenger::CF4DetectorConstructionMessenger(CF4DetectorCo
   SetCollimatorStatusCmd->SetParameterName("useCollimator", false, true);
   SetCollimatorStatusCmd->SetDefaultValue(det->GetCollStatus());
   SetCollimatorStatusCmd->AvailableForStates(G4State_PreInit);
+
+  SetLongPassFilterStatusCmd = new G4UIcmdWithABool("/setDetector/useLPFilter", this);
+  SetLongPassFilterStatusCmd->SetParameterName("useLPFilter", true, true);
+  SetLongPassFilterStatusCmd->SetDefaultValue(det->GetFilterStatus());
+  SetLongPassFilterStatusCmd->AvailableForStates(G4State_PreInit);
   
   SetGammaThetaMaxCmd = new G4UIcmdWithADouble("/setDetector/GammaThetaMax", this);
   SetGammaThetaMaxCmd->SetParameterName("GammaThetaMax", false, true);
@@ -79,6 +84,9 @@ void CF4DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4Strin
   }
   if(command == SetGammaSourceCmd){
     Detector->SetGammaSourceStr(newVal);
+  }
+  if(command == SetLongPassFilterStatusCmd){
+    Detector->SetFilterStatus(newVal);
   }
   if(command == SetCollimatorStatusCmd){
     Detector->SetCollStatus(SetCollimatorStatusCmd->GetNewBoolValue(newVal));

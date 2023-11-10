@@ -17,6 +17,7 @@ G4Colour  brown   (0.7, 0.4, 0.1, 0.5) ;
 G4VisAttributes* world_transparent = new G4VisAttributes(false);
 G4VisAttributes* vacuum_white = new G4VisAttributes(true, white);
 G4VisAttributes* ssteel_blue = new G4VisAttributes(true, blue);
-G4VisAttributes* cf4_yellow = new G4VisAttributes(true, yellow);
+G4VisAttributes* filter_yellow = new G4VisAttributes(true, yellow);
 G4VisAttributes* kapton_grey = new G4VisAttributes(true, grey);
 G4VisAttributes* si_magenta = new G4VisAttributes(true, magenta);
+G4VisAttributes* filter_green = new G4VisAttributes(true, lgreen);

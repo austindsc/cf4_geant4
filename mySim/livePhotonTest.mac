@@ -1,0 +1,18 @@
+# this produces 100 photons from a single random location on a disk
+
+/gps/particle opticalphoton
+/gps/energy 2 eV
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/radius 5 mm
+/gps/number 100
+
+/gps/pos/centre 0.0 0.0 2 cm
+/gps/direction 0 0 -1
+
+#/analysis/setFileName photonTest2
+#/analysis/ntuple/setFileName 0 anotherNameIWant3
+
+#/run/initialize
+
+/run/beamOn 1

@@ -4,6 +4,7 @@
 G4MaterialPropertiesTable *mpt_liquidCF4 = new G4MaterialPropertiesTable();
 mLiquidCF4->SetMaterialPropertiesTable(mpt_liquidCF4);
 
+
 //------- Refractive Indexes ------- //
 // taken from literature with many different densities
 // french paper (7, 5eV), other two from second paper

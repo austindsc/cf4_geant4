@@ -7,7 +7,16 @@
 #include "G4Material.hh"
 #include "G4Element.hh"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "globals.hh"
+#include "G4UnitsTable.hh"
+#include "G4SystemOfUnits.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
+
+
+#include "G4OpticalSurface.hh"
+#include "G4LogicalBorderSurface.hh"
+#include "G4LogicalSkinSurface.hh"
+
 // #include <algorithm>
 
 #include "HelperFunctions.hh"
@@ -232,6 +241,9 @@ void DetectorMaterials::BuildMaterials(){
 
 
   // -------------------- SiPM Stuff --------------------//
+  // -- Quartz -- //
+  mQuartz = nist->FindOrBuildMaterial("G4_SILICON_DIOXIDE");
+  
   // -- Silicon -- //
   G4double photonE_Si[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
   G4double nSi[2] = {1.20, 1.20};   

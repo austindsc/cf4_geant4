@@ -42,6 +42,12 @@
 
 #include "G4SystemOfUnits.hh"
 
+//xx physics list testing
+#include "FTFP_BERT.hh"
+#include "G4EmStandardPhysics_option4.hh"
+#include "G4OpticalParameters.hh"
+#include "G4OpticalPhysics.hh"
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int main(int argc,char** argv)
@@ -67,8 +73,26 @@ int main(int argc,char** argv)
   // Physics list
   // G4VUserPhysicsList * physList = new myPhysList();
   // runManager->SetUserInitialization(physList);
-  // G4VUserPhysicsList * 
-  runManager->SetUserInitialization(new PhysicsList());
+  // runManager->SetUserInitialization(new PhysicsList());
+
+  // xx done testing
+  G4VModularPhysicsList* physicsList = new FTFP_BERT;
+  physicsList->ReplacePhysics(new G4EmStandardPhysics_option4());
+
+  G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
+  auto opticalParams               = G4OpticalParameters::Instance();
+
+  opticalParams->SetWLSTimeProfile("delta");
+
+  opticalParams->SetScintTrackSecondariesFirst(true);
+
+  opticalParams->SetCerenkovMaxPhotonsPerStep(100);
+  opticalParams->SetCerenkovMaxBetaChange(10.0);
+  opticalParams->SetCerenkovTrackSecondariesFirst(true);
+
+  physicsList->RegisterPhysics(opticalPhysics);
+  runManager->SetUserInitialization(physicsList);
+  // xx done testing
 
   
   // User action initialization

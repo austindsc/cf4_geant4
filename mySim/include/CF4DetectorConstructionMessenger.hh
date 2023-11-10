@@ -23,27 +23,28 @@ public:
 private:
   
   CF4DetectorConstruction * Detector;
-  G4UIdirectory          * Dir;
+  G4UIdirectory           * Dir;
   
-  G4UIcmdWithAnInteger   * SetMyVerbosityCmd;
+  G4UIcmdWithAnInteger    * SetMyVerbosityCmd;
   // 0 - none of my outputs
   // 1 - event level outputs
   
-  G4UIcmdWithADouble     * SetAlphaDistanceCmd;
+  G4UIcmdWithADouble      * SetAlphaDistanceCmd;
   // -1 no source (<0 in code), not working yet
   // other values are cm distance
   
-  G4UIcmdWithADouble    * SetGammaHeightCmd;
+  G4UIcmdWithADouble      * SetGammaHeightCmd;
   // in cm, Z above SiPM face
   // this turns on gammaStatus in code
   
-  G4UIcmdWithABool      * SetCollimatorStatusCmd;
+  G4UIcmdWithABool        * SetCollimatorStatusCmd;
   // true/false
+  G4UIcmdWithABool        * SetLongPassFilterStatusCmd;
   
-  G4UIcmdWithADouble    * SetGammaThetaMaxCmd;
+  G4UIcmdWithADouble      * SetGammaThetaMaxCmd;
   // 0-180 (degrees)
   
-  G4UIcmdWithAString    * SetGammaSourceCmd;
+  G4UIcmdWithAString      * SetGammaSourceCmd;
   // /setDetector/gammaSource
   // isoCs137
   // isoCo60

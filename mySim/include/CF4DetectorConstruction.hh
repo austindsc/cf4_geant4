@@ -41,6 +41,9 @@ class CF4DetectorConstruction : public G4VUserDetectorConstruction
     
     G4bool GetCollStatus(){ return fCollStatus; }
     void SetCollStatus(G4bool y){ fCollStatus = y; }
+
+    G4bool GetFilterStatus(){ return fLPFilterStatus; }
+    void SetFilterStatus(G4bool y){ fLPFilterStatus = y; }
     
     G4double GetGammaThetaMax(){ return fGammaThetaMax; }
     void SetGammaThetaMax(G4double theta){ fGammaThetaMax = theta; }
@@ -77,6 +80,7 @@ class CF4DetectorConstruction : public G4VUserDetectorConstruction
     G4double  fGammaHeight;
     G4bool    fGammaStatus;
     G4bool    fCollStatus;
+    G4bool    fLPFilterStatus;
     G4String  fGammaSource;
     G4double  fGammaThetaMax;
     

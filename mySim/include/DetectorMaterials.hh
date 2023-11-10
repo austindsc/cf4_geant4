@@ -5,8 +5,6 @@
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 
-#include <CLHEP/Units/SystemOfUnits.h>
-
 #ifndef DEFAULT_VALUE
 #define DEFAULT_VALUE -69
 #endif
@@ -70,7 +68,7 @@ protected:
   // SiPM stuff
   G4Material * mSilicon;
   // G4Material * Si02;      //silicon dioxide (for SiPM surface?)
-  // G4Material * mQuartz;
+  G4Material * mQuartz;
   G4Material * mCeramic;
   
   // smoke detector (alpha source)

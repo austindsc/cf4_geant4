@@ -14,7 +14,7 @@ namespace OH{ //optical helper
   
   bool LoadTxt_OrderedVector(std::string path, G4PhysicsFreeVector * vec, int verbose = 0, G4double scaleX = 1.0, G4double scaleY = 1.0);
   
-  bool ReadAndFillArray(const std::string& filename, std::vector<G4double>& dataArray1, std::vector<G4double>& dataArray2, int verbose = 0);
+  bool ReadAndFillArray(const std::string& filename, std::vector<G4double>& dataArray1, std::vector<G4double>& dataArray2, int verbose = 0, G4double scale1stValue = 1., G4double scale2ndValue = 1., bool doFlip_wls2E = false);
 
   void testOH();
   
