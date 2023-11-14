@@ -70,31 +70,9 @@ int main(int argc,char** argv)
   // Detector construction
   runManager->SetUserInitialization(new CF4DetectorConstruction());
 
-  // Physics list
-  // G4VUserPhysicsList * physList = new myPhysList();
-  // runManager->SetUserInitialization(physList);
-  // runManager->SetUserInitialization(new PhysicsList());
+  // Physics list - from UDX example
+  runManager->SetUserInitialization(new PhysicsList());
 
-  // xx done testing
-  G4VModularPhysicsList* physicsList = new FTFP_BERT;
-  physicsList->ReplacePhysics(new G4EmStandardPhysics_option4());
-
-  G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
-  auto opticalParams               = G4OpticalParameters::Instance();
-
-  opticalParams->SetWLSTimeProfile("delta");
-
-  opticalParams->SetScintTrackSecondariesFirst(true);
-
-  opticalParams->SetCerenkovMaxPhotonsPerStep(100);
-  opticalParams->SetCerenkovMaxBetaChange(10.0);
-  opticalParams->SetCerenkovTrackSecondariesFirst(true);
-
-  physicsList->RegisterPhysics(opticalPhysics);
-  runManager->SetUserInitialization(physicsList);
-  // xx done testing
-
-  
   // User action initialization
   runManager->SetUserInitialization(new CF4ActionInitialization());
   runManager->SetVerboseLevel(0);

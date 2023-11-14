@@ -69,6 +69,7 @@ protected:
   G4Material * mSilicon;
   // G4Material * Si02;      //silicon dioxide (for SiPM surface?)
   G4Material * mQuartz;
+  G4Material * mHeavyQuartz; // top of optical filter
   G4Material * mCeramic;
   
   // smoke detector (alpha source)

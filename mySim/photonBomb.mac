@@ -1,0 +1,29 @@
+# this produces many photons from all over a disk
+
+/vis/verbose 0
+/event/verbose 0
+/run/verbose 0
+
+#/process/em/verbose 0
+#/process/had/deex/verbose 0
+/particle/verbose 0
+/tracking/verbose 0
+
+/gps/particle opticalphoton
+/gps/energy 2 eV
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/radius 5 mm
+
+/gps/ang/type iso
+/gps/ang/mintheta 0
+/gps/ang/maxtheta 0.785
+
+/gps/number 100
+
+/analysis/setFileName photonBomb2
+#/analysis/ntuple/setFileName 0 anotherNameIWant3
+
+#/run/initialize
+
+/run/beamOn 1

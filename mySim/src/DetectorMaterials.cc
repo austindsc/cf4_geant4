@@ -243,7 +243,9 @@ void DetectorMaterials::BuildMaterials(){
   // -------------------- SiPM Stuff --------------------//
   // -- Quartz -- //
   mQuartz = nist->FindOrBuildMaterial("G4_SILICON_DIOXIDE");
-  
+  // mHeavyQuartz = nist->FindOrBuildMaterials("G4_MAGNESIUM_FLUORIDE");
+  mHeavyQuartz = nist->FindOrBuildMaterial("G4_BORON_OXIDE");
+
   // -- Silicon -- //
   G4double photonE_Si[2] = {1239.841939*eV/140, 1239.841939*eV/1200};
   G4double nSi[2] = {1.20, 1.20};   

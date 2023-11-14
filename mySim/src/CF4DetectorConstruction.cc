@@ -38,6 +38,7 @@
 #include "alphaSource1.hh"
 #include "LongPassFilter.hh"
 #include "colours.icc"
+#include "HelperFunctions.hh"
 
 #include <cmath>
 
@@ -291,7 +292,7 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
     */
   if(fLPFilterStatus == true){
   
-    G4double t = 0.5;
+    G4double t = 1.0;
     std::vector<G4double> ephoton = {0.1*eV, 10.0*eV};
 
     std::vector<G4double> trans = {t, t};
@@ -302,48 +303,48 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
 
     std::vector<G4double> rindexEphoton = {10.*eV, 7.*eV, 5.*eV, 2.*eV, 1.*eV, 0.1*eV};
     std::vector<G4double> rindex = { 1.24, 1.24, 1.225, 1.21, 1.2039, 1.2039}; // make the same as the medium for full transmission in/out of backside
-    // rindex = {1.22, 1.22}; //same as cf4
+    rindexEphoton = {10.*eV, 0.1*eV};
+    std::vector<G4double> rindexTop = {1.74, 1.74}; // effective index for surface but probably not for glass body
+    std::vector<G4double> rindexBody = {1.36, 1.36}; // effective index for body but probably not for surface
+    // rindex = {1.9, 1.9};
     // std::vector<G4double> abslength = { 1.*m, 1.*m};
 
+    std::vector<G4double> wlsE_filter, transmission_filter, reflectivity_filter; // get out photon energy and transmission
+    OH::ReadAndFillArray("data/lpfilter_500nm.txt", wlsE_filter, transmission_filter, MG::GetVerbosity(), 1, 1./100., true); // scale transmission values by 100, flip wavelengths to eV
+    for (std::vector<G4double>::iterator it = transmission_filter.begin(); it != transmission_filter.end(); it++){
+      G4double ref = 1.0 - *it;
+      reflectivity_filter.push_back(ref);
+    }
+    std::reverse(wlsE_filter.begin(), wlsE_filter.end());
+    std::reverse(transmission_filter.begin(), transmission_filter.end());
+    std::reverse(reflectivity_filter.begin(), reflectivity_filter.end());
+
     ////-- defining material properties in one place
-    // quartz material
+    // filter top (interference 'layers')
+    G4MaterialPropertiesTable* mptFilterTop = new G4MaterialPropertiesTable();
+    mptFilterTop->AddProperty("RINDEX", rindexEphoton, rindexTop);
+    G4Material* matTopQuartz = DetectorMaterials::GetInstance()->mHeavyQuartz; // do borofloat33 or borosilicate or other metal
+    matTopQuartz->SetMaterialPropertiesTable(mptFilterTop);
+
+    // filter body (quartz)
+    // may need to add "ABSLENGTH" property
     G4MaterialPropertiesTable* mptFilterBody = new G4MaterialPropertiesTable();
-    mptFilterBody->AddProperty("RINDEX", rindexEphoton, rindex);
-    G4Material* matQuartz = DetectorMaterials::GetInstance()->mQuartz;
-    matQuartz->SetMaterialPropertiesTable(mptFilterBody);
-
-    // medium <--> surface
-    G4MaterialPropertiesTable* mptFilterSurfaceTop = new G4MaterialPropertiesTable();
-    mptFilterSurfaceTop->AddProperty("REFLECTIVITY", ephoton, ref);
-    mptFilterSurfaceTop->AddProperty("TRANSMITTANCE", ephoton, trans);
-
-    // surface <--> quartz (body)
-    G4MaterialPropertiesTable* mptFilterSurfaceBottom = new G4MaterialPropertiesTable();
-    mptFilterSurfaceBottom->AddProperty("REFLECTIVITY", ephoton, refPerfect);
-    mptFilterSurfaceBottom->AddProperty("TRANSMITTANCE", ephoton, transPerfect);
-
-    //-- filter top to filter body
-    // body <--> medium , don't need it because have matching indexes of refraction rn
-    // G4MaterialPropertiesTable * mptFilterTopSurface = new G4MaterialPropertiesTable();
-    // // mptFilterTopSurface->SetNewProperty(true);
-    // // mptFilterTopSurface->AddProperty("RINDEX", ephoton, rindex);
-    // // mptFilterTopSurface->AddProperty("ABSLENGTH", ephoton, abslength);
-    // mptFilterTopSurface->AddProperty("REFLECTIVITY", ephoton, ref);
-    // // mptFilterTopSurface->AddProperty("EFFICIENCY", ephoton, efficiency);
-    // mptFilterTopSurface->AddProperty("TRANSMITTANCE", ephoton, trans);
+    // mptFilterBody->AddProperty("RINDEX", rindexEphoton, rindexBody);
+    mptFilterBody->AddProperty("RINDEX", "Fused Silica"); // built in. only use if body is fused silica
+    G4Material * matBodyQuartz = DetectorMaterials::GetInstance()->mQuartz; // quartz
+    matBodyQuartz->SetMaterialPropertiesTable(mptFilterBody);
 
     // G4Material* fAl = new G4Material("Al", z = 13., a = 26.98 * g / mole, density = 2.7 * g / cm3);
-    // everything is quartz with same index as CF4
-
 
     //// ---- Building Physical Filter ----//
     // LongPassFilter * lp_log = new LongPassFilter();
     G4Tubs * filter_disk = new G4Tubs("solid_LPFilter", 0.0, 25.4/2 * mm, 1.1 * mm/2, 0.0, 360.0 * deg);
-    G4LogicalVolume * lp_log = new G4LogicalVolume(filter_disk, matQuartz, "logic_LPFilter");
+    G4LogicalVolume * lp_log = new G4LogicalVolume(filter_disk, matBodyQuartz, "logic_LPFilter");
     lp_log->SetVisAttributes(filter_yellow);
 
     // would be sexier to use a 'doPlacement' function but oh well
-    G4ThreeVector moveFilter = G4ThreeVector(0, 0, movePackage.getZ() + 1.*cm);
+    G4double filterGap = 0.0*cm;
+    G4ThreeVector moveFilter = G4ThreeVector(0, 0, movePackage.getZ() + filterGap);
     G4ThreeVector positionFilter = G4ThreeVector(0, 0, solid_BoxPackage->GetZHalfLength() + ((G4Tubs* )lp_log->GetSolid())->GetZHalfLength());
     G4VPhysicalVolume* phys_lpFilter = new G4PVPlacement(rotateSiPM,
                     moveFilter + (rotateSiPM->inverse() *  positionFilter),
@@ -353,8 +354,8 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
                     false, 0, checkOverlaps);
     
     // filter top
-    G4Tubs * filterTop_disk = new G4Tubs("filterTop_disk", 0.0, 25.4/2 * mm, 1.1 * mm/2, 0.0, 360.0 * deg);
-    G4LogicalVolume * lpTop_log = new G4LogicalVolume(filter_disk, matQuartz, "logic_LPFilterTop");
+    G4Tubs * filterTop_disk = new G4Tubs("filterTop_disk", 0.0, 25.4/2 * mm, 0.1 * mm/2, 0.0, 360.0 * deg);
+    G4LogicalVolume * lpTop_log = new G4LogicalVolume(filterTop_disk, matTopQuartz, "logic_LPFilterTop");
     lpTop_log->SetVisAttributes(filter_green);
     
     G4ThreeVector positionFilterTop = G4ThreeVector(0, 0, positionFilter.getZ() + filter_disk->GetZHalfLength() + filterTop_disk->GetZHalfLength());
@@ -365,31 +366,38 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
                     logic_medium,
                     false, 0, checkOverlaps);
     
-
-    // medium <--> surface  
-    G4OpticalSurface* opFilterSurface = new G4OpticalSurface("opFilterSurface"); //, unified, polished, dielectric_metal); // works with dielectric_metal
-    opFilterSurface->SetType(dielectric_dielectric);
-    opFilterSurface->SetFinish(polishedfrontpainted);
-    opFilterSurface->SetModel(unified);
-    opFilterSurface->SetMaterialPropertiesTable(mptFilterSurfaceTop);
-    new G4LogicalBorderSurface("filterSurf", phys_medium, phys_lpFilterTop, opFilterSurface);
+    ////// ---- doing optical surfaces ---- ////
 
     // medium <--> surface
-    G4OpticalSurface* opFilterSurfaceBottom = new G4OpticalSurface("opFilterSurfaceBottom"); //, unified, polished, dielectric_metal); // works with dielectric_metal
+    G4MaterialPropertiesTable* mptFilterSurfaceTop = new G4MaterialPropertiesTable();
+    mptFilterSurfaceTop->AddProperty("REFLECTIVITY", wlsE_filter, reflectivity_filter);
+    mptFilterSurfaceTop->AddProperty("TRANSMITTANCE", wlsE_filter, transmission_filter);
+    // mptFilterSurfaceTop->DumpTable();
+    // exit(0);
+
+    // surface <--> quartz (body) (PERFECT TRANSMISSION)
+    G4MaterialPropertiesTable* mptFilterSurfaceBottom = new G4MaterialPropertiesTable();
+    mptFilterSurfaceBottom->AddProperty("REFLECTIVITY", ephoton, refPerfect);
+    mptFilterSurfaceBottom->AddProperty("TRANSMITTANCE", ephoton, transPerfect);
+
+    // medium <--> surface  
+    G4OpticalSurface* opFilterSurface = new G4OpticalSurface("opFilterSurface");
+    opFilterSurface->SetModel(unified);
+    opFilterSurface->SetType(dielectric_dielectric);
+    opFilterSurface->SetFinish(polishedfrontpainted);
+    // opFilterSurface->SetFinish(polished);
+    opFilterSurface->SetMaterialPropertiesTable(mptFilterSurfaceTop);
+    new G4LogicalBorderSurface("filterSurf", phys_medium, phys_lpFilterTop, opFilterSurface); // do transmission both ways //case A,B,C
+    new G4LogicalBorderSurface("filterSurf", phys_lpFilterTop, phys_medium, opFilterSurface); // without this, exiting filter surface is fresnel/rindex //case A
+
+    // surface of filter <--> body of filter
+    G4OpticalSurface* opFilterSurfaceBottom = new G4OpticalSurface("opFilterSurfaceBottom");
     opFilterSurfaceBottom->SetType(dielectric_dielectric);
     opFilterSurfaceBottom->SetFinish(polishedfrontpainted);
     opFilterSurfaceBottom->SetModel(unified);
     opFilterSurfaceBottom->SetMaterialPropertiesTable(mptFilterSurfaceBottom);
-    new G4LogicalBorderSurface("filterSurf", phys_lpFilterTop, phys_lpFilter, opFilterSurfaceBottom);
-
-    // // new G4LogicalSkinSurface("filterSurf", lp_log, opFilterSurface);
-    // // new G4LogicalBorderSurface("filterSurf", phys_medium, phys_lpFilter, opFilterSurface);
-
-    // two questions: do i need the top layer, and what if i change the refractive indexes to quartz values?
-
-    // then there is inputting PDE and the angular dependance
-
-    
+    new G4LogicalBorderSurface("filterSurf", phys_lpFilterTop, phys_lpFilter, opFilterSurfaceBottom); // comment these out to do fresnel from body to filter top (n are mismatched) // case A, B
+    new G4LogicalBorderSurface("filterSurf", phys_lpFilter, phys_lpFilterTop, opFilterSurfaceBottom); // both of these mean perfect transmission in and out //case A, B
   }
 
   
