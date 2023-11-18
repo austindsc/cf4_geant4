@@ -11,6 +11,7 @@
 
 class G4Material;
 class G4String;
+class G4OpticalSurface;
 
 class DetectorMaterials{
   friend class CF4DetectorConstruction;
@@ -60,6 +61,7 @@ protected:
   G4Material * mAir;
   G4Material * mWalls; // black absorptive paper stuff  
   G4Material * mSteel;  // stainless
+  G4Material * mSteel_walls;  // stainless
   G4Material * mLead;
   G4Material * mGenericPlastic;
   G4Material * mAluminum;
@@ -96,6 +98,11 @@ protected:
   G4double fmediumDensity;
   G4double fmediumTemp;
   G4double fmediumPressure;
+
+  ////// --- Optical Surfaces ---//////
+  // optical property tables (for surfaces and skins, excluding for the LP filter)
+  G4OpticalSurface * opSteel_rodSurface;
+  G4OpticalSurface * opAl_surface;
 
 };
 

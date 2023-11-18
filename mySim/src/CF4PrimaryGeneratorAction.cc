@@ -41,8 +41,9 @@ fgammaSource_volume(0), fgammaSource_tubs(0), fcollimator_volume(0), fdetconstru
   fGun = new G4GeneralParticleSource();
   fGun->SetNumberOfParticles(n_particle);
   
-  fAlphaIntensity = 10;
-  fGammaIntensity = 10;
+  fAlphaIntensity = 1;
+  fNoAlphas = true;
+  fGammaIntensity = 1;
   // fGammaThetaMax = 1.5*deg;
 }
 
@@ -68,7 +69,7 @@ void CF4PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   }
   
   // Setting up Alpha Source
-  if (!famo2_volume && fdetconstruction->GetAlphaStatus() == true) {
+  if (!famo2_volume && fdetconstruction->GetAlphaStatus() == true && fNoAlphas == false) {
     
     fGun->SetCurrentSourceIntensity(fAlphaIntensity);
     
@@ -98,15 +99,15 @@ void CF4PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     // energy distribution
     fGun->GetCurrentSource()->GetEneDist()->SetMonoEnergy(5.39 * MeV);
   }
+
+  // kill the alpha source if its not requested
+  if(fdetconstruction->GetAlphaStatus() == false){
+    fGun->SetCurrentSourceto(0); // alpha source
+    fGun->SetCurrentSourceIntensity(0);
+  }
   
   // Setting up Gamma Source
   if (!fgammaSource_volume && fdetconstruction->GetGammaStatus() == true){
-    
-    // kill the alpha source if its not requested
-    if(fdetconstruction->GetAlphaStatus() == false){
-      fGun->SetCurrentSourceto(0); // alpha source
-      fGun->SetCurrentSourceIntensity(0);
-    }
     
     fgammaSource_volume = G4PhysicalVolumeStore::GetInstance()->GetVolume("phys_gammaSource");
     fgammaSource_tubs = dynamic_cast<G4Tubs*>(fgammaSource_volume->GetLogicalVolume()->GetSolid());

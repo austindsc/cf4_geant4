@@ -27,6 +27,7 @@ private:
 
   static G4double mRadius;
   static G4double mThick;
+  static G4double mSurfaceThick;
 };
 
 #endif

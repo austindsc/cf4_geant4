@@ -4,6 +4,7 @@
 #include "G4Cons.hh"
 #include "G4Orb.hh"
 #include "G4Sphere.hh"
+#include "G4Polycone.hh"
 
 #include "G4UnionSolid.hh"
 #include "G4SubtractionSolid.hh"
@@ -176,17 +177,34 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   // G4Tubs * solid_paper = new G4Tubs("solid_paper", mediumR-2*paperThick, mediumR-paperThick, 0.5*mediumZ, 0, 360.*deg);
   // 
   //--------------------------- Metal Rods ---------------------------//
-  G4double rodsR = 1.2*mm; // guess
+  G4double rodsR = 3.*mm/2; // guess from image, assume M3, useful webpage is https://www.trfastenings.com/knowledge-base/thread-geometries/metric-coarse-standard
+  G4double rodsInnerR = 2.387*mm/2;
   G4double rodsL = mediumZ - 5*mm;
-  G4Tubs * solid_rods = new G4Tubs("solid_rods", 0., rodsR, 0.5*rodsL, 0, 360.*deg);
+  G4double threadSpace = 0.45*mm; // for M3 threads
+  int numThreads = (int)rodsL/threadSpace;
+  G4double threadPlanes[numThreads];
+  G4double threadRin[numThreads];
+  G4double threadRout[numThreads];
+  for (size_t i = 0; i < numThreads; i++){
+    threadPlanes[i] = i * threadSpace - rodsL/2;
+    G4cout << i * threadSpace << G4endl;
+    threadRin[i] = 0;
+    if(i%2 == 0){threadRout[i] = rodsR;}
+    else{threadRout[i] = rodsInnerR;}
+  }
+  
+  // G4Tubs * solid_rods = new G4Tubs("solid_rods", 0., 1*rodsR, 0.5*rodsL, 0, 360.*deg);
+  G4Polycone * solid_rods = new G4Polycone("solid_rods", 0, 360*deg, numThreads, threadPlanes, threadRin, threadRout);
   G4LogicalVolume * logic_rods = new G4LogicalVolume(solid_rods, detMat->mSteel, "logic_rods");
   
   G4double rodPosR = mediumR - rodsR - 1*mm;
   G4ThreeVector rodp1 = G4ThreeVector(rodPosR, 0, -(mediumZ-rodsL)/2);
-  new G4PVPlacement(0, rodp1.rotateZ(60*deg), logic_rods, "phys_rod1", logic_medium, false, 0, checkOverlaps);
+  new G4PVPlacement(0, rodp1.rotateZ(45*deg), logic_rods, "phys_rod1", logic_medium, false, 0, checkOverlaps);
   new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod2", logic_medium, false, 0, checkOverlaps);
   new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod3", logic_medium, false, 0, checkOverlaps);
-            
+
+  new G4LogicalSkinSurface("rodSurface", logic_rods, detMat->opSteel_rodSurface);
+  
   //--------------------------- SiPM volumes (Box) ---------------------------//
   // should make sipm like alpha below
   // if(fAlphaHeight >= 0 && fAlphaStatus == true) new alphaSource1(logic_medium, fAlphaHeight - moveMediumUP.getZ(), checkOverlaps);
@@ -287,9 +305,11 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
     2. add the top layer to the filter, give it a surface at the top and bottom
     
     3. add some way to kill photons that bounce too many times
-
+    
+    // eventually should put all this into a single mother logical volume and then into a longpass filter object
 
     */
+
   if(fLPFilterStatus == true){
   
     G4double t = 1.0;
@@ -310,7 +330,7 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
     // std::vector<G4double> abslength = { 1.*m, 1.*m};
 
     std::vector<G4double> wlsE_filter, transmission_filter, reflectivity_filter; // get out photon energy and transmission
-    OH::ReadAndFillArray("data/lpfilter_500nm.txt", wlsE_filter, transmission_filter, MG::GetVerbosity(), 1, 1./100., true); // scale transmission values by 100, flip wavelengths to eV
+    OH::ReadAndFillArray("data/lpfilter_500nm.txt", wlsE_filter, transmission_filter, MG::GetVerbosity(), 1., 1./100., true); // scale transmission values by 100, flip wavelengths to eV
     for (std::vector<G4double>::iterator it = transmission_filter.begin(); it != transmission_filter.end(); it++){
       G4double ref = 1.0 - *it;
       reflectivity_filter.push_back(ref);
@@ -337,6 +357,11 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
     // G4Material* fAl = new G4Material("Al", z = 13., a = 26.98 * g / mole, density = 2.7 * g / cm3);
 
     //// ---- Building Physical Filter ----//
+    // mother logical (for encapsulating all in it's own LPfilterObject)
+    // G4double surfaceThick = 0.1*mm;
+    // G4Tubs * motherDisk_filter = new G4Tubs("solid_LPFilter", 0.0, 25.4/2 * mm, 1.1 * mm/2, 0.0, 360.0 * deg);
+    // G4LogicalVolume * lp_motherLog = new G4LogicalVolume(motherDisk_filter, detMat->GetDetectorMedium(), "logic_lpMother");
+
     // LongPassFilter * lp_log = new LongPassFilter();
     G4Tubs * filter_disk = new G4Tubs("solid_LPFilter", 0.0, 25.4/2 * mm, 1.1 * mm/2, 0.0, 360.0 * deg);
     G4LogicalVolume * lp_log = new G4LogicalVolume(filter_disk, matBodyQuartz, "logic_LPFilter");
@@ -352,9 +377,10 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
                     "phys_lpFilter",
                     logic_medium,
                     false, 0, checkOverlaps);
+
     
     // filter top
-    G4Tubs * filterTop_disk = new G4Tubs("filterTop_disk", 0.0, 25.4/2 * mm, 0.1 * mm/2, 0.0, 360.0 * deg);
+    G4Tubs * filterTop_disk = new G4Tubs("filterTop_disk", 0.0, 25.4/2 * mm, 0.1*mm/2, 0.0, 360.0 * deg);
     G4LogicalVolume * lpTop_log = new G4LogicalVolume(filterTop_disk, matTopQuartz, "logic_LPFilterTop");
     lpTop_log->SetVisAttributes(filter_green);
     
@@ -433,14 +459,14 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
  //--------------------------- Done Source ---------------------------//
 
   // Check overlaps in physical volumes
-  G4PhysicalVolumeStore* physicalVolumeStore = G4PhysicalVolumeStore::GetInstance();
-  for (G4VPhysicalVolume* physicalVolume : *physicalVolumeStore) {
-      if (physicalVolume->CheckOverlaps()) {
-          G4String volumeName = physicalVolume->GetName();
-          G4Exception("CheckOverlaps", "GeometryError", FatalException,
-            G4String("Overlap detected in physical volume " + volumeName).c_str());
-      }
-  }
+  // G4PhysicalVolumeStore* physicalVolumeStore = G4PhysicalVolumeStore::GetInstance();
+  // for (G4VPhysicalVolume* physicalVolume : *physicalVolumeStore) {
+  //     if (physicalVolume->CheckOverlaps()) {
+  //         G4String volumeName = physicalVolume->GetName();
+  //         G4Exception("CheckOverlaps", "GeometryError", FatalException,
+  //           G4String("Overlap detected in physical volume " + volumeName).c_str());
+  //     }
+  // }
 
   G4cout << "\n---------------------- Done Construct() ----------------------" << G4endl;
 

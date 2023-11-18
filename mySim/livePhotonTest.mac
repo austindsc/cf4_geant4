@@ -5,12 +5,12 @@
 /gps/pos/type Plane
 /gps/pos/shape Circle
 /gps/pos/radius 5 mm
-/gps/number 1000000
+/gps/number 10
 
-#/gps/pos/centre 0.0 0.0 0.8 cm # photons out
-#/gps/direction 0 0 1
-/gps/pos/centre 0.0 0.0 3 cm
-/gps/direction 0 0 -1
+/gps/pos/centre 0.0 0.0 3 cm # photons out
+/gps/direction 1 1 0.5 
+#/gps/pos/centre 0.0 0.0 3 cm
+#/gps/direction 0 0 -1
 
 
 #/analysis/setFileName photonTest2
@@ -18,4 +18,4 @@
 
 #/run/initialize
 
-/run/beamOn 1
+#/run/beamOn 1

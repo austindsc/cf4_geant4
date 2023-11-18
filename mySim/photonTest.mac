@@ -9,25 +9,21 @@
 /particle/verbose 0
 /tracking/verbose 0
 
-#/setMaterial/detectionMedium lCF4
-#/setMaterial/mediumTemp 128 kelvin        # this alone sets density based on saturation curve data (gas or liquid CF4)
-#/setMaterial/mediumPressure 10.7 bar
-
-#/setDetector/myVerbosity 1
-
 /gps/particle opticalphoton
 /gps/energy 2 eV
-/gps/pos/type Plane
-/gps/pos/shape Circle
-/gps/pos/radius 5 mm
-/gps/number 1000
+/gps/pos/type Point
+#/gps/pos/shape Circle
+#/gps/pos/radius 5 mm
+/gps/number 10
 
-/gps/pos/centre 0.0 0.0 2 cm
-/gps/direction 0 0 -1
+#/gps/pos/centre 0.0 0.0 2 cm
+#/gps/direction 0 0 -1
+/gps/pos/centre 0.0 0.0 3 cm # photons out
+/gps/direction 1 1 0. 
 
 /analysis/setFileName photonTest2
 #/analysis/ntuple/setFileName 0 anotherNameIWant3
 
 #/run/initialize
 
-/run/beamOn 100
+/run/beamOn 1

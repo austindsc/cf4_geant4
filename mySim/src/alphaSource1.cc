@@ -12,6 +12,7 @@
 #include "G4PVPlacement.hh"
 #include "G4RotationMatrix.hh"
 #include "G4PhysicalVolumeStore.hh"
+#include "G4LogicalSkinSurface.hh"
 
 #include "DetectorMaterials.hh"
 
@@ -34,7 +35,7 @@ alphaSource1::alphaSource1(G4LogicalVolume * medium, G4double zheight, G4bool ch
   // : G4LogicalVolume(new G4Tubs("solid_alphaWorld", 0, fMaxR, fMaxZ/2, 0., 360.*deg),
   // DetectorMaterials::GetInstance()->GetDetectorMedium(), "logic_alphaWorld")
   {
-  logic_local_medium = medium;
+  logic_local_medium = medium; // mother
   detMat = DetectorMaterials::GetInstance();
 
   G4double sourceCaseRadius = 4.3/2 * mm; //zhiheng measured 4.2mm diameter
@@ -119,6 +120,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                 "phys_caseSide",
                 logic_local_medium,         // mother volume
                 false, 0, checkOverlaps);
+
                     
   G4Tubs * solid_caseSide = new G4Tubs("solid_caseSide", sourceRadius, sourceCaseRadius, 0.5*caseSideHeight, 0., 360.*deg);
   G4LogicalVolume * logic_caseSide = new G4LogicalVolume(solid_caseSide, detMat->mSteel, "logic_caseSide");
@@ -128,6 +130,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   "phys_caseSide",
                   logic_local_medium,         // mother volume
                   false, 0, checkOverlaps);
+  // new G4LogicalSkinSurface("alphaCaseSide_surface", logic_caseSide, (G4SurfaceProperty *)detMat->opSteel_rodSurface);
                   
   G4Tubs * solid_caseBottom = new G4Tubs("solid_caseBottom", 0, caseBottomRadius, caseBottomThick/2, 0., 360.*deg);
   G4LogicalVolume * logic_caseBottom = new G4LogicalVolume(solid_caseBottom, detMat->mSteel, "logic_caseBottom");
@@ -137,6 +140,8 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   "phys_caseBottom",
                   logic_local_medium,         // mother volume
                   false, 0, checkOverlaps);
+  // new G4LogicalSkinSurface("alphaCaseBottom_surface", logic_caseSide, (G4SurfaceProperty *)detMat->opSteel_rodSurface);
+
                   
   G4Tubs * solid_screwToAl = new G4Tubs("solid_screwToAl", 0, screwToAl_r, 0.5*screwToAl_z, 0., 360.*deg);
   G4LogicalVolume * logic_screwToAl = new G4LogicalVolume(solid_screwToAl, detMat->mSteel, "logic_screwToAl");
@@ -146,6 +151,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   "phys_screwToAl",
                   logic_local_medium,         // mother volume
                   false, 0, checkOverlaps);
+  // new G4LogicalSkinSurface("alphaScrew_surface", logic_caseSide, (G4SurfaceProperty *)detMat->opSteel_rodSurface);
   
   const G4double rInner[3] = {0*mm, 0*mm, 0*mm};                
   const G4double rOuter[3] = {alPlateSide/2*mm, alPlateSide/2*mm, alPlateSide/2*mm};
@@ -160,5 +166,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   logic_local_medium,         // mother volume
                   false, 0, checkOverlaps);
                   
+  // optics of aluminum plate
+  
 
 }

@@ -45,6 +45,7 @@ class CF4PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     
     G4double fAlphaIntensity; //index 0
     G4double fGammaIntensity;  //index 1
+    G4double fNoAlphas;
     // G4double fGammaThetaMax;
     
     G4Tubs* fCF4_volume;
