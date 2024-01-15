@@ -40,8 +40,7 @@ class G4LogicalVolume;
 /// Stepping action class
 /// 
 
-class CF4SteppingAction : public G4UserSteppingAction
-{
+class CF4SteppingAction : public G4UserSteppingAction{
   public:
     CF4SteppingAction(CF4EventAction* eventAction);
     virtual ~CF4SteppingAction();

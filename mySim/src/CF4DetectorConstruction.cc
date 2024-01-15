@@ -38,7 +38,6 @@
 #include "collimator.hh"
 #include "alphaSource1.hh"
 #include "LongPassFilter.hh"
-#include "colours.icc"
 #include "HelperFunctions.hh"
 
 #include <cmath>
@@ -91,7 +90,7 @@ CF4DetectorConstruction::~CF4DetectorConstruction()
 
 G4VPhysicalVolume* CF4DetectorConstruction::Construct()
 { 
-  
+  #include "colours.icc"
   detMat->BuildMaterials(); //PUT THIS HERE! (not in constructor)
   
   G4cout << "---------------------- Parameters in Construct() ----------------------\n" << G4endl;

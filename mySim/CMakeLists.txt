@@ -37,12 +37,16 @@ endif()
 #
 include(${Geant4_USE_FILE})
 
+## using ROOT ##
+find_package(ROOT REQUIRED)
+
+
 include_directories(${PROJECT_SOURCE_DIR}/include
                     ${ROOT_INCLUDE_DIRS}
                   )
 
-## using ROOT ##
-find_package(ROOT REQUIRED)
+message(STATUS "ROOT include directories: ${ROOT_INCLUDE_DIRS}")
+
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
