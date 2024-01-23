@@ -22,7 +22,7 @@
 
 #include "G4RunManager.hh"
 #include "CF4DetectorConstruction.hh"
-#include "myGlobals.hh"
+#include "MyGlobals.hh"
 
 #include "Randomize.hh"
 #include "G4SPSRandomGenerator.hh"

@@ -62,6 +62,9 @@ int main(int argc,char** argv)
   // Detect interactive mode (if no arguments) and define UI session
   G4UIExecutive* ui = 0;
   if ( argc == 1 ) { ui = new G4UIExecutive(argc, argv);  }
+
+  // getting the ntuple
+  // G4AnalysisManager * man = G4AnalysisManager::Instance();
   
   // Construct the default run manager
   G4RunManager * runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
@@ -70,8 +73,17 @@ int main(int argc,char** argv)
   // Detector construction
   runManager->SetUserInitialization(new CF4DetectorConstruction());
 
-  // Physics list - from UDX example
-  runManager->SetUserInitialization(new PhysicsList());
+  // Physics list - from Optical/LXe example
+  G4VModularPhysicsList* physicsList = new FTFP_BERT;
+  physicsList->ReplacePhysics(new G4EmStandardPhysics_option4());
+  G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
+  G4OpticalParameters * opticalParams = G4OpticalParameters::Instance();
+
+  physicsList->RegisterPhysics(opticalPhysics);
+  runManager->SetUserInitialization(physicsList);
+
+  // // Physics list - from UDX example
+  // runManager->SetUserInitialization(new PhysicsList());
 
   // User action initialization
   runManager->SetUserInitialization(new CF4ActionInitialization());

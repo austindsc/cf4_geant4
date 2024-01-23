@@ -12,7 +12,7 @@
 #include "CF4DetectorConstruction.hh"
 #include "CF4DetectorConstructionMessenger.hh"
 
-#include "myGlobals.hh"
+#include "MyGlobals.hh"
 
 
 CF4DetectorConstructionMessenger::CF4DetectorConstructionMessenger(CF4DetectorConstruction * det)

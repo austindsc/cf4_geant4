@@ -2,15 +2,19 @@
 
 /gps/particle opticalphoton
 /gps/energy 2 eV
-/gps/pos/type Plane
-/gps/pos/shape Circle
-/gps/pos/radius 5 mm
+/gps/pos/type Point
+#/gps/pos/type Plane
+#/gps/pos/shape Circle
+#/gps/pos/radius 5 mm
 /gps/number 10
 
-/gps/pos/centre 0.0 0.0 3 cm # photons out
+# photons at screws
+/gps/pos/centre 0.0 0.0 3 cm
 /gps/direction 1 1 0.5 
-#/gps/pos/centre 0.0 0.0 3 cm
-#/gps/direction 0 0 -1
+
+# photons at SiPM
+/gps/pos/centre 0.2 0.2 3 cm
+/gps/direction 0 0 -1
 
 
 #/analysis/setFileName photonTest2

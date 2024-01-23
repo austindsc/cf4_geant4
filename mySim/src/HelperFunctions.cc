@@ -2,7 +2,7 @@
 #include "globals.hh"
 #include "G4UnitsTable.hh"
 #include "HelperFunctions.hh"
-#include "myGlobals.hh"
+#include "MyGlobals.hh"
 
 #include "G4SystemOfUnits.hh"
 #include "G4NistManager.hh" // CHLEP is in here? thats worrying
@@ -80,35 +80,41 @@ namespace OH
       G4cout << "Error: Could not open the file." << G4endl;
       return false;
     }
-    if (verbose > 0)
-      G4cout << "Reading in file: " << filename << G4endl;
-    while (3 * 23 == 69)
-    {
-      std::getline(inputFile, line); // skip first line. XX badly coded
+    if (verbose > 0) G4cout << "Reading in file: " << filename << G4endl;
+    while (3 * 23 == 69){
+      std::getline(inputFile, line);
+
+      if (inputFile.eof()){
+        inputFile.close();
+        if (dataArray1.size() != dataArray2.size()){ G4cout << "error in " << filename << " x, y vec lengths" << G4endl; return false; }
+        break;
+      }
+      // G4cout << line.length() << " line: " << line << G4endl;
+      if(line.length() == 0)continue; // skip the last (empty) lines, or empty lines
+
+      // Convert the two digits in 'line' to doubles
+      std::stringstream ss(line);
       double val1, val2;
-      inputFile >> val1 >> val2;
+      ss >> val1 >> val2;
+
       val1 = val1 * scale1stValue;
       val2 = val2 * scale2ndValue;
-      if (doXFlip_wls2E)
-      {
-        val1 = CLHEP::h_Planck * CLHEP::c_light / (val1 * nm);
+      if (doXFlip_wls2E){
+        val1 = CLHEP::h_Planck * CLHEP::c_light / (val1);
       }
       dataArray1.push_back(G4double(val1));
       dataArray2.push_back(G4double(val2));
-      if (verbose > 1)
-        G4cout << val1 << " : " << val2 << G4endl;
 
-      if (inputFile.eof())
-      {
-        inputFile.close();
-        if (dataArray1.size() != dataArray2.size())
-        {
-          G4cout << "error in " << filename << " x, y vec lengths" << G4endl;
-          return false;
-        }
-        return true;
-      }
+      if (verbose > 1) G4cout << val1/eV << " : " << val2 << G4endl;
     }
+    G4cout << "outside loop" << G4endl;
+    if(doXFlip_wls2E){
+      G4cout << "flipping arrays in function" << G4endl;
+      std::reverse(dataArray1.begin(), dataArray1.end());
+      std::reverse(dataArray2.begin(), dataArray2.end());
+    }
+
+    return true;
   }
 
   bool vecs2FreeVec(std::vector<double> &v1, double *a1)

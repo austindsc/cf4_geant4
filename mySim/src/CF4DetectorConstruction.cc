@@ -31,8 +31,8 @@
 #include "CF4DetectorConstruction.hh"
 #include "CF4DetectorConstructionMessenger.hh"
 
-#include "sensitiveSipm.hh"
-#include "myGlobals.hh"
+#include "SensitiveSIPM.hh"
+#include "MyGlobals.hh"
 #include "DetectorMaterials.hh"
 #include "MaterialsMessenger.hh"
 #include "collimator.hh"
@@ -74,7 +74,7 @@ CF4DetectorConstruction::CF4DetectorConstruction()
 
 void CF4DetectorConstruction::ConstructSDandField(){
     
-    sensitiveSipm * ssipm = new sensitiveSipm("sensitiveSipm");
+    SensitiveSIPM * ssipm = new SensitiveSIPM("SensitiveSIPM");
     fsipmVolume->SetSensitiveDetector(ssipm);
     
 }
@@ -84,6 +84,17 @@ CF4DetectorConstruction::~CF4DetectorConstruction()
 {
   delete fDetMessenger;
   delete detMat;
+}
+
+// extra function to make a quadrant of objects (sipms and their surfaces)
+G4SubtractionSolid* Create4Grid(G4double xy, G4double z, G4double middleGap, G4String solid_name = "solid_squares"){
+  G4double overdoEdges = 1.1;
+  G4Box* si_totalBox = new G4Box("solid_totalBox", 0.5*xy, 0.5*xy, 0.5*z);
+  G4Box* solid_cross1 = new G4Box("solid_cross1", overdoEdges * 0.5*xy, 0.5*middleGap, overdoEdges*z);
+  G4Box* solid_cross2 = new G4Box("solid_cross2", 0.5*middleGap, overdoEdges*0.5*xy, overdoEdges*z);
+  G4UnionSolid* solidCross = new G4UnionSolid("solidCross", solid_cross1, solid_cross2);
+  G4SubtractionSolid* sub_totalBox = new G4SubtractionSolid(solid_name, si_totalBox, solidCross);
+  return sub_totalBox;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -119,7 +130,7 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   
   G4double mediumR = 3.48*cm/2;
   G4double mediumZ = 15.*cm;
-  G4double packageThick = 2.5*mm;
+  const G4double packageThick = 2.5*mm;
   G4double sipmHeightFromBottom = 8.8*cm; // from where to where haha. bottom of cylinder to bottom of SiPM i guess?
   G4ThreeVector moveMediumUP(0, 0, mediumZ/2 - sipmHeightFromBottom - packageThick); //so SiPM face, top of package is still at 0, 0, 0
   
@@ -146,17 +157,6 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   //--------------------------- active volume (CF4 Cylinder) ---------------------------//
   // centered on XY place, goes from 0 to innerCyl_z on z axis
   // internal volume of cylinder
-  
-  //xx test medium
-  // G4Material * fLXe = new G4Material("LXe", 54., 131.29 * g / mole, 3.020 * g / cm3);
-  // G4MaterialPropertiesTable* fLXe_mt = new G4MaterialPropertiesTable();
-
-  // std::vector<G4double> lxe_Energy = { 0.1 * eV, 10 * eV };
-  // std::vector<G4double> lxe_RIND  = { 1.0, 1.0 };
-  // fLXe_mt->AddProperty("RINDEX", lxe_Energy, lxe_RIND);
-  // // fLXe_mt->AddProperty("ABSLENGTH", lxe_Energy, lxe_ABSL);
-  // fLXe->SetMaterialPropertiesTable(fLXe_mt);
-  // //xx done testing
 
   G4Tubs * solid_medium = new G4Tubs("solid_detectionMedium", 0., mediumR, 0.5*mediumZ, 0, 360.*deg);
   G4LogicalVolume * logic_medium = new G4LogicalVolume(solid_medium, *(detMat->fDetectorMedium), "logic_medium");
@@ -184,9 +184,10 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   G4double threadPlanes[numThreads];
   G4double threadRin[numThreads];
   G4double threadRout[numThreads];
+  if(MG::GetVerbosity() > 2) G4cout << "thread spacing:" << G4endl;
   for (size_t i = 0; i < numThreads; i++){
     threadPlanes[i] = i * threadSpace - rodsL/2;
-    G4cout << i * threadSpace << G4endl;
+    if(MG::GetVerbosity() > 2 ) G4cout << i * threadSpace << G4endl; 
     threadRin[i] = 0;
     if(i%2 == 0){threadRout[i] = rodsR;}
     else{threadRout[i] = rodsInnerR;}
@@ -211,7 +212,9 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   // silicon quadrants
   G4double sipmMiddleGap = 0.5 * mm; // gap between each quadrant
   G4double sipmXY = 5.9 *  mm; // in reality it is 5.95 x 5.85
-  G4double sipmThick = 0.2*mm; // guess
+  G4double sipmThick = 0.5*mm; // guess
+  G4double sipmSurfaceThick = 0.110*um;
+  if(DETECTORSETUP::GetVisibleStatus() == true) sipmSurfaceThick = 1*mm;
 
   // package
   G4double packageXY = 15.*mm;
@@ -230,13 +233,18 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   G4Box * solid_BoxPackage = new G4Box("solid_BoxPackage", 0.5*packageXY, 0.5*packageXY, 0.5*packageThick);
   G4Box * solid_allQuads_toSubtract = new G4Box("solid_allQuads", 0.5*(2*sipmXY + sipmMiddleGap + packageSideGap), 0.5*(2*sipmXY + sipmMiddleGap + packageSideGap), 0.5*(PackageZGap + sipmThick));
   G4Box * solid_rectangleToSubtract = new G4Box("solid_RectangleSubtract", 0.5*(20.*mm), 0.5*packageSideChannel, solid_allQuads_toSubtract->GetZHalfLength()); // this is to add the entry in the side of packaging
+  
   G4SubtractionSolid * sub_package = new G4SubtractionSolid("fullBorder_solid_package", solid_BoxPackage, solid_allQuads_toSubtract,
               0, G4ThreeVector(0, 0, solid_BoxPackage->GetZHalfLength() - solid_allQuads_toSubtract->GetZHalfLength())); // this is right
   sub_package = new G4SubtractionSolid("solid_package", sub_package, solid_rectangleToSubtract, 
               0, G4ThreeVector(0, 0, + solid_BoxPackage->GetZHalfLength() - solid_allQuads_toSubtract->GetZHalfLength() + 0.5*sipmThick)); // not sure if + sipmThick is right
   G4LogicalVolume * logic_package = new G4LogicalVolume(sub_package, detMat->mCeramic, "logic_package");
+  
+  // adding diffusion to ceramic
+  new G4LogicalSkinSurface("opSkin_ceramic", logic_package, (G4SurfaceProperty*)detMat->opSurf_ceramic);
 
-  G4ThreeVector movePackage = G4ThreeVector(0, 0, -phys_medium->GetTranslation().getZ() - solid_BoxPackage->GetZHalfLength()); // top of package is at origin
+  // top of package is at origin!!!
+  G4ThreeVector movePackage = G4ThreeVector(0, 0, -phys_medium->GetTranslation().getZ() - solid_BoxPackage->GetZHalfLength());
   G4VPhysicalVolume* phys_package = new G4PVPlacement(rotateSiPM,
                     movePackage,
                     logic_package,
@@ -244,53 +252,64 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
                     logic_medium,
                     false, 0, checkOverlaps);
 
+  // move package puts sipm at center of package  (again, top of package is at origin)
+  // logic of moving SiPM (written out bc I keep getting confused)
+  // 1. down by half the package (sipm middle at bottom of package)
+  // 2. up by half sipm thickness (sipm bottom at bottom of package)
+  // 3. up by the difference between boxPackage and subtracted package
+  G4double goodZ = 0;
+  goodZ = -solid_BoxPackage->GetZHalfLength();
+  goodZ += sipmThick/2.;
+  goodZ += (packageThick - 2*solid_allQuads_toSubtract->GetZHalfLength());
 
-  // silicon quadrants
-  // locations
-  // G4double sipmSurfaceZ = sipmThick + -2*solid_allQuads_toSubtract->GetZHalfLength() - phys_medium->GetTranslation().getZ(); // SiPM face is at (0, 0, 0) bc translation is within mother volume
-  G4double sipmQuad_xyOffset = 0.5 * (sipmMiddleGap + sipmXY);
+  // make the Silicon squares
+  G4double sipmFullxy = 2*sipmXY + sipmMiddleGap;
+  G4double xy, z, middleGap;
+  G4String solidName;
+  G4SubtractionSolid* solid_siBoxes = Create4Grid(xy = sipmFullxy, z = sipmThick, middleGap = sipmMiddleGap, solidName = "solid_siBoxes");
 
-  G4Box * solid_sipmQuad = new G4Box("solid_sipmQuad", 0.5*sipmXY, 0.5*sipmXY, 0.5*sipmThick);
-  G4LogicalVolume * logic_sipm = new G4LogicalVolume(solid_sipmQuad, detMat->mSilicon, "logic_sipm");
-  logic_sipm->SetVisAttributes(si_magenta);
+  G4LogicalVolume * logic_si_boxes = new G4LogicalVolume(solid_siBoxes, detMat->mSilicon, "logic_si_boxes");
+  logic_si_boxes->SetVisAttributes(si_magenta);
 
-  // sipm wrt origin of solid_BoxPackage is y, z to rotate
-  // G4double bottomThickness = 2*(solid_BoxPackage->GetZHalfLength() - )
-  G4double goodZ = solid_sipmQuad->GetZHalfLength() + solid_BoxPackage->GetZHalfLength() - 2*solid_allQuads_toSubtract->GetZHalfLength();
-  // G4ThreeVector firstVec = rotateSiPM->inverse() * G4ThreeVector(sipmQuad_xyOffset, sipmQuad_xyOffset, goodZ);
+  G4ThreeVector sipmPos_rel_ceramic = movePackage + rotateSiPM->inverse() * G4ThreeVector(0, 0, goodZ);
+  G4VPhysicalVolume* phys_si_boxes = new G4PVPlacement(rotateSiPM, sipmPos_rel_ceramic, logic_si_boxes, "phys_si_boxes", logic_medium, false, 0, checkOverlaps);
 
-  // ++ 
-  G4VPhysicalVolume* phys_sipm1 = new G4PVPlacement(rotateSiPM, // rotation
-                    movePackage + rotateSiPM->inverse() * G4ThreeVector(sipmQuad_xyOffset, sipmQuad_xyOffset, goodZ),
-                    logic_sipm,
-                    "phys_sipm1",
-                    logic_medium,         // mother volume
-                    false, 0, checkOverlaps);
-  // +-
-  G4VPhysicalVolume* phys_sipm2 = new G4PVPlacement(rotateSiPM,
-                  movePackage + rotateSiPM->inverse() * G4ThreeVector(sipmQuad_xyOffset, -sipmQuad_xyOffset, goodZ),
-                  logic_sipm,
-                  "phys_sipm2",
-                  logic_medium,         // mother volume
-                  false, 0, checkOverlaps);
+  // make another cross out of SiO2
+  G4SubtractionSolid * solid_passivationBoxes = Create4Grid(xy = sipmFullxy, z = sipmSurfaceThick, middleGap = sipmMiddleGap, solidName = "solid_passivationBoxes");
+  G4LogicalVolume * logic_passivationBoxes = new G4LogicalVolume(solid_passivationBoxes, detMat->mQuartz, "logic_passivationBoxes");
+  logic_passivationBoxes->SetVisAttributes(ssteel_blue);
+  G4double surfaceMoveZ = goodZ + sipmThick/2. + sipmSurfaceThick/2.;
+  G4ThreeVector moveSipmSurface = movePackage + rotateSiPM->inverse() * G4ThreeVector(0, 0, surfaceMoveZ);
+  G4VPhysicalVolume* phys_passivationBoxes = new G4PVPlacement(rotateSiPM, moveSipmSurface, logic_passivationBoxes, "phys_passivationBoxes", logic_medium, false, 0, checkOverlaps);
+
+  //---- adding extra medium above boxes ----//
+  G4double extraBox_thick = 1. * um; // very thin box for doing extra optical layers in medium
+  if(DETECTORSETUP::GetVisibleStatus() == true)extraBox_thick = 1*mm;
+
+  G4double extraBox_xy = 2*solid_allQuads_toSubtract->GetXHalfLength(); // fill the entire top of SiPM with this (thin) surface
+  G4Box* solid_additionalBox = new G4Box("solid_additionalBox", 0.5 * extraBox_xy, 0.5 * extraBox_xy, 0.5 * extraBox_thick);
+  G4LogicalVolume* logic_additionalBox = new G4LogicalVolume(solid_additionalBox, detMat->GetDetectorMedium(), "logic_additionalBox");
+  logic_additionalBox->SetVisAttributes(world_transparent);
+  // if(DETECTORSETUP::GetVisibleStatus() == true) logic_additionalBox->SetVisAttributes(filter_yellow);
+  logic_additionalBox->SetVisAttributes(filter_yellow);
   
-  // --
-  G4VPhysicalVolume* phys_sipm3 = new G4PVPlacement(rotateSiPM,
-                  movePackage + rotateSiPM->inverse() * G4ThreeVector(-sipmQuad_xyOffset, -sipmQuad_xyOffset, goodZ),
-                  logic_sipm,
-                  "phys_sipm3",
-                  logic_medium,         // mother volume
-                  false, 0, checkOverlaps);
+  G4double extraBoxMoveZ = surfaceMoveZ + sipmSurfaceThick/2. + extraBox_thick/2.;
+  G4ThreeVector moveAdditionalBox = movePackage + rotateSiPM->inverse() * G4ThreeVector(0, 0, extraBoxMoveZ);
+  G4VPhysicalVolume* phys_additionalBox = new G4PVPlacement(rotateSiPM, moveAdditionalBox, logic_additionalBox, "phys_additionalBox", logic_medium, false, 0, checkOverlaps);
+
+
+  //-------- Doing optical surfaces --------//
+
+  // dielectric_metal of Si bulk
+  new G4LogicalSkinSurface("opSurf_siBulk", logic_si_boxes, (G4SurfaceProperty*) detMat->opSurf_silicon); // silicon bulk, use metal dielectric with Transmission = 100
   
-  // -+
-  G4VPhysicalVolume* phys_sipm4 = new G4PVPlacement(rotateSiPM,
-                  movePackage + rotateSiPM->inverse() * G4ThreeVector(-sipmQuad_xyOffset, sipmQuad_xyOffset, goodZ),
-                  logic_sipm,
-                  "phys_sipm4",
-                  logic_medium,         // mother volume
-                  false, 0, checkOverlaps);
-  
- 
+  // doing my PDE correction (diffusion in, abs on way out)
+  new G4LogicalBorderSurface("opSurf_myCorrector1_in", phys_medium, phys_additionalBox, (G4SurfaceProperty*) detMat->opSurf_myCorrector1_diffuserIn);
+  // because this is a border, photons going 'backwards' or exiting/reflected off the SiPM just go like normal (they don't see this border).
+  new G4LogicalBorderSurface("opSurf_myCorrector2_out", phys_additionalBox, phys_medium, (G4SurfaceProperty*) detMat->opSurf_myCorrector2_absorptionOut);
+
+  // xx done new
+
   //--------------------------- Longpass filter ---------------------------//      
     /*
     1. define a surface at the top of the LP filter. this is the 'interference coating'
@@ -325,28 +344,26 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
     rindexEphoton = {10.*eV, 0.1*eV};
     std::vector<G4double> rindexTop = {1.74, 1.74}; // effective index for surface but probably not for glass body
     std::vector<G4double> rindexBody = {1.36, 1.36}; // effective index for body but probably not for surface
-    // rindex = {1.9, 1.9};
-    // std::vector<G4double> abslength = { 1.*m, 1.*m};
 
     std::vector<G4double> wlsE_filter, transmission_filter, reflectivity_filter; // get out photon energy and transmission
-    OH::ReadAndFillArray("data/lpfilter_500nm.txt", wlsE_filter, transmission_filter, MG::GetVerbosity(), 1., 1./100., true); // scale transmission values by 100, flip wavelengths to eV
+    OH::ReadAndFillArray("dataOptics/lpfilter_500nm.txt", wlsE_filter, transmission_filter, MG::GetVerbosity(), 1., 1./100., true); // scale transmission values by 100, flip wavelengths to eV
     for (std::vector<G4double>::iterator it = transmission_filter.begin(); it != transmission_filter.end(); it++){
       G4double ref = 1.0 - *it;
       reflectivity_filter.push_back(ref);
     }
-    std::reverse(wlsE_filter.begin(), wlsE_filter.end());
-    std::reverse(transmission_filter.begin(), transmission_filter.end());
-    std::reverse(reflectivity_filter.begin(), reflectivity_filter.end());
+    // reverse is done in function now
+    // std::reverse(wlsE_filter.begin(), wlsE_filter.end());
+    // std::reverse(transmission_filter.begin(), transmission_filter.end());
+    // std::reverse(reflectivity_filter.begin(), reflectivity_filter.end());
 
     ////-- defining material properties in one place
     // filter top (interference 'layers')
     G4MaterialPropertiesTable* mptFilterTop = new G4MaterialPropertiesTable();
     mptFilterTop->AddProperty("RINDEX", rindexEphoton, rindexTop);
-    G4Material* matTopQuartz = DetectorMaterials::GetInstance()->mHeavyQuartz; // do borofloat33 or borosilicate or other metal
-    matTopQuartz->SetMaterialPropertiesTable(mptFilterTop);
+    G4Material* matTopBoroSilicate = DetectorMaterials::GetInstance()->mBoroSilicate; // do borofloat33 or borosilicate or other metal
+    matTopBoroSilicate->SetMaterialPropertiesTable(mptFilterTop);
 
     // filter body (quartz)
-    // may need to add "ABSLENGTH" property
     G4MaterialPropertiesTable* mptFilterBody = new G4MaterialPropertiesTable();
     // mptFilterBody->AddProperty("RINDEX", rindexEphoton, rindexBody);
     mptFilterBody->AddProperty("RINDEX", "Fused Silica"); // built in. only use if body is fused silica
@@ -380,7 +397,7 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
     
     // filter top
     G4Tubs * filterTop_disk = new G4Tubs("filterTop_disk", 0.0, 25.4/2 * mm, 0.1*mm/2, 0.0, 360.0 * deg);
-    G4LogicalVolume * lpTop_log = new G4LogicalVolume(filterTop_disk, matTopQuartz, "logic_LPFilterTop");
+    G4LogicalVolume * lpTop_log = new G4LogicalVolume(filterTop_disk, matTopBoroSilicate, "logic_LPFilterTop");
     lpTop_log->SetVisAttributes(filter_green);
     
     G4ThreeVector positionFilterTop = G4ThreeVector(0, 0, positionFilter.getZ() + filter_disk->GetZHalfLength() + filterTop_disk->GetZHalfLength());
@@ -425,12 +442,7 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
     new G4LogicalBorderSurface("filterSurf", phys_lpFilter, phys_lpFilterTop, opFilterSurfaceBottom); // both of these mean perfect transmission in and out //case A, B
   }
 
-  
-  // setting all headers
-  fScoringVolume = logic_medium;
-  fsipmVolume = logic_sipm;
 
-  // 
   //--------------------------- Collimator ---------------------------//
   // if(fGammaStatus == true)collimator * logic_coll = new collimator(checkOverlaps);
   // can add functionality here to do all this from a modified collimator class
@@ -469,6 +481,10 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
 
   G4cout << "\n---------------------- Done Construct() ----------------------" << G4endl;
 
+  // setting all headers
+  fScoringVolume = logic_medium;
+  // fsipmVolume = logic_sipm;
+  fsipmVolume = logic_si_boxes;
 
   //always return the physical World
   return physWorld;

@@ -67,13 +67,6 @@ protected:
   G4Material * mAluminum;
   // G4Material * mBlackPaper;
   
-  // SiPM stuff
-  G4Material * mSilicon;
-  // G4Material * Si02;      //silicon dioxide (for SiPM surface?)
-  G4Material * mQuartz;
-  G4Material * mHeavyQuartz; // top of optical filter
-  G4Material * mCeramic;
-  
   // smoke detector (alpha source)
   G4Material * mAmActiveMatrix; // gold mixed with AmO2
   G4Material * mSilver;
@@ -88,6 +81,7 @@ protected:
   G4Material * mGasCF4;
   G4Material * mLiquidCF4;
   G4Material * mGasAr;
+  G4Material * mLXe;
   
   // and their properties
   G4double fmediumLY;
@@ -99,10 +93,33 @@ protected:
   G4double fmediumTemp;
   G4double fmediumPressure;
 
+  // SiPM stuff
+  G4Material * mSilicon;
+  G4Material * mQuartz; // this is SiO2
+  // G4Material * mHeavyQuartz; // top of optical filter
+  G4Material * mBoroSilicate; // for filter
+  G4Material * mCeramic;
+
   ////// --- Optical Surfaces ---//////
   // optical property tables (for surfaces and skins, excluding for the LP filter)
   G4OpticalSurface * opSteel_rodSurface;
   G4OpticalSurface * opAl_surface;
+
+  // -- sipm optical surfaces -- //
+  G4OpticalSurface * opSurf_Air;
+
+  G4OpticalSurface * opSurf_Quartz;       // normal quartz (using n only)
+  // G4OpticalSurface * opSurf_surfaceQuartz;// if surface of sipm quartz is different
+  G4OpticalSurface * testSurf;
+  G4OpticalSurface * opSurf_silicon;      // silicon (bulk of SiPM) using dielectric_metal
+  G4OpticalSurface * opSurf_ceramic;      // little diffuse reflection
+
+  G4OpticalSurface * opSurf_myCorrector1_diffuserIn;  // my own optical surface for doing the PDE correction. applies diffusion in
+  G4OpticalSurface * opSurf_myCorrector2_absorptionOut; // another absorptive surface, to scale the G4 reflectivity to match that measured in vacuum
+
+  G4OpticalSurface * opSurf_perfectTrans; // full transmission, no refraction
+  G4OpticalSurface * opSurf_perfectRef;   // full specular reflection
+  
 
 };
 

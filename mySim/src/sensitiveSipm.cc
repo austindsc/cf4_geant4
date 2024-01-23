@@ -1,52 +1,73 @@
-#include "sensitiveSipm.hh"
+#include "SensitiveSIPM.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicsOrderedFreeVector.hh"
 #include "G4RunManager.hh"
 
+#include "CF4EventAction.hh"
 #include "HelperFunctions.hh"
-#include "myGlobals.hh"
+#include "MyGlobals.hh"
 
 #include <filesystem>
 
-sensitiveSipm::sensitiveSipm(G4String name) : G4VSensitiveDetector(name )
-{
+SensitiveSIPM::SensitiveSIPM(G4String name) : G4VSensitiveDetector(name )
+{ 
   fEventAction = (CF4EventAction *) G4RunManager::GetRunManager()->GetUserEventAction();
+  fhc = CLHEP::h_Planck * CLHEP::c_light;
 
   // adding PDE
-  ovecPDE = new G4PhysicsFreeVector(true);
+  ovecPDE = new G4PhysicsFreeVector(false);
   
   G4double scaleX, scaleY;
-  OH::LoadTxt_OrderedVector("data/SiPMeff_Ham_5V.dat", ovecPDE, MG::GetVerbosity(), 1, 1./100);
-  //ovecPDE->DumpValues();
-  //ovecPDE->SetSpline(false); // okay? large interpolation can cause errors
+  // using wavelengths, not energy, is okay. Do the efficiency call on my own
+  std::string fname = "dataOptics/effective_internalPDE.txt";
+  OH::LoadTxt_OrderedVector(fname, ovecPDE, MG::GetVerbosity(), scaleX = nm, scaleY = 1.);
+  if(MG::GetVerbosity() > 1) {
+    G4cout << "dumping PDE values from\n" << fname << G4endl; ovecPDE->DumpValues();
+
+    G4cout << 
+    "------------------------ SiPM Implementation: enforce Absorption in Si ------------------------\n"
+    "using normal ProcessHits in sensitive detector. \n"
+    "Must define ABSLENGTH as short in SiBulk. Then ProcessHits() checks if pre and post volumes are equal"
+    "if they are equal it kills the track and triggers 'count PhotonIn()\n"
+    "------------------------  ------------------------" << G4endl;
+  }
+
+  ovecPDE->Value(400*nm);
+  G4cout << "PDE at 400 nm: " << ovecPDE->Value(400*nm) << G4endl;
+  return;
 }
 
-sensitiveSipm::~sensitiveSipm()
+SensitiveSIPM::~SensitiveSIPM()
 {}
 
-G4bool sensitiveSipm::ProcessHits(G4Step * step, G4TouchableHistory *ROhist){
-
+G4bool SensitiveSIPM::ProcessHits(G4Step * step, G4TouchableHistory *ROhist){
   G4Track * track = step->GetTrack();
-  track->SetTrackStatus(fStopAndKill);
   
-  G4StepPoint * preStepPoint = step->GetPreStepPoint(); // entering detector
-  G4StepPoint * postStepPoint = step->GetPostStepPoint(); // leaving detector?
-  
-  G4ThreeVector posPhoton = preStepPoint->GetPosition();
-  G4ThreeVector pPhoton = preStepPoint->GetMomentum();
-  G4double wlen = (1239.8*eV/pPhoton.mag()) * nm; //wavelength in nanometers 
-  
-  if(MG::GetVerbosity() >= 2)G4cout << "MC Hit! wl = " << wlen/nm << " nm" << G4endl;
-  fEventAction->AddmcPE(); 
-
-  // With Efficiencies
-  if(G4UniformRand() < ovecPDE->Value(wlen)){
-    if(MG::GetVerbosity() >= 2)G4cout << "Raw hit! wl = " << wlen/nm << " nm" <<G4endl;
-    fEventAction->AddPE();
+  // kill photon once inside Si (requires ABSLength short) and both pre and post steps are equal
+  // this is option 2 from PDE study 
+  G4VPhysicalVolume* physPreVolume = step->GetPreStepPoint()->GetPhysicalVolume();
+  G4VPhysicalVolume* physPostVolume = step->GetPostStepPoint()->GetPhysicalVolume();
+  if(physPreVolume == physPostVolume){
+    track->SetTrackStatus(fStopAndKill);
+    this->CountPhotonIn(step);
+    return true;
   }
-  
-  // G4cout << "photon hit!: " << posPhoton << G4endl;
-  
-  
+  return false;
+}
+
+inline G4bool SensitiveSIPM::CountPhotonIn(const G4Step * step){
+
+  G4StepPoint * preStepPoint = step->GetPreStepPoint();
+  G4ThreeVector pPhoton = preStepPoint->GetMomentum();
+  G4double wlen = fhc/pPhoton.mag(); //wavelength in nanometers 
+
+  fEventAction->AddTruthPE(); // photon touched
+  if(MG::GetVerbosity() >= 2)G4cout << "MC truth Hit! wl = " << wlen/nm << " nm" << G4endl;
+
+  // With effective internal Efficiency
+  if(G4UniformRand() < ovecPDE->Value(wlen)){
+    if(MG::GetVerbosity() >= 2)G4cout << "PDE hit! wl = " << wlen/nm << " nm" <<G4endl;
+    fEventAction->AddDetPE();
+  }
   return true;
 }

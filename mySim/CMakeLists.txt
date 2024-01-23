@@ -96,7 +96,11 @@ target_link_libraries(cf4 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 file(GLOB DATA_FOLDER "data")
 file(COPY ${DATA_FOLDER} DESTINATION ${PROJECT_BINARY_DIR})
-#message(STATUS "project binary dir =" ${PROJECT_BINARY_DIR})
+message(STATUS "copied ${DATA_FOLDER} folder to build directory")
+
+file(GLOB DATA_FOLDER "dataOptics")
+file(COPY ${DATA_FOLDER} DESTINATION ${PROJECT_BINARY_DIR})
+message(STATUS "copied ${DATA_FOLDER} folder to build directory")
 
 #----------------------------------------------------------------------------
 # For internal Geant4 use - but has no effect if you build this

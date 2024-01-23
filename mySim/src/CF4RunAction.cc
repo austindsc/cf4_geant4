@@ -48,7 +48,7 @@
 
 // #include "G4Random.hh"
 #include "Randomize.hh"
-#include "myGlobals.hh"
+#include "MyGlobals.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -132,8 +132,6 @@ void CF4RunAction::EndOfRunAction(const G4Run* run)
     G4cout << (double) ftotalMCPE/ftotalFired << G4endl;
 
   }
-    
-
   
    man->Write();
    man->CloseFile();
