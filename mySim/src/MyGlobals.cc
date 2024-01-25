@@ -13,7 +13,7 @@ namespace DETECTORSETUP{
   static bool buildWindow = false;
   static bool buildSurface = true;
   static bool turnOnQuartzAbs = true;
-  static bool makeVisible = true; // scale up the small things
+  static bool makeVisible = false; // scale up the small things
 
   bool GetWindowStatus(){ return buildWindow; }
   void SetWindowStatus(bool a){ buildWindow = a; }

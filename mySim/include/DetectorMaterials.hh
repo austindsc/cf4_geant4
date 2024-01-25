@@ -19,6 +19,7 @@ class DetectorMaterials{
   friend class collimator;
   friend class LongPassFilter;
   friend class alphaSource1;
+  friend class VUV4;
   
 public:
   void BuildMaterials(); //call this after setting variables with messenger

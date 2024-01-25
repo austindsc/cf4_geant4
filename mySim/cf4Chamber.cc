@@ -34,6 +34,9 @@
 
 #include "G4UImanager.hh"
 
+// xx testing
+#include "VUV4.hh"
+
 // physics lists
 #include "PhysicsList.hh"
 
@@ -53,6 +56,8 @@
 int main(int argc,char** argv)
 {
 
+  // G4cout << VUV4::fSipmMiddleGap << G4endl;
+  // exit(0);
   // cout << USE_REFPROP << endl;
   // return 1;
   // #ifdef USE_REFPROP
