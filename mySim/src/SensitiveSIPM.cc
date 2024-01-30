@@ -13,6 +13,7 @@ SensitiveSIPM::SensitiveSIPM(G4String name) : G4VSensitiveDetector(name )
 { 
   fEventAction = (CF4EventAction *) G4RunManager::GetRunManager()->GetUserEventAction();
   fhc = CLHEP::h_Planck * CLHEP::c_light;
+  fLastTrackID = -1; // so don't miss first track
 
   // adding PDE
   ovecPDE = new G4PhysicsFreeVector(false);
@@ -42,6 +43,7 @@ SensitiveSIPM::~SensitiveSIPM()
 
 G4bool SensitiveSIPM::ProcessHits(G4Step * step, G4TouchableHistory *ROhist){
   G4Track * track = step->GetTrack();
+  this->CountPhotonTouching(track->GetTrackID()); // if photon touches the surface of the SiPM
   
   // kill photon once inside Si (requires ABSLength short) and both pre and post steps are equal
   // this is option 2 from PDE study 
@@ -53,6 +55,17 @@ G4bool SensitiveSIPM::ProcessHits(G4Step * step, G4TouchableHistory *ROhist){
     return true;
   }
   return false;
+}
+
+// do a bit of logic here to avoid double counting twice reflected photons
+inline G4bool SensitiveSIPM::CountPhotonTouching(G4int trackID){
+  // G4cout << "in photon Touching" << G4endl;
+  if(trackID == fLastTrackID) return false;
+  else{
+    fLastTrackID = trackID;
+    fEventAction->AddTouchingPE();
+    return true;
+  }
 }
 
 inline G4bool SensitiveSIPM::CountPhotonIn(const G4Step * step){

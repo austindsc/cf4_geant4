@@ -14,8 +14,8 @@ class G4SubtractionSolid;
 class VUV4 : public G4LogicalVolume{
   
 public:
-  VUV4(G4double zheight = 0, G4bool doOpticalSurfaces = true, G4bool checkOverlaps = false);
-  ~VUV4(){};
+  VUV4(G4double zheight = 0, G4bool doOpticalSurfaces = true, G4bool buildWindow = true, G4bool checkOverlaps = false);
+  ~VUV4(){}
 
   static G4SubtractionSolid* Create4Grid(G4double xy, G4double z, G4double middleGap, G4String solid_name = "solid_squares");
 
@@ -37,6 +37,9 @@ public:
   static const G4double fSipmXY;
   static const G4double fSipmThick;
   static const G4double fSipmSurfaceThick;
+
+  static const G4double fWindowThick;
+  static const G4double fWindowFromSurface;
 
 private:
   G4LogicalVolume* fSensitiveSilicon;

@@ -11,23 +11,33 @@ class DetectorMaterials;
 class LongPassFilter : public G4LogicalVolume{
   
 public:
-  LongPassFilter(G4bool checkOverlaps = false);
+  LongPassFilter(G4int opticsStrategy = 0, G4bool checkOverlaps = false);
+  ~LongPassFilter(){}
   
-  G4VPhysicalVolume * DoPlacement(G4ThreeVector * vec, G4RotationMatrix * rot, G4LogicalVolume * mother, G4bool checkOverlaps);
-  G4VPhysicalVolume * DoPlacement(G4VPhysicalVolume * theSiPMPackage, G4LogicalVolume * mother, G4bool checkOverlaps){}
+  // G4VPhysicalVolume * DoPlacement(G4ThreeVector * vec, G4RotationMatrix * rot, G4LogicalVolume * mother, G4bool checkOverlaps);
+  // G4VPhysicalVolume * DoPlacement(G4VPhysicalVolume * theSiPMPackage, G4LogicalVolume * mother, G4bool checkOverlaps){}
   
-  bool SetupOptics(const std::string& fname, G4double Transmission);
+  G4bool SetupOptics(G4double fixedTransmission = 0.9, G4String someOption = "default");
 
   // G4double 
+  static const G4double mRadius;
+  static const G4double mThick;
+  static const G4double mSurfaceThick;
+  static const G4double mEdgeBuffer;
+  static const G4double mTotalThickness;
 
 private:
-  DetectorMaterials * dmat;
+  // don't need copy constructor or assignment (for now). could be useful with VUV4 though
+  // LongPassFilter(const LongPassFilter &);
+  // LongPassFilter & operator=(const LongPassFilter &);  DetectorMaterials * dmat;
   
   G4double mTransmission;
 
-  static G4double mRadius;
-  static G4double mThick;
-  static G4double mSurfaceThick;
+  G4VPhysicalVolume * mPhysBottom;
+  G4VPhysicalVolume * mPhysSurface;
+  G4VPhysicalVolume * mPhysTop;
+  G4LogicalVolume * mLogBottom;
+  G4LogicalVolume * mLogSurface;
 };
 
 #endif

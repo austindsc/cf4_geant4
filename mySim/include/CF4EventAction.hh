@@ -23,8 +23,9 @@ class CF4EventAction : public G4UserEventAction
     virtual void EndOfEventAction(const G4Event* event);
 
  void AddEdep(G4double edep){ fEdep += edep; }
- void AddTruthPE(){fmcNPE++;}
- void AddDetPE(){fNPE++;}
+ void AddTouchingPE(){++ftouchPE;}
+ void AddTruthPE(){++fmcNPE;}
+ void AddDetPE(){++fNPE;}
     
 
   private:
@@ -32,8 +33,9 @@ class CF4EventAction : public G4UserEventAction
     
     CF4RunAction* fRunAction;
     G4double     fEdep;
-    G4int        fmcNPE; // mc number of photons hitting detector (no efficiencies)
-    G4int        fNPE;  // after efficiencies
+    G4int        ftouchPE;// number of photons touching the SiPM
+    G4int        fmcNPE;  // mc number of photons entering Silicon (no internal efficiency)
+    G4int        fNPE;    // number of photons after internal efficiency
     
 };
 

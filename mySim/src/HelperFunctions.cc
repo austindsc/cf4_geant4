@@ -81,16 +81,10 @@ namespace OH
       return false;
     }
     if (verbose > 0) G4cout << "Reading in file: " << filename << G4endl;
+    
+    std::getline(inputFile, line); // get rid of the first line of text cause it gives infs
     while (3 * 23 == 69){
       std::getline(inputFile, line);
-
-      if (inputFile.eof()){
-        inputFile.close();
-        if (dataArray1.size() != dataArray2.size()){ G4cout << "error in " << filename << " x, y vec lengths" << G4endl; return false; }
-        break;
-      }
-      // G4cout << line.length() << " line: " << line << G4endl;
-      if(line.length() == 0)continue; // skip the last (empty) lines, or empty lines
 
       // Convert the two digits in 'line' to doubles
       std::stringstream ss(line);
@@ -106,14 +100,21 @@ namespace OH
       dataArray2.push_back(G4double(val2));
 
       if (verbose > 1) G4cout << val1/eV << " : " << val2 << G4endl;
+
+      if (inputFile.eof()){
+        inputFile.close();
+        if (dataArray1.size() != dataArray2.size()){ G4cout << "error in " << filename << " x, y vec lengths" << G4endl; return false; }
+        break;
+      }
+      if(line.length() == 0)continue; // skip the last (empty) lines, or empty lines
+
     }
-    G4cout << "outside loop" << G4endl;
+    if (verbose > 1) G4cout << "outside loop" << G4endl;
     if(doXFlip_wls2E){
       G4cout << "flipping arrays in function" << G4endl;
       std::reverse(dataArray1.begin(), dataArray1.end());
       std::reverse(dataArray2.begin(), dataArray2.end());
     }
-
     return true;
   }
 

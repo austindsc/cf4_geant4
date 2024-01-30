@@ -1,12 +1,12 @@
 # this produces 100 photons from a single random location on a disk
 
 /gps/particle opticalphoton
-/gps/energy 2 eV
+/gps/energy 4.1 eV
 /gps/pos/type Point
 #/gps/pos/type Plane
 #/gps/pos/shape Circle
 #/gps/pos/radius 5 mm
-/gps/number 10
+/gps/number 1000
 
 # photons at screws
 /gps/pos/centre 0.0 0.0 3 cm

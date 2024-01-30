@@ -37,6 +37,9 @@ namespace DETECTORSETUP{
   bool GetQuartzABSstatus();
   void SetQuartzABSstatus(bool a);
 
+  bool GetDiffusionStatus();
+  void SetDiffusionStatus(bool a);
+
   bool GetVisibleStatus();
   void SetVisibleStatus(bool a);
 

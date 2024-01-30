@@ -21,7 +21,7 @@ MaterialsMessenger::MaterialsMessenger(DetectorMaterials * dmat)
   Dir->SetGuidance("Set detector medium, density and LY");
   
   SetDetectionMediumCmd = new G4UIcmdWithAString("/setMaterial/detectionMedium", this);
-  SetDetectionMediumCmd->SetGuidance("Select detection medium. 'gCF4', 'lCF4', 'gAr'");
+  SetDetectionMediumCmd->SetGuidance("Select detection medium. 'vacuum', 'gCF4', 'lCF4', 'gAr'");
   SetDetectionMediumCmd->SetParameterName("medium", false, true);
   SetDetectionMediumCmd->SetDefaultValue("gCF4");
   SetDetectionMediumCmd->AvailableForStates(G4State_PreInit);

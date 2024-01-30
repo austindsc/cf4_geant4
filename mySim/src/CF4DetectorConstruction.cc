@@ -205,114 +205,20 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod3", logic_medium, false, 0, checkOverlaps);
 
   new G4LogicalSkinSurface("rodSurface", logic_rods, detMat->opSteel_rodSurface);
-  
-  //--------------------------- SiPM volumes (Box) ---------------------------//
-  // should make sipm like alpha below
-  // if(fAlphaHeight >= 0 && fAlphaStatus == true) new alphaSource1(logic_medium, fAlphaHeight - moveMediumUP.getZ(), checkOverlaps);
+
+  //------------- Doing SiPM -------------//
+  // put the SiPM surface at the world origin
+  G4ThreeVector movePackage = G4ThreeVector(0, 0, -phys_medium->GetTranslation().getZ() - (VUV4::fPackageThick/2 + VUV4::fEdgeBuffer));
 
   // setup rotation vector (10 ish degrees down), about x axis, so perpendicular to the gamma direction
   G4double rotationAngle = 10.0*degree;
   G4RotationMatrix* rotateSiPM = new G4RotationMatrix();
   rotateSiPM->rotateX(rotationAngle); // some rotation
 
-  // silicon quadrants
-  G4double sipmMiddleGap = 0.5 * mm; // gap between each quadrant
-  G4double sipmXY = 5.9 *  mm; // in reality it is 5.95 x 5.85
-  G4double sipmThick = 0.5*mm; // guess
-  G4double sipmSurfaceThick = 0.110*um;
-  if(DETECTORSETUP::GetVisibleStatus() == true) sipmSurfaceThick = 1*mm;
-
-  // package
-  G4double packageXY = 15.*mm;
-  // G4double packageThick = 2.5*mm; //defined above
-  G4double packageSideGap = 1.5*mm;
-  G4double packageSideChannel = 7.*mm;
-  // G4double quartzThick = 0.5*mm;
-  G4double PackageZGap = 1.3*mm;
-
-  //// doing package first ////
-  G4Box * solid_BoxPackage = new G4Box("solid_BoxPackage", 0.5*packageXY, 0.5*packageXY, 0.5*packageThick);
-  G4Box * solid_allQuads_toSubtract = new G4Box("solid_allQuads", 0.5*(2*sipmXY + sipmMiddleGap + packageSideGap), 0.5*(2*sipmXY + sipmMiddleGap + packageSideGap), 0.5*(PackageZGap + sipmThick));
-  G4Box * solid_rectangleToSubtract = new G4Box("solid_RectangleSubtract", 0.5*(20.*mm), 0.5*packageSideChannel, solid_allQuads_toSubtract->GetZHalfLength()); // this is to add the entry in the side of packaging
-  
-  G4SubtractionSolid * sub_package = new G4SubtractionSolid("fullBorder_solid_package", solid_BoxPackage, solid_allQuads_toSubtract,
-              0, G4ThreeVector(0, 0, solid_BoxPackage->GetZHalfLength() - solid_allQuads_toSubtract->GetZHalfLength())); // this is right
-  sub_package = new G4SubtractionSolid("solid_package", sub_package, solid_rectangleToSubtract, 
-              0, G4ThreeVector(0, 0, + solid_BoxPackage->GetZHalfLength() - solid_allQuads_toSubtract->GetZHalfLength() + 0.5*sipmThick)); // not sure if + sipmThick is right
-  G4LogicalVolume * logic_package = new G4LogicalVolume(sub_package, detMat->mCeramic, "logic_package");
-  
-  // adding diffusion to ceramic
-  new G4LogicalSkinSurface("opSkin_ceramic", logic_package, (G4SurfaceProperty*)detMat->opSurf_ceramic);
-
-  // top of package is at origin!!!
-  G4ThreeVector movePackage = G4ThreeVector(0, 0, -phys_medium->GetTranslation().getZ() - solid_BoxPackage->GetZHalfLength());
-  G4VPhysicalVolume* phys_package = new G4PVPlacement(rotateSiPM,
-                    movePackage,
-                    logic_package,
-                    "phys_package",
-                    logic_medium,
-                    false, 0, checkOverlaps);
-
-  // move package puts sipm at center of package  (again, top of package is at origin)
-  // logic of moving SiPM (written out bc I keep getting confused)
-  // 1. down by half the package (sipm middle at bottom of package)
-  // 2. up by half sipm thickness (sipm bottom at bottom of package)
-  // 3. up by the difference between boxPackage and subtracted package
-  G4double goodZ = 0;
-  goodZ = -solid_BoxPackage->GetZHalfLength();
-  goodZ += sipmThick/2.;
-  goodZ += (packageThick - 2*solid_allQuads_toSubtract->GetZHalfLength());
-
-  // make the Silicon squares
-  G4double sipmFullxy = 2*sipmXY + sipmMiddleGap;
-  G4double xy, z, middleGap;
-  G4String solidName;
-  G4SubtractionSolid* solid_siBoxes = VUV4::Create4Grid(xy = sipmFullxy, z = sipmThick, middleGap = sipmMiddleGap, solidName = "solid_siBoxes");
-
-  G4LogicalVolume * logic_si_boxes = new G4LogicalVolume(solid_siBoxes, detMat->mSilicon, "logic_si_boxes");
-  logic_si_boxes->SetVisAttributes(si_magenta);
-
-  G4ThreeVector sipmPos_rel_ceramic = movePackage + rotateSiPM->inverse() * G4ThreeVector(0, 0, goodZ);
-  G4VPhysicalVolume* phys_si_boxes = new G4PVPlacement(rotateSiPM, sipmPos_rel_ceramic, logic_si_boxes, "phys_si_boxes", logic_medium, false, 0, checkOverlaps);
-
-  // make another cross out of SiO2
-  G4SubtractionSolid * solid_passivationBoxes = VUV4::Create4Grid(xy = sipmFullxy, z = sipmSurfaceThick, middleGap = sipmMiddleGap, solidName = "solid_passivationBoxes");
-  G4LogicalVolume * logic_passivationBoxes = new G4LogicalVolume(solid_passivationBoxes, detMat->mQuartz, "logic_passivationBoxes");
-  logic_passivationBoxes->SetVisAttributes(ssteel_blue);
-  G4double surfaceMoveZ = goodZ + sipmThick/2. + sipmSurfaceThick/2.;
-  G4ThreeVector moveSipmSurface = movePackage + rotateSiPM->inverse() * G4ThreeVector(0, 0, surfaceMoveZ);
-  G4VPhysicalVolume* phys_passivationBoxes = new G4PVPlacement(rotateSiPM, moveSipmSurface, logic_passivationBoxes, "phys_passivationBoxes", logic_medium, false, 0, checkOverlaps);
-
-  //---- adding extra medium above boxes ----//
-  G4double extraBox_thick = 1. * um; // very thin box for doing extra optical layers in medium
-  if(DETECTORSETUP::GetVisibleStatus() == true)extraBox_thick = 1*mm;
-
-  G4double extraBox_xy = 2*solid_allQuads_toSubtract->GetXHalfLength(); // fill the entire top of SiPM with this (thin) surface
-  G4Box* solid_additionalBox = new G4Box("solid_additionalBox", 0.5 * extraBox_xy, 0.5 * extraBox_xy, 0.5 * extraBox_thick);
-  G4LogicalVolume* logic_additionalBox = new G4LogicalVolume(solid_additionalBox, detMat->GetDetectorMedium(), "logic_additionalBox");
-  logic_additionalBox->SetVisAttributes(world_transparent);
-  if(DETECTORSETUP::GetVisibleStatus() == true) logic_additionalBox->SetVisAttributes(filter_yellow);
-  
-  G4double extraBoxMoveZ = surfaceMoveZ + sipmSurfaceThick/2. + extraBox_thick/2.;
-  G4ThreeVector moveAdditionalBox = movePackage + rotateSiPM->inverse() * G4ThreeVector(0, 0, extraBoxMoveZ);
-  G4VPhysicalVolume* phys_additionalBox = new G4PVPlacement(rotateSiPM, moveAdditionalBox, logic_additionalBox, "phys_additionalBox", logic_medium, false, 0, checkOverlaps);
-
-
-  //-------- Doing optical surfaces --------//
-  // dielectric_metal of Si bulk
-  new G4LogicalSkinSurface("opSurf_siBulk", logic_si_boxes, (G4SurfaceProperty*) detMat->opSurf_silicon); // silicon bulk, use metal dielectric with Transmission = 100
-  
-  // doing my PDE correction (diffusion in, abs on way out)
-  new G4LogicalBorderSurface("opSurf_myCorrector1_in", phys_medium, phys_additionalBox, (G4SurfaceProperty*) detMat->opSurf_myCorrector1_diffuserIn);
-  // because this is a border, photons going 'backwards' or exiting/reflected off the SiPM just go like normal (they don't see this border).
-  new G4LogicalBorderSurface("opSurf_myCorrector2_out", phys_additionalBox, phys_medium, (G4SurfaceProperty*) detMat->opSurf_myCorrector2_absorptionOut);
-  // DONE SIPM
-
-  G4ThreeVector moveTestSipm = movePackage + G4ThreeVector(0, 0, 1*cm);
-  G4bool doOptics;
-  VUV4 * logic_vuv4 = new VUV4(0, doOptics = true, checkOverlaps);
+  G4bool doOptics, buildWindow;
+  VUV4 * logic_vuv4 = new VUV4(0, doOptics = true, buildWindow = DETECTORSETUP::GetWindowStatus(), checkOverlaps);
   logic_vuv4->SetVisAttributes(world_transparent);
-  G4VPhysicalVolume* phys_vuv4 = new G4PVPlacement(rotateSiPM, moveTestSipm, (G4LogicalVolume*) logic_vuv4, "phys_vuv4", logic_medium, false, 0, checkOverlaps);
+  G4VPhysicalVolume* phys_vuv4 = new G4PVPlacement(rotateSiPM, movePackage, (G4LogicalVolume*) logic_vuv4, "phys_vuv4", logic_medium, false, 0, checkOverlaps);
   fsipmVolume = logic_vuv4->GetSensitiveVolume(); // VERY IMPORTANT
 
   //--------------------------- Longpass filter ---------------------------//      
@@ -334,117 +240,11 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
     */
 
   if(fLPFilterStatus == true){
-  
-    G4double t = 1.0;
-    std::vector<G4double> ephoton = {0.1*eV, 10.0*eV};
+    LongPassFilter * logic_LPFilter = new LongPassFilter();
+    // logic_LPFilter->SetupOptics();
+    G4ThreeVector moveLPFilter = movePackage + G4ThreeVector(0, 0, (VUV4::fPackageThick/2 + VUV4::fEdgeBuffer)+(LongPassFilter::mTotalThickness/2));
 
-    std::vector<G4double> trans = {t, t};
-    std::vector<G4double> transPerfect = {1.0, 1.0};
-
-    std::vector<G4double> refPerfect = {0.0, 0.0};
-    std::vector<G4double> ref = {1.0 - t, 1.0 - t};
-
-    std::vector<G4double> rindexEphoton = {10.*eV, 7.*eV, 5.*eV, 2.*eV, 1.*eV, 0.1*eV};
-    std::vector<G4double> rindex = { 1.24, 1.24, 1.225, 1.21, 1.2039, 1.2039}; // make the same as the medium for full transmission in/out of backside
-    rindexEphoton = {10.*eV, 0.1*eV};
-    std::vector<G4double> rindexTop = {1.74, 1.74}; // effective index for surface but probably not for glass body
-    std::vector<G4double> rindexBody = {1.36, 1.36}; // effective index for body but probably not for surface
-
-    std::vector<G4double> wlsE_filter, transmission_filter, reflectivity_filter; // get out photon energy and transmission
-    OH::ReadAndFillArray("dataOptics/lpfilter_500nm.txt", wlsE_filter, transmission_filter, MG::GetVerbosity(), 1., 1./100., true); // scale transmission values by 100, flip wavelengths to eV
-    for (std::vector<G4double>::iterator it = transmission_filter.begin(); it != transmission_filter.end(); it++){
-      G4double ref = 1.0 - *it;
-      reflectivity_filter.push_back(ref);
-    }
-    // reverse is done in function now
-    // std::reverse(wlsE_filter.begin(), wlsE_filter.end());
-    // std::reverse(transmission_filter.begin(), transmission_filter.end());
-    // std::reverse(reflectivity_filter.begin(), reflectivity_filter.end());
-
-    ////-- defining material properties in one place
-    // filter top (interference 'layers')
-    G4MaterialPropertiesTable* mptFilterTop = new G4MaterialPropertiesTable();
-    mptFilterTop->AddProperty("RINDEX", rindexEphoton, rindexTop);
-    G4Material* matTopBoroSilicate = DetectorMaterials::GetInstance()->mBoroSilicate; // do borofloat33 or borosilicate or other metal
-    matTopBoroSilicate->SetMaterialPropertiesTable(mptFilterTop);
-
-    // filter body (quartz)
-    G4MaterialPropertiesTable* mptFilterBody = new G4MaterialPropertiesTable();
-    // mptFilterBody->AddProperty("RINDEX", rindexEphoton, rindexBody);
-    mptFilterBody->AddProperty("RINDEX", "Fused Silica"); // built in. only use if body is fused silica
-    G4Material * matBodyQuartz = DetectorMaterials::GetInstance()->mQuartz; // quartz
-    matBodyQuartz->SetMaterialPropertiesTable(mptFilterBody);
-
-    // G4Material* fAl = new G4Material("Al", z = 13., a = 26.98 * g / mole, density = 2.7 * g / cm3);
-
-    //// ---- Building Physical Filter ----//
-    // mother logical (for encapsulating all in it's own LPfilterObject)
-    // G4double surfaceThick = 0.1*mm;
-    // G4Tubs * motherDisk_filter = new G4Tubs("solid_LPFilter", 0.0, 25.4/2 * mm, 1.1 * mm/2, 0.0, 360.0 * deg);
-    // G4LogicalVolume * lp_motherLog = new G4LogicalVolume(motherDisk_filter, detMat->GetDetectorMedium(), "logic_lpMother");
-
-    // LongPassFilter * lp_log = new LongPassFilter();
-    G4Tubs * filter_disk = new G4Tubs("solid_LPFilter", 0.0, 25.4/2 * mm, 1.1 * mm/2, 0.0, 360.0 * deg);
-    G4LogicalVolume * lp_log = new G4LogicalVolume(filter_disk, matBodyQuartz, "logic_LPFilter");
-    lp_log->SetVisAttributes(filter_yellow);
-
-    // would be sexier to use a 'doPlacement' function but oh well
-    G4double filterGap = 0.0*cm;
-    G4ThreeVector moveFilter = G4ThreeVector(0, 0, movePackage.getZ() + filterGap);
-    G4ThreeVector positionFilter = G4ThreeVector(0, 0, solid_BoxPackage->GetZHalfLength() + ((G4Tubs* )lp_log->GetSolid())->GetZHalfLength());
-    G4VPhysicalVolume* phys_lpFilter = new G4PVPlacement(rotateSiPM,
-                    moveFilter + (rotateSiPM->inverse() *  positionFilter),
-                    (G4LogicalVolume *)lp_log,
-                    "phys_lpFilter",
-                    logic_medium,
-                    false, 0, checkOverlaps);
-
-    
-    // filter top
-    G4Tubs * filterTop_disk = new G4Tubs("filterTop_disk", 0.0, 25.4/2 * mm, 0.1*mm/2, 0.0, 360.0 * deg);
-    G4LogicalVolume * lpTop_log = new G4LogicalVolume(filterTop_disk, matTopBoroSilicate, "logic_LPFilterTop");
-    lpTop_log->SetVisAttributes(filter_green);
-    
-    G4ThreeVector positionFilterTop = G4ThreeVector(0, 0, positionFilter.getZ() + filter_disk->GetZHalfLength() + filterTop_disk->GetZHalfLength());
-    G4VPhysicalVolume* phys_lpFilterTop = new G4PVPlacement(rotateSiPM,
-                    moveFilter + (rotateSiPM->inverse() *  positionFilterTop),
-                    (G4LogicalVolume *)lpTop_log,
-                    "phys_lpFilterTop",
-                    logic_medium,
-                    false, 0, checkOverlaps);
-    
-    ////// ---- doing optical surfaces ---- ////
-
-    // medium <--> surface
-    G4MaterialPropertiesTable* mptFilterSurfaceTop = new G4MaterialPropertiesTable();
-    mptFilterSurfaceTop->AddProperty("REFLECTIVITY", wlsE_filter, reflectivity_filter);
-    mptFilterSurfaceTop->AddProperty("TRANSMITTANCE", wlsE_filter, transmission_filter);
-    // mptFilterSurfaceTop->DumpTable();
-    // exit(0);
-
-    // surface <--> quartz (body) (PERFECT TRANSMISSION)
-    G4MaterialPropertiesTable* mptFilterSurfaceBottom = new G4MaterialPropertiesTable();
-    mptFilterSurfaceBottom->AddProperty("REFLECTIVITY", ephoton, refPerfect);
-    mptFilterSurfaceBottom->AddProperty("TRANSMITTANCE", ephoton, transPerfect);
-
-    // medium <--> surface  
-    G4OpticalSurface* opFilterSurface = new G4OpticalSurface("opFilterSurface");
-    opFilterSurface->SetModel(unified);
-    opFilterSurface->SetType(dielectric_dielectric);
-    opFilterSurface->SetFinish(polishedfrontpainted);
-    // opFilterSurface->SetFinish(polished);
-    opFilterSurface->SetMaterialPropertiesTable(mptFilterSurfaceTop);
-    new G4LogicalBorderSurface("filterSurf", phys_medium, phys_lpFilterTop, opFilterSurface); // do transmission both ways //case A,B,C
-    new G4LogicalBorderSurface("filterSurf", phys_lpFilterTop, phys_medium, opFilterSurface); // without this, exiting filter surface is fresnel/rindex //case A
-
-    // surface of filter <--> body of filter
-    G4OpticalSurface* opFilterSurfaceBottom = new G4OpticalSurface("opFilterSurfaceBottom");
-    opFilterSurfaceBottom->SetType(dielectric_dielectric);
-    opFilterSurfaceBottom->SetFinish(polishedfrontpainted);
-    opFilterSurfaceBottom->SetModel(unified);
-    opFilterSurfaceBottom->SetMaterialPropertiesTable(mptFilterSurfaceBottom);
-    new G4LogicalBorderSurface("filterSurf", phys_lpFilterTop, phys_lpFilter, opFilterSurfaceBottom); // comment these out to do fresnel from body to filter top (n are mismatched) // case A, B
-    new G4LogicalBorderSurface("filterSurf", phys_lpFilter, phys_lpFilterTop, opFilterSurfaceBottom); // both of these mean perfect transmission in and out //case A, B
+    G4VPhysicalVolume* phys_LPFilter = new G4PVPlacement(rotateSiPM, moveLPFilter, (G4LogicalVolume*) logic_LPFilter, "phys_LPFilter", logic_medium, false, 0, checkOverlaps);
   }
 
 

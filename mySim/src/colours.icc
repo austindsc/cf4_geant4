@@ -2,7 +2,7 @@
 G4Colour  white   (1.0, 1.0, 1.0, 0.5) ;
 G4Colour  black   (0.0, 0.0, 0.0, 0.5) ;
 G4Colour  grey    (0.5, 0.5, 0.5, 0.5) ;
-G4Colour  lgrey   (.85, .85, .85, 0.5) ;
+G4Colour  lgrey   (.85, .85, .85, 0.2) ;
 G4Colour  red     (1.0, 0.0, 0.0, 0.5) ;
 G4Colour  blue    (0.0, 0.0, 1.0, 0.5) ;
 G4Colour  cyan    (0.0, 1.0, 1.0, 0.5) ;
@@ -21,3 +21,4 @@ G4VisAttributes* filter_yellow = new G4VisAttributes(true, yellow);
 G4VisAttributes* kapton_grey = new G4VisAttributes(true, grey);
 G4VisAttributes* si_magenta = new G4VisAttributes(true, magenta);
 G4VisAttributes* filter_green = new G4VisAttributes(true, lgreen);
+G4VisAttributes* window_gray = new G4VisAttributes(true, lgrey);

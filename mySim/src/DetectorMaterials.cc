@@ -59,6 +59,8 @@ void DetectorMaterials::SetDetectionMedium(G4String med){
     fDetectorMedium = &mLiquidCF4;
   } else if (med == "gAr" || med == "GAr"){
     fDetectorMedium = &mGasAr;
+  } else if (med == "vacuum"){
+    fDetectorMedium = &mVacuum;
   }
 }
 
@@ -74,7 +76,7 @@ void DetectorMaterials::BuildMaterials(){
   G4NistManager* nist = G4NistManager::Instance();
   // -------------------- Chamber Materials --------------------//
   // -- Vacuum -- //
-  std::vector<G4double> photonE_world = {1.0*eV, 12.4*eV}; // set n=1 everywhere
+  std::vector<G4double> photonE_world = {0.1*eV, 12.4*eV}; // set n=1 everywhere
   std::vector<G4double> nWorld = {1.00, 1.00};   
   G4MaterialPropertiesTable *mptWorld = new G4MaterialPropertiesTable();
   mptWorld->AddProperty("RINDEX", photonE_world, nWorld); //2 is for length of arrays
@@ -196,6 +198,7 @@ void DetectorMaterials::BuildMaterials(){
   G4MaterialPropertiesTable *mpt_Aluminum = new G4MaterialPropertiesTable();
   mpt_Aluminum->AddProperty("RINDEX", Al_PP, Al_RIND);
   mpt_Aluminum->AddProperty("ABSLENGTH", Al_PP, Al_ABSL);
+  mpt_Aluminum->AddProperty("GROUPVEL", photonE_world, {CLHEP::c_light*0.9, CLHEP::c_light*0.9});
   mAluminum->SetMaterialPropertiesTable(mpt_Aluminum);
 
   // no aluminum optical surface defined
@@ -396,12 +399,11 @@ void DetectorMaterials::BuildMaterials(){
   // quickly up to around 90% reflectivity at 500nm
   
   G4MaterialPropertiesTable *mpt_Ceramic_optical = new G4MaterialPropertiesTable();
-  mpt_Ceramic_optical->AddProperty("REFLECTIVITY", {hc/(1100*nm), hc/(500*nm), hc/(400*nm)}, {0.9, 0.8, 0.15});
+  std::vector<G4double> ceramicDiffusion = {0.9, 0.8, 0.15};
+  if(DETECTORSETUP::GetDiffusionStatus() == false) ceramicDiffusion = {0, 0, 0};
+  mpt_Ceramic_optical->AddProperty("REFLECTIVITY", {hc/(1100*nm), hc/(500*nm), hc/(400*nm)}, ceramicDiffusion);
   mpt_Ceramic_optical->AddProperty("TRANSMITTANCE", photonE_world, {0., 0}); // make sure they stop (0 is also default behaviour)
   opSurf_ceramic->SetMaterialPropertiesTable(mpt_Ceramic_optical);
-
-  // heavy quartz for LP filter
-  mBoroSilicate = nist->FindOrBuildMaterial("G4_BORON_OXIDE");
 
   // -------------------- Quartz/SiO2 --------------------//
   // -- Quartz/SiO2 Bulk -- //
@@ -480,6 +482,7 @@ void DetectorMaterials::BuildMaterials(){
 
   // ------ correction surfaces ------ //
   G4double Rdiffuse = 0.17; // should be 0.17, from nEXO vacuum paper  
+  if(DETECTORSETUP::GetDiffusionStatus() == false){Rdiffuse = 0.0;}
   opSurf_myCorrector1_diffuserIn = new G4OpticalSurface("opSurf_myCorrector1_diffuserIn", unified, groundfrontpainted, dielectric_dielectric);
   // groundfrontpainted is only diffuse reflection. set by REFLECTIVITY
   // absorption then is 1 - TRANSMITTANCE, default is T = 0
@@ -489,18 +492,54 @@ void DetectorMaterials::BuildMaterials(){
   mpt_myCorrector1_diffuseIn->AddProperty("REFLECTIVITY", photonE_world, {Rdiffuse, Rdiffuse}); // how much diffusion do we want
   opSurf_myCorrector1_diffuserIn->SetMaterialPropertiesTable(mpt_myCorrector1_diffuseIn);
 
-
   opSurf_myCorrector2_absorptionOut = new G4OpticalSurface("opSurf_myCorrector2_absorptionOut", unified, polishedfrontpainted, dielectric_dielectric);
   // std::vector<G4double> correctRwithAbs_transmission = {0., 0.}; // load in these values from my calculations
   std::vector<G4double> xphotonE_TransCorrection, y_TransCorrection;
-  OH::ReadAndFillArray("dataOptics/effective_correction_transmission.txt", xphotonE_TransCorrection, y_TransCorrection, verb = MG::GetVerbosity() , scaleX = nm, scaleY = 1., flipWL = true); // scale um to nm, flip wavelengths to eV
+  OH::ReadAndFillArray("dataOptics/effective_correction_transmission.txt", xphotonE_TransCorrection, y_TransCorrection, verb = MG::GetVerbosity(), scaleX = nm, scaleY = 1., flipWL = true); // scale um to nm, flip wavelengths to eV
 
   G4MaterialPropertiesTable *mpt_myCorrector2_absorptionOut = new G4MaterialPropertiesTable();
-  mpt_myCorrector2_absorptionOut->AddProperty("TRANSMITTANCE", xphotonE_TransCorrection, y_TransCorrection); // absorb certain amount of SiPM reflections
+  mpt_myCorrector2_absorptionOut->AddProperty("TRANSMITTANCE", xphotonE_TransCorrection, y_TransCorrection); // absorb certain amount of SiPM reflections if T < 1
   mpt_myCorrector2_absorptionOut->AddProperty("REFLECTIVITY", photonE_world, noRef); // no reflections
   opSurf_myCorrector2_absorptionOut->SetMaterialPropertiesTable(mpt_myCorrector2_absorptionOut);
   
-  // -------------------- More Stuff --------------------//
+  // -------------------- Longpass Filter --------------------//
+  std::vector<G4double> rindexFilterTop = {1.74, 1.74}; // effective index for surface but not for glass body (which is quartz)
+  // std::vector<G4double> rindexBody = {1.36, 1.36}; // effective index for body but probably not for surface. 
+  // this is just quartz above
+
+  // heavy quartz for LP filter
+  mBoroSilicate = nist->FindOrBuildMaterial("G4_BORON_OXIDE");
+  G4MaterialPropertiesTable* mptFilterTop = new G4MaterialPropertiesTable();
+  std::vector<G4double> rindexTop = {1.74, 1.74}; // effective index for surface but probably not for glass body
+  mptFilterTop->AddProperty("RINDEX", photonE_world, rindexTop);
+  mBoroSilicate->SetMaterialPropertiesTable(mptFilterTop);
+
+  //-- optical surfaces for filter --//
+  std::vector<G4double> wlsE_filter, transmission_filter, reflectivity_filter; // get out photon energy and transmission
+  // G4bool flipWL; int verb; G4double scaleX, scaleY;
+  OH::ReadAndFillArray("dataOptics/lpfilter_500nm.txt", wlsE_filter, transmission_filter, verb = MG::GetVerbosity(), scaleX = 1.*nm, scaleY = 1./100., flipWL = true); // scale transmission values by 100, flip wavelengths to eV
+  for (std::vector<G4double>::iterator it = transmission_filter.begin(); it != transmission_filter.end(); it++){
+    reflectivity_filter.push_back(1.0 - *it);
+  }
+  
+  // medium <--> surface
+  opSurf_lpFilter = new G4OpticalSurface("opSurf_lpFilter");
+  opSurf_lpFilter->SetModel(unified);
+  // opSurf_lpFilter->SetType(dielectric_dielectric);
+  // opSurf_lpFilter->SetFinish(polishedfrontpainted);
+  opSurf_lpFilter->SetType(dielectric_metal);
+  opSurf_lpFilter->SetFinish(polished);
+  opSurf_lpFilter->SetSigmaAlpha(0.);
+
+  G4MaterialPropertiesTable* mptFilterSurfaceTop = new G4MaterialPropertiesTable();
+  mptFilterSurfaceTop->AddProperty("REFLECTIVITY", wlsE_filter, reflectivity_filter);
+  // mptFilterSurfaceTop->AddProperty("REFLECTIVITY", photonE_world, {0., 0.});
+  // mptFilterSurfaceTop->AddProperty("TRANSMITTANCE", wlsE_filter, transmission_filter); // this is wrong. Reflectivity does the physics, Transmittance does the absorption
+  mptFilterSurfaceTop->AddProperty("TRANSMITTANCE", photonE_world, {1., 1.});
+  opSurf_lpFilter->SetMaterialPropertiesTable(mptFilterSurfaceTop);
+  // mptFilterSurfaceTop->DumpTable();
+  // exit(0);
+
   return;
 }
 

@@ -108,7 +108,6 @@ protected:
 
   // -- sipm optical surfaces -- //
   G4OpticalSurface * opSurf_Air;
-
   G4OpticalSurface * opSurf_Quartz;       // normal quartz (using n only)
   // G4OpticalSurface * opSurf_surfaceQuartz;// if surface of sipm quartz is different
   G4OpticalSurface * testSurf;
@@ -118,9 +117,12 @@ protected:
   G4OpticalSurface * opSurf_myCorrector1_diffuserIn;  // my own optical surface for doing the PDE correction. applies diffusion in
   G4OpticalSurface * opSurf_myCorrector2_absorptionOut; // another absorptive surface, to scale the G4 reflectivity to match that measured in vacuum
 
+  // longpass filter
+  G4OpticalSurface * opSurf_lpFilter;
+
+  // general purpose optical surfaces  
   G4OpticalSurface * opSurf_perfectTrans; // full transmission, no refraction
   G4OpticalSurface * opSurf_perfectRef;   // full specular reflection
-  
 
 };
 

@@ -44,6 +44,7 @@ void CF4EventAction::BeginOfEventAction(const G4Event*)
     G4cout << "\n-------- Start Event --------" << G4endl;
   }
   fEdep = 0.;
+  ftouchPE = 0.;
   fmcNPE = 0;
   fNPE = 0;
 }
@@ -72,6 +73,7 @@ void CF4EventAction::EndOfEventAction(const G4Event*)
   
   if((MG::GetVerbosity() >= 1 || evMan->GetVerboseLevel() > 0) && (evt < 100 || evt % 1000 == 0)){
     G4cout << "\n---- My Event Info #" << evt << "  ----\n\n" 
+    << "total touched = " << ftouchPE << "\n"
     << "total MC PE = " << fmcNPE << "\n"
     << "total PE = " << fNPE << G4endl;
     G4cout << "CF4eventAction::EOEA fEdep = " << fEdep/keV << " keV" << G4endl;

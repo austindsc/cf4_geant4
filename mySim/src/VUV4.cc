@@ -36,10 +36,13 @@ const G4double VUV4::fEdgeBuffer = 1*um;
 const G4double VUV4::fSipmMiddleGap = 0.5*mm;
 const G4double VUV4::fSipmXY = 5.9 *  mm; // in reality it is 5.95 x 5.85
 const G4double VUV4::fSipmThick = 0.5*mm; // guess
-const G4double VUV4::fSipmSurfaceThick = DETECTORSETUP::GetVisibleStatus() ? 1*mm : 110*nm; // 110nm if visible is false
+const G4double VUV4::fSipmSurfaceThick = DETECTORSETUP::GetVisibleStatus() ? 0.2*mm : 110*nm; // 110nm if visible is false
+
+const G4double VUV4::fWindowThick = 0.5*mm;
+const G4double VUV4::fWindowFromSurface = 0.1*mm;
 
 // extra medium on top
-const G4double VUV4::fExtraMediumTopThick = DETECTORSETUP::GetVisibleStatus() ? 1*mm : 1*um; // 1um if visible is false
+const G4double VUV4::fExtraMediumTopThick = DETECTORSETUP::GetVisibleStatus() ? 0.2*mm : 1*um; // 1um if visible is false
 
 //------------ building sipm ------------//
 // always gets built with of the detection medium
@@ -47,7 +50,7 @@ const G4double VUV4::fExtraMediumTopThick = DETECTORSETUP::GetVisibleStatus() ? 
 // need to build a second box of the medium, only because we need a physical volume to do the borders in the constructor.
 // very annoying but the only way
 
-VUV4::VUV4(G4double zheight, G4bool doOpticalSurfaces, G4bool checkOverlaps) :
+VUV4::VUV4(G4double zheight, G4bool doOpticalSurfaces, G4bool buildWindow, G4bool checkOverlaps) :
 G4LogicalVolume(new G4Box("logic_sipm_container", fPackageXY/2 + fEdgeBuffer, fPackageXY/2+fEdgeBuffer, fPackageThick/2+fEdgeBuffer), DetectorMaterials::GetInstance()->GetDetectorMedium(), "logic_sipmBox"){
   DetectorMaterials * detMat = DetectorMaterials::GetInstance();
   #include "colours.icc"
@@ -77,8 +80,7 @@ G4LogicalVolume(new G4Box("logic_sipm_container", fPackageXY/2 + fEdgeBuffer, fP
               0, G4ThreeVector(0, 0, + solid_BoxPackage->GetZHalfLength() - solid_allQuads_toSubtract->GetZHalfLength() + 0.5*fSipmThick)); // not sure if + sipmThick is right
   G4LogicalVolume * logic_package = new G4LogicalVolume(sub_package, detMat->mCeramic, "logic_package");
   
-  // top of package is at origin!!!
-  // G4ThreeVector movePackage = G4ThreeVector(0, 0, -phys_medium->GetTranslation().getZ() - solid_BoxPackage->GetZHalfLength());
+  // top of package is at origin!!! (do that in detector construction)
   G4ThreeVector movePackage = G4ThreeVector(0, 0, 0);
   G4VPhysicalVolume* phys_package = new G4PVPlacement(0,
                     movePackage,
@@ -113,10 +115,13 @@ G4LogicalVolume(new G4Box("logic_sipm_container", fPackageXY/2 + fEdgeBuffer, fP
   // make another cross out of SiO2
   G4SubtractionSolid * solid_passivationBoxes = Create4Grid(xy = local_sipmFullxy, z = fSipmSurfaceThick, middleGap = fSipmMiddleGap, solidName = "solid_passivationBoxes");
   G4LogicalVolume * logic_passivationBoxes = new G4LogicalVolume(solid_passivationBoxes, detMat->mQuartz, "logic_passivationBoxes");
-  logic_passivationBoxes->SetVisAttributes(ssteel_blue);
+  logic_passivationBoxes->SetVisAttributes(lblue);
   G4double surfaceMoveZ = goodZ + fSipmThick/2. + fSipmSurfaceThick/2.;
   G4ThreeVector moveSipmSurface = movePackage + G4ThreeVector(0, 0, surfaceMoveZ);
-  G4VPhysicalVolume* phys_passivationBoxes = new G4PVPlacement(0, moveSipmSurface, logic_passivationBoxes, "phys_passivationBoxes", logic_medium_thisBox, false, 0, checkOverlaps);
+  
+  if(DETECTORSETUP::GetSurfaceStatus() == true){
+    G4VPhysicalVolume* phys_passivationBoxes = new G4PVPlacement(0, moveSipmSurface, logic_passivationBoxes, "phys_passivationBoxes", logic_medium_thisBox, false, 0, checkOverlaps);
+  }
 
   //---- adding extra medium above boxes ----//
   // fExtraMediumTopThick = declared at top of file as const // very thin box for doing extra optical layers in medium
@@ -138,11 +143,29 @@ G4LogicalVolume(new G4Box("logic_sipm_container", fPackageXY/2 + fEdgeBuffer, fP
     // dielectric_metal of Si bulk
     new G4LogicalSkinSurface("opSurf_siBulk", logic_si_boxes, (G4SurfaceProperty*) detMat->opSurf_silicon); // silicon bulk, use metal dielectric with Transmission = 100
     
-    // doing my PDE correction (diffusion in)
-    new G4LogicalBorderSurface("opSurf_myCorrector1_in", phys_medium_thisBox, physExtraMedium, (G4SurfaceProperty*) detMat->opSurf_myCorrector1_diffuserIn);
+    // can't build these without the surface, otherwise photons get absorbed between two of the same medium
+    // as there is no SiO2 layer to create the correct boundary ordering
+    if(DETECTORSETUP::GetSurfaceStatus() == true){
+      // doing my PDE correction (diffusion in)
+      new G4LogicalBorderSurface("opSurf_myCorrector1_in", phys_medium_thisBox, physExtraMedium, (G4SurfaceProperty*) detMat->opSurf_myCorrector1_diffuserIn);
 
-    // my PDE correction (absorption on way out)
-    new G4LogicalBorderSurface("opSurf_myCorrector2_out", physExtraMedium, phys_medium_thisBox, (G4SurfaceProperty*) detMat->opSurf_myCorrector2_absorptionOut);
+      // my PDE correction (absorption on way out)
+      new G4LogicalBorderSurface("opSurf_myCorrector2_out", physExtraMedium, phys_medium_thisBox, (G4SurfaceProperty*) detMat->opSurf_myCorrector2_absorptionOut);
+    }
+  }
+
+  if(buildWindow){
+    // build window flush with the top of the ceramic package
+    G4Box* solid_window = new G4Box("solid_window", solid_allQuads_toSubtract->GetXHalfLength(), solid_allQuads_toSubtract->GetYHalfLength(), fWindowThick/2);
+    G4LogicalVolume* logic_window = new G4LogicalVolume(solid_window, detMat->mQuartz, "logic_window");
+    logic_window->SetVisAttributes(window_gray);
+
+    // calculate the position of the window
+    G4ThreeVector moveWindow = movePackage + G4ThreeVector(0, 0, solid_BoxPackage->GetZHalfLength() - fWindowThick/2 - fWindowFromSurface);
+
+    // place the window
+    G4VPhysicalVolume* phys_window = new G4PVPlacement(0, moveWindow, logic_window, "phys_window", logic_medium_thisBox, false, 0, checkOverlaps);
+
   }
 
   return;
