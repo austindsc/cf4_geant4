@@ -17,7 +17,7 @@ namespace DETECTORSETUP{
   static bool doOpticsDiffusion = true; // this to false also will mess up PDE by factor of Rdiffuse (0.17 nominally)
 
   static bool absorbingAll = false;
-  static bool makeVisible = true; // this scales up the small things
+  static bool makeVisible = false; // this scales up the small things
 
   bool GetWindowStatus(){ return buildWindow; }
   void SetWindowStatus(bool a){ buildWindow = a; }

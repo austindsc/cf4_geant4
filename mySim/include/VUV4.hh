@@ -19,7 +19,7 @@ public:
 
   static G4SubtractionSolid* Create4Grid(G4double xy, G4double z, G4double middleGap, G4String solid_name = "solid_squares");
 
-  G4LogicalVolume* GetSensitiveVolume() {return fSensitiveSilicon;}
+  G4LogicalVolume* GetSensitiveVolume(){ return fSensitiveSilicon; }
 
   // ceramic packaging
   static const G4double fPackageThick;

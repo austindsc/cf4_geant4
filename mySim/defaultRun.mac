@@ -38,7 +38,7 @@
 #/setMaterial/mediumLY_Vis 5000 MeVLY
 
 ### detector configuration ###
-/setDetector/myVerbosity 2                # 1 outputs event level data
+/setDetector/myVerbosity 1                # 1 outputs event level data
                                           # 2 some photon level data, all data that is used
                                           # -1 means fill ntuple regardless (good for optical photon testing where eDep == 0)
 
