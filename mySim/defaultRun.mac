@@ -38,7 +38,7 @@
 #/setMaterial/mediumLY_Vis 5000 MeVLY
 
 ### detector configuration ###
-/setDetector/myVerbosity 1                # 1 outputs event level data
+/setDetector/myVerbosity 2                # 1 outputs event level data
                                           # 2 some photon level data, all data that is used
                                           # -1 means fill ntuple regardless (good for optical photon testing where eDep == 0)
 
@@ -55,7 +55,7 @@
 #/setDetector/gammaSource isoCo60
 #/setDetector/gammaSource isoCo57
 
-/setDetector/alphaHeight 4.0             # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
+#/setDetector/alphaHeight 4.0             # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
                                           # currently gamma and alpha source have same intensity (see primary generator constructor to change)
 
 # or load anything you want here
@@ -83,3 +83,4 @@
 
 ### run visualization ###
 /control/execute ../mySim/myVis.mac
+#/control/execute ../mySim/livePhotonTest.mac

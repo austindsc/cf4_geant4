@@ -1,0 +1,48 @@
+/vis/verbose 0
+/tracking/verbose 0
+/event/verbose 0
+/run/verbose 0
+
+/process/em/verbose 0
+/process/had/verbose 0
+/particle/verbose 0
+/cuts/verbose 0
+
+/tracking/verbose 0
+/event/verbose 0
+/run/verbose 0
+/vis/verbose 0
+
+/process/optical/processActivation OpAbsorption true
+/process/optical/processActivation OpBoundary true
+
+### Material Properties ###
+#/setMaterial/detectionMedium gCF4        # default is gas
+#/setMaterial/detectionMedium gAr         # currently undefined
+#/setMaterial/detectionMedium lCF4         # see Optics/material for default LYs
+/setMaterial/detectionMedium vacuum
+
+### detector configuration ###
+/setDetector/myVerbosity 2
+
+#/setDetector/useLPFilter                 # just calling this makes it true, there is no argument
+
+/gps/particle opticalphoton
+/gps/energy 6.2 eV # want around 22-25% - get 0.40
+/gps/pos/type Point
+/gps/number 10000
+
+# photons at SiPM
+/gps/pos/centre 0.2 0.2 1.5 cm
+#/gps/direction 0 0 -1
+
+/gps/ang/mintheta 20.0 deg 
+/gps/ang/maxtheta 20.0 deg
+
+/gps/ang/minphi -90.0 deg 
+/gps/ang/maxphi -90.0 deg
+
+/run/initialize
+
+/run/beamOn 1
+

@@ -123,6 +123,7 @@ protected:
   // general purpose optical surfaces  
   G4OpticalSurface * opSurf_perfectTrans; // full transmission, no refraction
   G4OpticalSurface * opSurf_perfectRef;   // full specular reflection
+  G4OpticalSurface * opSurf_perfectAbsorber;
 
 };
 

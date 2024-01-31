@@ -11,12 +11,14 @@
 #include "G4SystemOfUnits.hh"
 #include "G4AnalysisManager.hh"
 #include "G4RootAnalysisManager.hh"
+#include "G4SDManager.hh"
 
 #include "G4GeneralParticleSource.hh"
 
 #include <stdlib.h>
 
 #include "MyGlobals.hh"
+#include "SensitiveSIPM.hh"
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -25,8 +27,10 @@ CF4EventAction::CF4EventAction(CF4RunAction* runAction)
 : G4UserEventAction(),
   fRunAction(runAction),
   fEdep(0.),
-  fmcNPE(0)
-{
+  fmcNPE(0){
+
+  fSingleSensitiveSiPM = nullptr;
+
   evMan = G4EventManager::GetEventManager();
 } 
 
@@ -43,8 +47,17 @@ void CF4EventAction::BeginOfEventAction(const G4Event*)
   if((MG::GetVerbosity() == 1 || evMan->GetVerboseLevel() > 0) && (evt < 100 || evt % 1000 == 0)){
     G4cout << "\n-------- Start Event --------" << G4endl;
   }
+
+  if(fSingleSensitiveSiPM == nullptr){
+    G4SDManager* SDman = G4SDManager::GetSDMpointer();
+    fSingleSensitiveSiPM = (SensitiveSIPM*) SDman->FindSensitiveDetector("SensitiveSIPM");
+  }
+  if(evt == 0){ // only for manual, single event at a time testing
+    fSingleSensitiveSiPM->ResetForFirstEvent();
+  }
+
   fEdep = 0.;
-  ftouchPE = 0.;
+  ftouchPE = 0;
   fmcNPE = 0;
   fNPE = 0;
 }
@@ -58,18 +71,18 @@ void CF4EventAction::EndOfEventAction(const G4Event*)
   // if(fEdep <= 10 * eV) return;
 
   // tracking some stuff for photon testing
-  fRunAction->ftotalMCPE += fmcNPE;
+  fRunAction->ftotalMCPE += fNPE;
   fRunAction->ftotalFired += fRunAction->fGenerator->fGun->GetNumberOfParticles();
   
   G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-    if(fEdep > 0 || MG::GetVerbosity() == -1 || MG::GetVerbosity() > 1){
-    G4AnalysisManager *man = G4AnalysisManager::Instance();
-    man->FillNtupleIColumn(0, evt);
-    man->FillNtupleDColumn(1, fEdep/keV);
-    man->FillNtupleIColumn(2, fmcNPE);
-    man->FillNtupleIColumn(3, fNPE);
-    man->AddNtupleRow(0);
-  }
+  //   if(fEdep > 0 || MG::GetVerbosity() == -1 || MG::GetVerbosity() > 1){
+  //   G4AnalysisManager *man = G4AnalysisManager::Instance();
+  //   man->FillNtupleIColumn(0, evt);
+  //   man->FillNtupleDColumn(1, fEdep/keV);
+  //   man->FillNtupleIColumn(2, fmcNPE);
+  //   man->FillNtupleIColumn(3, fNPE);
+  //   man->AddNtupleRow(0);
+  // }
   
   if((MG::GetVerbosity() >= 1 || evMan->GetVerboseLevel() > 0) && (evt < 100 || evt % 1000 == 0)){
     G4cout << "\n---- My Event Info #" << evt << "  ----\n\n" 

@@ -27,6 +27,7 @@
 #include "G4Element.hh"
 #include "G4PhysicalVolumeStore.hh"
 #include "G4UserLimits.hh"
+#include "G4SDManager.hh"
 
 #include "CF4DetectorConstruction.hh"
 #include "CF4DetectorConstructionMessenger.hh"
@@ -77,6 +78,9 @@ void CF4DetectorConstruction::ConstructSDandField(){
     
     SensitiveSIPM * ssipm = new SensitiveSIPM("SensitiveSIPM");
     fsipmVolume->SetSensitiveDetector(ssipm);
+
+    G4SDManager* SDman = G4SDManager::GetSDMpointer();
+    SDman->AddNewDetector(ssipm);
     
 }
 
@@ -160,7 +164,7 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   // internal volume of cylinder
 
   G4Tubs * solid_medium = new G4Tubs("solid_detectionMedium", 0., mediumR, 0.5*mediumZ, 0, 360.*deg);
-  G4LogicalVolume * logic_medium = new G4LogicalVolume(solid_medium, *(detMat->fDetectorMedium), "logic_medium");
+  G4LogicalVolume * logic_medium = new G4LogicalVolume(solid_medium, detMat->GetDetectorMedium(), "logic_medium");
 
   logic_medium->SetUserLimits(myLimits);
   G4VPhysicalVolume* phys_medium = new G4PVPlacement(0,                    //no rotation
@@ -204,14 +208,15 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod2", logic_medium, false, 0, checkOverlaps);
   new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod3", logic_medium, false, 0, checkOverlaps);
 
-  new G4LogicalSkinSurface("rodSurface", logic_rods, detMat->opSteel_rodSurface);
+  // new G4LogicalSkinSurface("rodSurface", logic_rods, detMat->opSteel_rodSurface);
+  new G4LogicalSkinSurface("rodSurface", logic_rods, detMat->opSurf_perfectAbsorber);
 
   //------------- Doing SiPM -------------//
   // put the SiPM surface at the world origin
   G4ThreeVector movePackage = G4ThreeVector(0, 0, -phys_medium->GetTranslation().getZ() - (VUV4::fPackageThick/2 + VUV4::fEdgeBuffer));
 
   // setup rotation vector (10 ish degrees down), about x axis, so perpendicular to the gamma direction
-  G4double rotationAngle = 10.0*degree;
+  G4double rotationAngle = 20.0*degree;
   G4RotationMatrix* rotateSiPM = new G4RotationMatrix();
   rotateSiPM->rotateX(rotationAngle); // some rotation
 
@@ -220,6 +225,50 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   logic_vuv4->SetVisAttributes(world_transparent);
   G4VPhysicalVolume* phys_vuv4 = new G4PVPlacement(rotateSiPM, movePackage, (G4LogicalVolume*) logic_vuv4, "phys_vuv4", logic_medium, false, 0, checkOverlaps);
   fsipmVolume = logic_vuv4->GetSensitiveVolume(); // VERY IMPORTANT
+  
+/*
+  //-- silicon bulk --//
+  G4double sipmThick = 1*cm; // guess
+  G4double sipmXY = VUV4::fPackageXY;
+  G4double sipmSurfaceThick = 1*mm;
+  G4double additionalBoxThick = 1*mm;
+
+  G4Box * solid_sipmBulk = new G4Box("solid_sipmBulk", 0.5*sipmXY, 0.5*sipmXY, 0.5*sipmThick);
+  G4LogicalVolume * logic_sipmBulk = new G4LogicalVolume(solid_sipmBulk, detMat->mSilicon, "logic_sipmBulk");
+  logic_sipmBulk->SetVisAttributes(si_magenta);
+  // G4ThreeVector moveSipm = G4ThreeVector(0, 0, 0);
+  G4VPhysicalVolume* phys_sipmBulk = new G4PVPlacement(0, movePackage, logic_sipmBulk, "phys_sipmBulk",
+                    logic_medium,         // mother volume
+                    false, 0, checkOverlaps);
+  
+  
+  //-- silicon surface (Quartz) --//
+  G4Box * solid_sipmSurface = new G4Box("solid_sipmSurface", 0.5*sipmXY, 0.5*sipmXY, 0.5*sipmSurfaceThick);
+  G4LogicalVolume * logic_sipmSurface = new G4LogicalVolume(solid_sipmSurface, detMat->mQuartz, "logic_sipmSurface");
+  logic_sipmSurface->SetVisAttributes(filter_yellow);
+
+  G4ThreeVector moveSurface = movePackage + G4ThreeVector(0, 0, solid_sipmBulk->GetZHalfLength() + solid_sipmSurface->GetZHalfLength()); // sipm wrt origin of solid_BoxPackage is y, z to rotate
+  G4VPhysicalVolume* phys_sipmSurface = new G4PVPlacement(0, moveSurface, logic_sipmSurface, "phys_sipmSurface", logic_medium, false, 0, checkOverlaps); //xx
+  
+  fsipmVolume = logic_sipmBulk; // VERY IMPORTANT
+
+  // ---- Additional Box for correction----//
+  G4Box* solid_additionalBox = new G4Box("solid_additionalBox", 0.5 * sipmXY, 0.5 * sipmXY, 0.5 * additionalBoxThick);
+  G4LogicalVolume* logic_additionalBox = new G4LogicalVolume(solid_additionalBox, detMat->GetDetectorMedium(), "logic_additionalBox");
+  logic_additionalBox->SetVisAttributes(extra_cyan);
+
+  // G4double extraBoxBuffer = 0*mm;
+  G4ThreeVector moveAdditionalBox = moveSurface + G4ThreeVector(0, 0, solid_sipmSurface->GetZHalfLength() + solid_additionalBox->GetZHalfLength()); // sipm wrt origin of solid_BoxPackage is y, z);
+  G4VPhysicalVolume* phys_additionalBox = new G4PVPlacement(0, moveAdditionalBox, logic_additionalBox, "phys_additionalBox", logic_medium, false, 0, checkOverlaps);
+
+
+  new G4LogicalSkinSurface("opSurf_siBulk", logic_sipmBulk, (G4SurfaceProperty*) detMat->opSurf_silicon); // silicon bulk, use metal dielectric with Transmission = 100
+  
+  // doing my PDE correction //xx
+  new G4LogicalBorderSurface("opSurf_myCorrector1_in", phys_medium, phys_additionalBox, (G4SurfaceProperty*) detMat->opSurf_myCorrector1_diffuserIn); 
+  // // because this is a border, photons going 'backwards' or exiting/reflected off the SiPM just go like normal (they don't see this border).
+  new G4LogicalBorderSurface("opSurf_myCorrector2_out", phys_additionalBox, phys_medium, (G4SurfaceProperty*) detMat->opSurf_myCorrector2_absorptionOut);
+*/
 
   //--------------------------- Longpass filter ---------------------------//      
     /*
@@ -290,7 +339,7 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   fScoringVolume = logic_medium;
   // fsipmVolume = logic_sipm;
   // fsipmVolume = logic_si_boxes;
-  fsipmVolume = logic_vuv4->GetSensitiveVolume();
+  // fsipmVolume = logic_vuv4->GetSensitiveVolume();
 
   //always return the physical World
   return physWorld;

@@ -1,29 +1,43 @@
-# this produces many photons from all over a disk
-
 /vis/verbose 0
+/tracking/verbose 0
 /event/verbose 0
 /run/verbose 0
 
-#/process/em/verbose 0
-#/process/had/deex/verbose 0
+/process/em/verbose 0
+/process/had/verbose 0
 /particle/verbose 0
+/cuts/verbose 0
+
 /tracking/verbose 0
+/event/verbose 0
+/run/verbose 0
+/vis/verbose 0
+
+/process/optical/processActivation OpAbsorption true
+/process/optical/processActivation OpBoundary true
+
+### Material Properties ###
+#/setMaterial/detectionMedium gCF4        # default is gas
+#/setMaterial/detectionMedium gAr         # currently undefined
+#/setMaterial/detectionMedium lCF4         # see Optics/material for default LYs
+/setMaterial/detectionMedium vacuum
+
+### detector configuration ###
+/setDetector/myVerbosity 1
+
+#/setDetector/useLPFilter                 # just calling this makes it true, there is no argument
 
 /gps/particle opticalphoton
-/gps/energy 2 eV
+/gps/energy 2.48 eV # want around 35% --> get 35%
 /gps/pos/type Point
-#/gps/pos/shape Circle
-#/gps/pos/radius 5 mm
-/gps/number 10
+/gps/number 10000
 
-#/gps/pos/centre 0.0 0.0 2 cm
-#/gps/direction 0 0 -1
-/gps/pos/centre 0.0 0.0 3 cm # photons out
-/gps/direction 1 1 0. 
+# photons at SiPM
+/gps/pos/centre 0.2 0.2 1.5 cm
+/gps/direction 0 0 -1
 
-/analysis/setFileName photonTest2
-#/analysis/ntuple/setFileName 0 anotherNameIWant3
 
-#/run/initialize
+/run/initialize
 
 /run/beamOn 1
+

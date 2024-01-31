@@ -22,3 +22,5 @@ G4VisAttributes* kapton_grey = new G4VisAttributes(true, grey);
 G4VisAttributes* si_magenta = new G4VisAttributes(true, magenta);
 G4VisAttributes* filter_green = new G4VisAttributes(true, lgreen);
 G4VisAttributes* window_gray = new G4VisAttributes(true, lgrey);
+G4VisAttributes* extra_cyan = new G4VisAttributes(true, cyan);
+

@@ -447,6 +447,15 @@ void DetectorMaterials::BuildMaterials(){
   mpt_perfectRef->AddProperty("REFLECTIVITY", photonE_world, transPerfect);
   opSurf_perfectRef->SetMaterialPropertiesTable(mpt_perfectRef);
 
+  //-- perfect absorber --//
+  opSurf_perfectAbsorber = new G4OpticalSurface("absorber_opSurf", unified, polished, dielectric_metal);
+  opSurf_perfectAbsorber->SetSigmaAlpha(0.); // perfectly smooth.  //could also use dielectric_dielectric -> polishedfrontpainted
+  
+  G4MaterialPropertiesTable* mpt_perfectAbsorber = new G4MaterialPropertiesTable();
+  mpt_perfectAbsorber->AddProperty("TRANSMITTANCE", photonE_world, noRef);
+  mpt_perfectAbsorber->AddProperty("REFLECTIVITY", photonE_world, noRef);
+  opSurf_perfectAbsorber->SetMaterialPropertiesTable(mpt_perfectAbsorber);
+
   // -------------------- Silicon -------------------- //
   // -- Silicon Bulk -- //
   mSilicon = nist->FindOrBuildMaterial("G4_Si");
@@ -475,22 +484,29 @@ void DetectorMaterials::BuildMaterials(){
 
   G4MaterialPropertiesTable *mpt_siliconSurf = new G4MaterialPropertiesTable();
   mpt_siliconSurf->AddProperty("REALRINDEX", photonE_nSilicon, nSi);
+  // mpt_siliconSurf->AddProperty("REALRINDEX", photonE_world, {20, 20}); // xx
   mpt_siliconSurf->AddProperty("IMAGINARYRINDEX", photonE_kSilicon, kSilicon);
+  // mpt_siliconSurf->AddProperty("IMAGINARYRINDEX", photonE_world, {20, 20}); // xx
   // mpt_siliconSurf->AddProperty("REFLECTIVITY", photonE_world, {0, 0}); // you can't do the absorptive scaling here. it won't calculate with index values
   mpt_siliconSurf->AddProperty("TRANSMITTANCE", photonE_world, transPerfect); // needed to get the nonR photons inside the bulk
   opSurf_silicon->SetMaterialPropertiesTable(mpt_siliconSurf);
 
   // ------ correction surfaces ------ //
   G4double Rdiffuse = 0.17; // should be 0.17, from nEXO vacuum paper  
-  if(DETECTORSETUP::GetDiffusionStatus() == false){Rdiffuse = 0.0;}
   opSurf_myCorrector1_diffuserIn = new G4OpticalSurface("opSurf_myCorrector1_diffuserIn", unified, groundfrontpainted, dielectric_dielectric);
   // groundfrontpainted is only diffuse reflection. set by REFLECTIVITY
   // absorption then is 1 - TRANSMITTANCE, default is T = 0
 
   G4MaterialPropertiesTable *mpt_myCorrector1_diffuseIn = new G4MaterialPropertiesTable();  
-  mpt_myCorrector1_diffuseIn->AddProperty("TRANSMITTANCE", photonE_world, transPerfect); // get everything in (after doing diffuse reflection), ABS = 1 - TRANSMITTANCE = 0
-  mpt_myCorrector1_diffuseIn->AddProperty("REFLECTIVITY", photonE_world, {Rdiffuse, Rdiffuse}); // how much diffusion do we want
+  if(DETECTORSETUP::GetDiffusionStatus() == false){
+    mpt_myCorrector1_diffuseIn->AddProperty("REFLECTIVITY", photonE_world, {0, 0}); // how much diffusion do we want  
+    mpt_myCorrector1_diffuseIn->AddProperty("TRANSMITTANCE", photonE_world, {1 - Rdiffuse, 1-Rdiffuse}); // get everything in (after doing diffu
+  }else{
+    mpt_myCorrector1_diffuseIn->AddProperty("REFLECTIVITY", photonE_world, {Rdiffuse, Rdiffuse}); // how much diffusion do we want
+    mpt_myCorrector1_diffuseIn->AddProperty("TRANSMITTANCE", photonE_world, transPerfect); // get everything in (after doing diffuse reflection), ABS = 1 - TRANSMITTANCE = 0
+  }
   opSurf_myCorrector1_diffuserIn->SetMaterialPropertiesTable(mpt_myCorrector1_diffuseIn);
+
 
   opSurf_myCorrector2_absorptionOut = new G4OpticalSurface("opSurf_myCorrector2_absorptionOut", unified, polishedfrontpainted, dielectric_dielectric);
   // std::vector<G4double> correctRwithAbs_transmission = {0., 0.}; // load in these values from my calculations
@@ -498,8 +514,9 @@ void DetectorMaterials::BuildMaterials(){
   OH::ReadAndFillArray("dataOptics/effective_correction_transmission.txt", xphotonE_TransCorrection, y_TransCorrection, verb = MG::GetVerbosity(), scaleX = nm, scaleY = 1., flipWL = true); // scale um to nm, flip wavelengths to eV
 
   G4MaterialPropertiesTable *mpt_myCorrector2_absorptionOut = new G4MaterialPropertiesTable();
-  mpt_myCorrector2_absorptionOut->AddProperty("TRANSMITTANCE", xphotonE_TransCorrection, y_TransCorrection); // absorb certain amount of SiPM reflections if T < 1
-  mpt_myCorrector2_absorptionOut->AddProperty("REFLECTIVITY", photonE_world, noRef); // no reflections
+  mpt_myCorrector2_absorptionOut->AddProperty("TRANSMITTANCE", xphotonE_TransCorrection, y_TransCorrection); // absorb certain amount of SiPM reflections if T < 1 
+  // mpt_myCorrector2_absorptionOut->AddProperty("TRANSMITTANCE", photonE_world, {0.0, 0.0}); // xx kill all exiting photons
+  mpt_myCorrector2_absorptionOut->AddProperty("REFLECTIVITY", photonE_world, {0, 0}); // no reflections
   opSurf_myCorrector2_absorptionOut->SetMaterialPropertiesTable(mpt_myCorrector2_absorptionOut);
   
   // -------------------- Longpass Filter --------------------//

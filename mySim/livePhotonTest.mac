@@ -1,25 +1,19 @@
 # this produces 100 photons from a single random location on a disk
 
 /gps/particle opticalphoton
-/gps/energy 4.1 eV
 /gps/pos/type Point
-#/gps/pos/type Plane
-#/gps/pos/shape Circle
-#/gps/pos/radius 5 mm
-/gps/number 1000
 
-# photons at screws
-/gps/pos/centre 0.0 0.0 3 cm
-/gps/direction 1 1 0.5 
+/gps/ene/mono 6.2 eV # want around 22-25%
+#/gps/energy 2.48 eV # want around 35%
+/gps/number 10000
 
 # photons at SiPM
-/gps/pos/centre 0.2 0.2 3 cm
-/gps/direction 0 0 -1
-
+/gps/pos/centre 0. -1.5 1.5 cm
+/gps/direction 0 1 -1
 
 #/analysis/setFileName photonTest2
 #/analysis/ntuple/setFileName 0 anotherNameIWant3
 
-#/run/initialize
+/run/initialize
 
-#/run/beamOn 1
+/run/beamOn 1

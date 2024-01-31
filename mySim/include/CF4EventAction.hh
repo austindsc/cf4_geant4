@@ -7,6 +7,7 @@
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 
+class SensitiveSIPM;
 class CF4RunAction;
 class G4EventManager;
 
@@ -23,19 +24,20 @@ class CF4EventAction : public G4UserEventAction
     virtual void EndOfEventAction(const G4Event* event);
 
  void AddEdep(G4double edep){ fEdep += edep; }
- void AddTouchingPE(){++ftouchPE;}
- void AddTruthPE(){++fmcNPE;}
- void AddDetPE(){++fNPE;}
+ void AddTouchingPE(){ftouchPE++;}
+ void AddTruthPE(){fmcNPE++;}
+ void AddDetPE(){fNPE++;}
     
 
   private:
     G4EventManager * evMan;
+    SensitiveSIPM * fSingleSensitiveSiPM;
     
     CF4RunAction* fRunAction;
     G4double     fEdep;
-    G4int        ftouchPE;// number of photons touching the SiPM
-    G4int        fmcNPE;  // mc number of photons entering Silicon (no internal efficiency)
-    G4int        fNPE;    // number of photons after internal efficiency
+    G4int        ftouchPE;  // number of photons touching the SiPM
+    G4int        fmcNPE;    // mc number of photons entering Silicon (no internal efficiency)
+    G4int        fNPE;      // number of photons after internal efficiency
     
 };
 

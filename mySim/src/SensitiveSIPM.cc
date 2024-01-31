@@ -33,8 +33,8 @@ SensitiveSIPM::SensitiveSIPM(G4String name) : G4VSensitiveDetector(name )
     "------------------------  ------------------------" << G4endl;
   }
 
-  ovecPDE->Value(400*nm);
-  G4cout << "PDE at 400 nm: " << ovecPDE->Value(400*nm) << G4endl;
+  // G4cout << "PDE at 199.975 nm: " << ovecPDE->Value(199.975*nm) << G4endl;
+  // exit(0);
   return;
 }
 
@@ -74,8 +74,8 @@ inline G4bool SensitiveSIPM::CountPhotonIn(const G4Step * step){
   G4ThreeVector pPhoton = preStepPoint->GetMomentum();
   G4double wlen = fhc/pPhoton.mag(); //wavelength in nanometers 
 
-  fEventAction->AddTruthPE(); // photon touched
-  if(MG::GetVerbosity() >= 2)G4cout << "MC truth Hit! wl = " << wlen/nm << " nm" << G4endl;
+  fEventAction->AddTruthPE(); // photon entered
+  if(MG::GetVerbosity() >= 2) { G4cout << "MC truth Hit! wl = " << wlen/nm << " nm" << G4endl; }
 
   // With effective internal Efficiency
   if(G4UniformRand() < ovecPDE->Value(wlen)){

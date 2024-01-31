@@ -18,6 +18,8 @@ public:
   
   inline G4bool CountPhotonTouching(G4int trackID);
   inline G4bool CountPhotonIn(const G4Step * step);
+  void ResetForFirstEvent(){fLastTrackID = -1;}
+  
 private:
   CF4EventAction * fEventAction;
   G4int fLastTrackID; // use this to track photons from the same track (avoid double counting reflections)

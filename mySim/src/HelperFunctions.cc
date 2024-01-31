@@ -51,8 +51,7 @@ namespace OH
           G4cout << x << " " << y << G4endl;
         vec->InsertValues(x * scaleX, y * scaleY);
 
-        if (dfile.eof())
-        {
+        if (dfile.eof()){
           dfile.close();
           // if(verbose == true) vec->DumpValues();
           return true;
@@ -96,8 +95,6 @@ namespace OH
       if (doXFlip_wls2E){
         val1 = CLHEP::h_Planck * CLHEP::c_light / (val1);
       }
-      dataArray1.push_back(G4double(val1));
-      dataArray2.push_back(G4double(val2));
 
       if (verbose > 1) G4cout << val1/eV << " : " << val2 << G4endl;
 
@@ -107,6 +104,8 @@ namespace OH
         break;
       }
       if(line.length() == 0)continue; // skip the last (empty) lines, or empty lines
+      dataArray1.push_back(G4double(val1));
+      dataArray2.push_back(G4double(val2));
 
     }
     if (verbose > 1) G4cout << "outside loop" << G4endl;
