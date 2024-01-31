@@ -54,6 +54,6 @@ new G4PVPlacement(0, can1PlateOffset + G4ThreeVector(0, 0, -outercanZ/2 + outerc
 list_VacuumVessel.push_back(logic_outercan);
 
 // Add logical skin to everything in list_VacuumVessel
-for (auto volume : list_VacuumVessel) {
-  G4LogicalSkinSurface* skinSurface = new G4LogicalSkinSurface("skinSurface", volume, detMat->opSurf_perfectAbsorber);
+if(DETECTORSETUP::GetAbsorbingStatus() == true){
+  for (auto volume : list_VacuumVessel) { new G4LogicalSkinSurface("skinSurface", volume, detMat->opSurf_perfectAbsorber); }
 }

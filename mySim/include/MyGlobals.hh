@@ -43,6 +43,9 @@ namespace DETECTORSETUP{
   bool GetVisibleStatus();
   void SetVisibleStatus(bool a);
 
+  bool GetAbsorbingStatus();
+  void SetAbsorbingStatus(bool a);
+
 }
 
 // ---- not doing singleton setup although it is sexier ----//

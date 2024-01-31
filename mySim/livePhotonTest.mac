@@ -5,11 +5,11 @@
 
 /gps/ene/mono 6.2 eV # want around 22-25%
 #/gps/energy 2.48 eV # want around 35%
-/gps/number 10000
+/gps/number 1000
 
 # photons at SiPM
-/gps/pos/centre 0. -1.5 1.5 cm
-/gps/direction 0 1 -1
+/gps/pos/centre 0.2 0.2 1.5 cm
+/gps/direction 0 0 -1
 
 #/analysis/setFileName photonTest2
 #/analysis/ntuple/setFileName 0 anotherNameIWant3

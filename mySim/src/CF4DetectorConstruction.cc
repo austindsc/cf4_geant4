@@ -208,8 +208,11 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod2", logic_medium, false, 0, checkOverlaps);
   new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod3", logic_medium, false, 0, checkOverlaps);
 
-  // new G4LogicalSkinSurface("rodSurface", logic_rods, detMat->opSteel_rodSurface);
-  new G4LogicalSkinSurface("rodSurface", logic_rods, detMat->opSurf_perfectAbsorber);
+  if(DETECTORSETUP::GetAbsorbingStatus() == true){
+    new G4LogicalSkinSurface("rodSurface", logic_rods, detMat->opSurf_perfectAbsorber);
+  } else {
+    new G4LogicalSkinSurface("rodSurface", logic_rods, detMat->opSteel_rodSurface);
+  }
 
   //------------- Doing SiPM -------------//
   // put the SiPM surface at the world origin
@@ -226,7 +229,7 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   G4VPhysicalVolume* phys_vuv4 = new G4PVPlacement(rotateSiPM, movePackage, (G4LogicalVolume*) logic_vuv4, "phys_vuv4", logic_medium, false, 0, checkOverlaps);
   fsipmVolume = logic_vuv4->GetSensitiveVolume(); // VERY IMPORTANT
   
-/*
+/* testing with simple silicon square
   //-- silicon bulk --//
   G4double sipmThick = 1*cm; // guess
   G4double sipmXY = VUV4::fPackageXY;
@@ -339,7 +342,7 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   fScoringVolume = logic_medium;
   // fsipmVolume = logic_sipm;
   // fsipmVolume = logic_si_boxes;
-  // fsipmVolume = logic_vuv4->GetSensitiveVolume();
+  // fsipmVolume = logic_vuv4->GetSensitiveVolume(); // most up to date call (done where buildsipm is)
 
   //always return the physical World
   return physWorld;

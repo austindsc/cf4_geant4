@@ -11,11 +11,12 @@ namespace MG{
 namespace DETECTORSETUP{
 
   // default values in here
-  static bool buildWindow = false;
+  static bool buildWindow = true;
   static bool buildSurface = true; // setting this to false fully changes/breaks the SiPM effective correction
   static bool turnOnQuartzAbs = false;
   static bool doOpticsDiffusion = true; // this to false also will mess up PDE by factor of Rdiffuse (0.17 nominally)
 
+  static bool absorbingAll = false;
   static bool makeVisible = true; // this scales up the small things
 
   bool GetWindowStatus(){ return buildWindow; }
@@ -32,5 +33,8 @@ namespace DETECTORSETUP{
 
   bool GetVisibleStatus(){ return makeVisible; }
   void SetVisibleStatus(bool a){ makeVisible = a; }
+
+  bool GetAbsorbingStatus(){ return absorbingAll; }
+  void SetAbsorbingStatus(bool a){ absorbingAll = a; }
 
 }

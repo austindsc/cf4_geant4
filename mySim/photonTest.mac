@@ -28,7 +28,7 @@
 #/setDetector/useLPFilter                 # just calling this makes it true, there is no argument
 
 /gps/particle opticalphoton
-/gps/energy 2.48 eV # want around 35% --> get 35%
+/gps/energy 2.48 eV # want around 34% --> get 34%
 /gps/pos/type Point
 /gps/number 10000
 
