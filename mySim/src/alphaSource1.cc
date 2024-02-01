@@ -130,7 +130,8 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   "phys_caseSide",
                   logic_local_medium,         // mother volume
                   false, 0, checkOverlaps);
-  // new G4LogicalSkinSurface("alphaCaseSide_surface", logic_caseSide, (G4SurfaceProperty *)detMat->opSteel_rodSurface);
+
+  new G4LogicalSkinSurface("alphaCaseSide_surface", logic_caseSide, (G4SurfaceProperty *)detMat->opSteel_rodSurface);
                   
   G4Tubs * solid_caseBottom = new G4Tubs("solid_caseBottom", 0, caseBottomRadius, caseBottomThick/2, 0., 360.*deg);
   G4LogicalVolume * logic_caseBottom = new G4LogicalVolume(solid_caseBottom, detMat->mSteel, "logic_caseBottom");
@@ -140,7 +141,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   "phys_caseBottom",
                   logic_local_medium,         // mother volume
                   false, 0, checkOverlaps);
-  // new G4LogicalSkinSurface("alphaCaseBottom_surface", logic_caseSide, (G4SurfaceProperty *)detMat->opSteel_rodSurface);
+  new G4LogicalSkinSurface("alphaCaseBottom_surface", logic_caseSide, (G4SurfaceProperty *)detMat->opSteel_rodSurface);
 
                   
   G4Tubs * solid_screwToAl = new G4Tubs("solid_screwToAl", 0, screwToAl_r, 0.5*screwToAl_z, 0., 360.*deg);
@@ -151,7 +152,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   "phys_screwToAl",
                   logic_local_medium,         // mother volume
                   false, 0, checkOverlaps);
-  // new G4LogicalSkinSurface("alphaScrew_surface", logic_caseSide, (G4SurfaceProperty *)detMat->opSteel_rodSurface);
+  new G4LogicalSkinSurface("alphaScrew_surface", logic_caseSide, (G4SurfaceProperty *)detMat->opSteel_rodSurface);
   
   const G4double rInner[3] = {0*mm, 0*mm, 0*mm};                
   const G4double rOuter[3] = {alPlateSide/2*mm, alPlateSide/2*mm, alPlateSide/2*mm};
@@ -165,6 +166,7 @@ G4VPhysicalVolume* phys_amo2 = new G4PVPlacement(0,
                   "phys_alPlate",
                   logic_local_medium,         // mother volume
                   false, 0, checkOverlaps);
+  new G4LogicalSkinSurface("alphaAlPlate_surface", logic_alPlate, (G4SurfaceProperty *)detMat->opAluminumSurface);
                   
   // optics of aluminum plate
   

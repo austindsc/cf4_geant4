@@ -104,7 +104,7 @@ protected:
   ////// --- Optical Surfaces ---//////
   // optical property tables (for surfaces and skins, excluding for the LP filter)
   G4OpticalSurface * opSteel_rodSurface;
-  G4OpticalSurface * opAl_surface;
+  G4OpticalSurface * opAluminumSurface;
 
   // -- sipm optical surfaces -- //
   G4OpticalSurface * opSurf_Air;

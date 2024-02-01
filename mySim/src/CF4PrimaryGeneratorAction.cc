@@ -42,7 +42,7 @@ fgammaSource_volume(0), fgammaSource_tubs(0), fcollimator_volume(0), fdetconstru
   fGun->SetNumberOfParticles(n_particle);
   
   fAlphaIntensity = 1;
-  fNoAlphas = true;
+  fNoAlphas = false; // this was just for testing. Should leave as false unless you want to kill alphas for some reason?
   fGammaIntensity = 1;
   // fGammaThetaMax = 1.5*deg;
 }
@@ -68,6 +68,9 @@ void CF4PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     }
   }
   
+  // G4cout << fdetconstruction->GetAlphaStatus() << " " << fNoAlphas << G4endl;
+  // exit(0);
+
   // Setting up Alpha Source
   if (!famo2_volume && fdetconstruction->GetAlphaStatus() == true && fNoAlphas == false) {
     

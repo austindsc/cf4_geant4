@@ -18,7 +18,9 @@ list_VacuumVessel.push_back(logic_med_upperFlange);
 G4Tubs * solid_med_solidupperFlange = new G4Tubs("solid_med_solidupperFlange", 0, flange_r, 0.5*upperFlange_solid_thick, 0, 360*deg);
 G4LogicalVolume * logic_med_solidupperFlange = new G4LogicalVolume(solid_med_solidupperFlange, detMat->mSteel_walls, "logic_med_solidupperFlange");
 new G4PVPlacement(0, moveMediumUP + G4ThreeVector(0, 0, mediumZ/2 + upperFlange_solid_thick/2), logic_med_solidupperFlange, "phys_med_solidupperFlange", logicWorld, false, 0, checkOverlaps);
-list_VacuumVessel.push_back(logic_med_solidupperFlange);
+
+// upper flange has no paper on it
+// list_VacuumVessel.push_back(logic_med_solidupperFlange);
 
 // lower flanges of CF4 cylinder
 G4double lowerFlange_thick = 3.8*cm;
