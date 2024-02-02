@@ -1,5 +1,6 @@
 // make colours (all with 0.5 transparency)
 G4Colour  white   (1.0, 1.0, 1.0, 0.5) ;
+G4Colour  lwhite  (1.0, 1.0, 1.0, 0.9) ;
 G4Colour  black   (0.0, 0.0, 0.0, 0.5) ;
 G4Colour  grey    (0.5, 0.5, 0.5, 0.5) ;
 G4Colour  lgrey   (.85, .85, .85, 0.2) ;
@@ -15,6 +16,7 @@ G4Colour  green   (0.0, 1.0, 0.0, 0.5) ;
 G4Colour  brown   (0.7, 0.4, 0.1, 0.5) ;
 
 G4VisAttributes* world_transparent = new G4VisAttributes(false);
+G4VisAttributes* ceramic_White = new G4VisAttributes(true, lwhite);
 G4VisAttributes* vacuum_white = new G4VisAttributes(true, white);
 G4VisAttributes* ssteel_blue = new G4VisAttributes(true, blue);
 G4VisAttributes* filter_yellow = new G4VisAttributes(true, yellow);
@@ -23,4 +25,4 @@ G4VisAttributes* si_magenta = new G4VisAttributes(true, magenta);
 G4VisAttributes* filter_green = new G4VisAttributes(true, lgreen);
 G4VisAttributes* window_gray = new G4VisAttributes(true, lgrey);
 G4VisAttributes* extra_cyan = new G4VisAttributes(true, cyan);
-
+G4VisAttributes* abs_black = new G4VisAttributes(true, black);

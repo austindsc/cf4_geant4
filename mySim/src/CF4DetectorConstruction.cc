@@ -228,7 +228,17 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   logic_vuv4->SetVisAttributes(world_transparent);
   G4VPhysicalVolume* phys_vuv4 = new G4PVPlacement(rotateSiPM, movePackage, (G4LogicalVolume*) logic_vuv4, "phys_vuv4", logic_medium, false, 0, checkOverlaps);
   fsipmVolume = logic_vuv4->GetSensitiveVolume(); // VERY IMPORTANT
+
+  //-- building absorptive stuff below (make it plastic covered with absorbing skin)
+  G4Tubs * solid_absorber = new G4Tubs("solid_absorber", 0, mediumR * 0.9, 2*mm, 0, 360.*deg);
+  G4LogicalVolume * logic_absorber = new G4LogicalVolume(solid_absorber, detMat->mGenericPlastic, "logic_absorber");
+  logic_absorber->SetVisAttributes(abs_black);
+  G4ThreeVector movePCB = movePackage + G4ThreeVector(0, 0, - (VUV4::fPackageThick/2 + VUV4::fEdgeBuffer) - solid_absorber->GetZHalfLength());
+  movePCB.setZ(movePCB.getZ() - std::sin(rotationAngle) * VUV4::fPackageXY); // adjusting for angle
+  G4VPhysicalVolume* phys_absorber = new G4PVPlacement(0, movePCB, logic_absorber, "phys_absorber", logic_medium, false, 0, checkOverlaps);
+  new G4LogicalSkinSurface("opPCB_absorber", logic_absorber, (G4SurfaceProperty*) detMat->opSurf_perfectAbsorber);
   
+
 /* testing with simple silicon square
   //-- silicon bulk --//
   G4double sipmThick = 1*cm; // guess

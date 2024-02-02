@@ -79,15 +79,11 @@ G4LogicalVolume(new G4Box("logic_sipm_container", fPackageXY/2 + fEdgeBuffer, fP
   sub_package = new G4SubtractionSolid("solid_package", sub_package, solid_sideChannelToSubtract, 
               0, G4ThreeVector(0, 0, + solid_BoxPackage->GetZHalfLength() - solid_allQuads_toSubtract->GetZHalfLength() + 0.5*fSipmThick)); // not sure if + sipmThick is right
   G4LogicalVolume * logic_package = new G4LogicalVolume(sub_package, detMat->mCeramic, "logic_package");
+  logic_package->SetVisAttributes(ceramic_White);
   
   // top of package is at origin!!! (do that in detector construction)
   G4ThreeVector movePackage = G4ThreeVector(0, 0, 0);
-  G4VPhysicalVolume* phys_package = new G4PVPlacement(0,
-                    movePackage,
-                    logic_package,
-                    "phys_package",
-                    logic_medium_thisBox,
-                    false, 0, checkOverlaps);
+  G4VPhysicalVolume* phys_package = new G4PVPlacement(0, movePackage, logic_package, "phys_package", logic_medium_thisBox, false, 0, checkOverlaps); // BEGIN: ed8c6549bwf9
 
   // move package puts sipm at center of package  (again, top of package is at origin)
   // logic of moving SiPM (written out bc I keep getting confused)
@@ -138,7 +134,7 @@ G4LogicalVolume(new G4Box("logic_sipm_container", fPackageXY/2 + fEdgeBuffer, fP
 
   if(doOpticalSurfaces){
     // adding diffusion to ceramic
-    new G4LogicalSkinSurface("opSkin_ceramic", logic_package, (G4SurfaceProperty*)detMat->opSurf_ceramic);
+    G4LogicalSkinSurface * ls_package = new G4LogicalSkinSurface("opSkin_ceramic", logic_package, (G4SurfaceProperty*)detMat->opSurf_ceramic);
     
     // dielectric_metal of Si bulk
     new G4LogicalSkinSurface("opSurf_siBulk", logic_si_boxes, (G4SurfaceProperty*) detMat->opSurf_silicon); // silicon bulk, use metal dielectric with Transmission = 100

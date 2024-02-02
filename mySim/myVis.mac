@@ -48,7 +48,7 @@
 
 /vis/geometry/set/colour logic_medium 0 0 0 1 .1
 #/vis/geometry/set/colour logic_sipm 0 0 0 0 1
-/vis/geometry/set/colour logic_package 0 1 1 1 1
+#/vis/geometry/set/colour logic_package 0 1 1 1 1
 #/vis/geometry/set/colour logic_CaseSides 0 1 1 1 1
 
 ## trajectories ##

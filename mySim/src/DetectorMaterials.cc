@@ -154,8 +154,6 @@ void DetectorMaterials::BuildMaterials(){
   opSteel_rodSurface->SetMaterialPropertiesTable(mpt_ssteelSurface);
 
   // -------- Aluminum -------- //
-
-  // aluminium (below from Ryan and Zhiheng's code, Nov 14 2023)
   G4String name, symbol; 
   G4double a, z, density, fractionmass, temperature, pressure;           
   G4int ncomponents, natoms;
@@ -202,7 +200,7 @@ void DetectorMaterials::BuildMaterials(){
   // these are also picked somewhat randomly
   mpt_ssteelSurface->AddProperty("SPECULARSPIKECONSTANT", photonE_world, {0.7, 0.7}); // 70% of reflection is normal
   mpt_ssteelSurface->AddProperty("SPECULARLOBECONSTANT", photonE_world, {0.2, 0.2}); // 20% of reflection from the microfacets
-  mpt_ssteelSurface->AddProperty("BACKSCATTERCONSTANT", photonE_world, {0, 0});   // so specular lobe is 10%
+  mpt_ssteelSurface->AddProperty("BACKSCATTERCONSTANT", photonE_world, {0, 0});   // so specular lobe (lambertian) is 10%
   opAluminumSurface->SetMaterialPropertiesTable(mptAl_surface);
 
   // no aluminum optical surface defined
@@ -452,12 +450,13 @@ void DetectorMaterials::BuildMaterials(){
   opSurf_perfectRef->SetMaterialPropertiesTable(mpt_perfectRef);
 
   //-- perfect absorber --//
+  G4double paperRef = 0.05; // 5% reflection, 95% absorption
   opSurf_perfectAbsorber = new G4OpticalSurface("absorber_opSurf", unified, polished, dielectric_metal);
   opSurf_perfectAbsorber->SetSigmaAlpha(0.); // perfectly smooth.  //could also use dielectric_dielectric -> polishedfrontpainted
   
   G4MaterialPropertiesTable* mpt_perfectAbsorber = new G4MaterialPropertiesTable();
   mpt_perfectAbsorber->AddProperty("TRANSMITTANCE", photonE_world, noRef);
-  mpt_perfectAbsorber->AddProperty("REFLECTIVITY", photonE_world, noRef);
+  mpt_perfectAbsorber->AddProperty("REFLECTIVITY", photonE_world, {paperRef, paperRef});
   opSurf_perfectAbsorber->SetMaterialPropertiesTable(mpt_perfectAbsorber);
 
   // -------------------- Silicon -------------------- //
