@@ -4,7 +4,7 @@
 /run/verbose 0
 
 /process/em/verbose 0
-/process/had/deex/verbose 0
+/process/had/verbose 0
 /particle/verbose 0
 /tracking/verbose 0
 
@@ -23,9 +23,9 @@
 
 /setDetector/gammaSource Cs137 
 
-/setDetector/gammaHeight -0.5
+/setDetector/gammaHeight 2
 
 /run/initialize
 /analysis/setFileName ../Cs137_69
 
-/run/beamOn 10000
+/run/beamOn 1000

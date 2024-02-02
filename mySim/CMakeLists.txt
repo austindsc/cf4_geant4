@@ -67,8 +67,8 @@ if(USE_REFPROP)
     add_definitions(-DUSE_REFPROP)
 endif()
 
-add_executable(cf4 cf4Chamber.cc ${sources} ${headers})
-target_link_libraries(cf4 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+add_executable(cf4Chamber cf4Chamber.cc ${sources} ${headers})
+target_link_libraries(cf4Chamber ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
@@ -111,4 +111,4 @@ add_custom_target(projCF4 DEPENDS cf4)
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS cf4 DESTINATION bin)
+install(TARGETS cf4Chamber DESTINATION bin)

@@ -86,6 +86,7 @@ if __name__ == "__main__":
       print("couldn't get good .mac file to pull", pullFrom, " from")
       exit(1)
     # getting stuff from other data
+    
     newLY = otherPhysPars.ly
     otherNBEAM = int(otherRunPars.Nbeam)
 

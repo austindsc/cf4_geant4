@@ -1,3 +1,6 @@
+# use this code for repeating some physics runs and merging them into a single root output file
+# this is for runs with insufficient statistics
+
 import sys
 import os
 import subprocess # to call mkdir and build .mac files we need

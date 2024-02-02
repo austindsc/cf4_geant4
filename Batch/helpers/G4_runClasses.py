@@ -268,7 +268,7 @@ def build_mac_from_items(physPar, detPar, runPar, fname = "testMacOutput", myVer
 /run/verbose {0}
 
 /process/em/verbose {0}
-/process/had/deex/verbose {0}
+/process/had/verbose {0}
 /particle/verbose {0}
 /tracking/verbose {0}
 """.format(g4Verbosity)
