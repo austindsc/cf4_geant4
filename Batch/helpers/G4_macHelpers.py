@@ -20,6 +20,7 @@ def extract_words_after_string(file_path, string):
     elif len(words) == 0: ## find nothing
        return None
     else:
+      print(words)
       print("error in", __name__)
       exit(0)
 

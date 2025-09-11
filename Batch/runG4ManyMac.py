@@ -1,7 +1,7 @@
 """
 run with python3.11 (where tqdm is installed)
 
-run from
+run from wherever (bash calls cd to g4 directory)
 
 this is the 'master' file to generate the first runs of the parameter space
 
@@ -21,32 +21,36 @@ from helpers.G4_runClasses import *
 from helpers.G4_macHelpers import *
 
 path = "/Users/austindestcroix/Desktop/school_holders/projects/sbc/g4_cf4_updated/"
-# pBatch = path+"batchOutput/"
-pBatch = path+"batchOutput_feb2/"
+pBatch = path+"batchOutput_aug25/"
 pBuild = path+"build/"
 
 TESTING = False
 
-# just for cleaner control
+# for cleaner control
 class RunControl:
   pass
 
-### controls ###
+## -- controls -- ###
 rc = RunControl()
-rc.verbose = False
-rc.nbeam_end = 1e6 # gammas of maximum ly value.
+rc.verbose = True
+rc.eventVerbose = True
+rc.nbeam_end = 1e5 # gammas of maximum ly value.
 rc.execName = "cf4Chamber"
-rc.lyList = np.arange(4000, 8000, 500).tolist() + np.arange(8000, 13000, 1000).tolist()
-rc.heightList = [0.0, 1.5, 4.0, 5.5]
+# rc.lyList = np.arange(0.1, 5, 0.5).tolist()
+rc.lyList = [0.1]
+rc.heightList = [0.5]
+rc.fvisList = np.arange(0.5, 1.0, 0.1)
 
+rc.baseMacro = "alpha_base.mac" # this should be in same directory
+rc.baseName = "Alpha"
+loopSelect = "alpha"
+
+# unique for runG4ManyMac
 if TESTING:
   rc.lyList = rc.lyList[:2]
   rc.heightList = rc.heightList[:2]
   rc.nbeam_end = 1e4
-
-# why not just put the parameter ID in the mac file as a comment!?
-# don't need unique directories, but i like that for organization
-# will make another code that builds the 'master' csv to track parameter space and assign ID
+## -- Done Controls -- ##
 
 # should improve the wrapping or ownership of the 'build_from_mac_items" function
 def parseStringMyWay(sin, first = "cf4", second="geant4_cf4"):
@@ -69,87 +73,123 @@ def run_process(command, verbose = rc.verbose):
 
 if __name__ == "__main__":
 
-  # baseMacro = "gammaCo57_base.mac"
-  # baseName = "Co57"
-  baseMacro = "gammaCs137_base.mac"
-  baseName = "Cs137"
+  ###### running gammas (forloop on height and light yield) ######
+  if loopSelect == "gamma":
 
-  ## build the base objects to run off
-  physPars = PhysicsParameters(macPath=baseMacro)
-  detPars = DetectorParameters(macPath = baseMacro)
-  runPars = RunParameters(macPath=baseMacro)
-  # print(physPars.to_Mac_string())
-  # print(detPars.to_Mac_string())
-  # print(runPars.to_Mac_string())
-  
-  geantCommandList = [] # list of things that should work as long as in G4build directory
+    ## build the base objects to run off
+    physPars = PhysicsParameters(macPath=rc.baseMacro)
+    detPars = DetectorParameters(macPath = rc.baseMacro)
+    runPars = RunParameters(macPath=rc.baseMacro)
+    
+    geantCommandList = [] # list of things that should work as long as in G4build directory
 
-  ## getting the list of folders that already exist
-  all_items = os.listdir(pBatch)
-  folders = [int(item) for item in all_items if os.path.isdir(os.path.join(pBatch, item))]
-  lastFolder = 0
-  if len(folders) > 0:
-    folders = sorted(folders, key=lambda x: x)
-    lastFolder = max(folders) + 1
+    ## getting the list of folders that already exist
+    all_items = os.listdir(pBatch)
+    folders = [int(item) for item in all_items if os.path.isdir(os.path.join(pBatch, item))]
+    lastFolder = 0
+    if len(folders) > 0:
+      folders = sorted(folders, key=lambda x: x)
+      lastFolder = max(folders) + 1
 
-  # make new folders
-  for iID, ly in enumerate(rc.lyList):
+    # make new folders
+    for iID, ly in enumerate(rc.lyList):
 
-    NBEAM = rc.nbeam_end * max(rc.lyList) / ly
-    # set the physics parameters
-    physPars.ly = ly
+      NBEAM = rc.nbeam_end * max(rc.lyList) / ly
+      # set the physics parameters
+      physPars.ly = ly
 
-    folderID = iID + lastFolder
-    # print(folderID)
-    # break
+      folderID = iID + lastFolder
+      # make a uniquely named directory
+      subprocess.run(f"cd {pBatch} ; mkdir {folderID}", shell = True)
+      parDirID = str(folderID)
+      
+      for h in rc.heightList:
+        # set the run parameters
+        runPars.gammaHeight = h
 
-    # make a uniquely named directory
-    subprocess.run(f"cd {pBatch} ; mkdir {folderID}", shell = True)
-    parDirID = str(folderID)
-    # control parameter ID here
-    for h in rc.heightList:
+        # this is the important line for file naming and location
+        hstr = str(h).replace(".", "d")
+        runPars.fname = pBatch + f"{parDirID}/" + rc.baseName + "_ly_"+str(int(ly))+"_h_"+hstr
+        runPars.Nbeam = int(NBEAM)
 
-      # set the run parameters
-      runPars.gammaHeight = h
+        # it works with savepath empty. all info is in the fname member
+        macName = build_mac_from_items(physPar=physPars, detPar=detPars, runPar=runPars, 
+                              fname = runPars.fname, savePath="", myVerbosity = rc.eventVerbose)
 
-      # this is the important line for file naming and location
-      hstr = str(h).replace(".", "d")
-      runPars.fname = pBatch + f"{parDirID}/" + baseName + "_ly_"+str(int(ly))+"_h_"+hstr
-      runPars.Nbeam = int(NBEAM)
+        g4Command = f"cd {pBuild}; ./{rc.execName} {macName}"
+        geantCommandList.append(g4Command)
+  ## done the gamma loop
+
+  elif loopSelect == "alpha":
+    ## build the base objects to run off
+    physPars = PhysicsParameters(macPath=rc.baseMacro)
+    detPars = DetectorParameters(macPath = rc.baseMacro)
+    runPars = RunParameters(macPath=rc.baseMacro)
+    runPars.Nbeam = int(rc.nbeam_end)
+    
+    geantCommandList = [] # list of things that should work as long as in G4build directory
+
+    ## getting the list of folders that already exist
+    all_items = os.listdir(pBatch)
+    folders = [int(item) for item in all_items if os.path.isdir(os.path.join(pBatch, item))]
+    lastFolder = 0
+    if len(folders) > 0:
+      folders = sorted(folders, key=lambda x: x)
+      lastFolder = max(folders) + 1
+
+    # make new folders
+    for iID, visFrac in enumerate(rc.fvisList):
+
+      # set the physics parameters
+      physPars.vf = visFrac
+
+      folderID = iID + lastFolder
+      # make a uniquely named directory
+      subprocess.run(f"cd {pBatch} ; mkdir {folderID}", shell = True)
+      parDirID = str(folderID)
+
+      vfStr = str(visFrac).replace(".", "d")
+      ## bare run
+      runPars.lpFilter = False
+      runPars.fname = pBatch + f"{parDirID}/" + rc.baseName + "_vf_" + vfStr + "_bare"
 
       # it works with savepath empty. all info is in the fname member
-      # runPars.fname has no suffix
       macName = build_mac_from_items(physPar=physPars, detPar=detPars, runPar=runPars, 
-                            fname = runPars.fname, savePath="")
+                          fname = runPars.fname, savePath="", myVerbosity = rc.eventVerbose)
 
       g4Command = f"cd {pBuild}; ./{rc.execName} {macName}"
       geantCommandList.append(g4Command)
+      
+      ## LP run
+      runPars.lpFilter = True
+      runPars.fname = pBatch + f"{parDirID}/" + rc.baseName + "_vf_" + vfStr + "_LP"
+      macName = build_mac_from_items(physPar=physPars, detPar=detPars, runPar=runPars, 
+                          fname = runPars.fname, savePath="", myVerbosity = rc.eventVerbose)
+      g4Command = f"cd {pBuild}; ./{rc.execName} {macName}"
+      geantCommandList.append(g4Command)
 
-      # subprocess.run(g4Command, shell=True)
-  
-  # for command in geantCommandList:
-  #   print(command)
-  # exit(0)
-  # done paramter space (nested) forloops
-  # done building G4 command list
-  
-  #### executing G4 commands ####
+  else:
+    print(f"ERROR: Unknown loopSelect value: {loopSelect}")
+    print("Valid options are: 'gamma' or 'alpha'")
+    sys.exit(1)
+    
+  ## now doing the commands
   nProc = 4
   with Pool(nProc) as pool:   # Create a pool of worker processes
-      progress_bar = tqdm(total=len(geantCommandList))       # Create a tqdm progress bar
+    progress_bar = tqdm(total=len(geantCommandList))       # Create a tqdm progress bar
 
-      # Use pool.imap() to execute the function in parallel and update progress bar
-      for result in pool.imap(run_process, geantCommandList):
-          print(f"finished: {result}") # put something here to write about what physics run was done
-          progress_bar.update(1)
-        
-      # results = pool.imap(run_process, geantCommandList)
-      # for result in results:
-      #   print(type(result), end="\r")
-      #   progress_bar.update(1)
+    # Use pool.imap() to execute the function in parallel and update progress bar
+    for result in pool.imap(run_process, geantCommandList):
+        print(f"finished: {result}") # put something here to write about what physics run was done
+        progress_bar.update(1)
       
-      # Close the progress bar
-      progress_bar.close()
+    # results = pool.imap(run_process, geantCommandList)
+    # for result in results:
+    #   print(type(result), end="\r")
+    #   progress_bar.update(1)
+      
+    # Close the progress bar
+    progress_bar.close()
 
   # pool = Pool(processes = 4)
   # results = pool.imap_unordered(run_process, geantCommandList)

@@ -92,7 +92,7 @@ class RunParameters(object):
     self.str_alphaHeight = "/setDetector/alphaHeight "
     self.str_beamOn = "/run/beamOn "
 
-    self.str_lpFilter = "/setDetector/lpFilter "
+    self.str_lpFilter = "/setDetector/useLPFilter "
 
     self.str_fname="/analysis/setFileName "
 
@@ -107,7 +107,7 @@ class RunParameters(object):
       self.lpFilter = LPfilter
 
     elif macPath is not None:
-      self.gammaHeight = float(extract_words_after_string(macPath, self.str_gammaHeight))
+      self.gammaHeight = extract_words_after_string(macPath, self.str_gammaHeight)
       self.gammaSrc = extract_words_after_string(macPath, self.str_gammaSrc)
       self.gammaColl = extract_words_after_string(macPath, self.str_gammaColl)
       self.alphaHeight = extract_words_after_string(macPath, self.str_alphaHeight)
@@ -115,9 +115,9 @@ class RunParameters(object):
       self.gammaAngle = extract_words_after_string(macPath, self.str_gammaAngle)
       self.fname = macPath.rstrip(".mac")
 
-      # xxLP
-      #self.lpFilter = extract_words_after_string(macPath, self.str_lpFilter)
-      self.lpFilter = LPfilter
+      # check if LP filter command exists in macro (it has no arguments)
+      lpFilter_line = extract_words_after_string(macPath, self.str_lpFilter)
+      self.lpFilter = lpFilter_line is not None
     return None
   
   def __str__(self):
@@ -139,8 +139,8 @@ class RunParameters(object):
     if self.alphaHeight is not None:
       outStr += self.str_alphaHeight + str(self.alphaHeight) + "\n"
 
-    # if self.lpFilter is not None:
-    #   outStr += self.str_lpFilter + str(self.lpFilter) + "\n"
+    if self.lpFilter is not None and self.lpFilter == True:
+      outStr += self.str_lpFilter.rstrip() + "\n"
     
     if self.fname is not None:
       outStr += self.str_fname + self.fname + "\n"
@@ -189,6 +189,7 @@ class PhysicsParameters(object):
 
     self.str_medium = "/setMaterial/detectionMedium "
     self.str_ly = "/setMaterial/mediumLY "
+    self.lyUnit = None
     self.str_vf = "/setMaterial/mediumLY_VisFraction "
     # self.str_birks = "/setMaterial/birks "
     # self.str_uvAttenuation = "/setMaterial/uvAttenuation "
@@ -216,7 +217,9 @@ class PhysicsParameters(object):
 
       ly, unit = extract_words_after_string(macPath, self.str_ly)
       if unit == "MeVLY":
-        self.ly = float(ly)
+        self.ly, self.lyUnit = float(ly), "MeVLY"
+      elif unit == "keVLY":
+        self.ly, self.lyUnit = float(ly), "keVLY"
       else:
         print("error in unit on LY from .mac, in func", __name__)
         exit(0)
@@ -242,7 +245,7 @@ class PhysicsParameters(object):
     stringOut = self.str_medium + str(self.medium) + " \n"
     stringOut += self.str_temp + str(self.temp) + " kelvin \n"
     stringOut += self.str_pressure + str(self.pressure) + " bar \n"
-    stringOut += self.str_ly + str(self.ly) + " MeVLY \n"
+    stringOut += self.str_ly + str(self.ly) + str(" ") + str(self.lyUnit) + "\n"
     stringOut += self.str_vf + str(self.vf) + " \n"
 
     # birks, UV attenuation
@@ -284,7 +287,7 @@ def build_mac_from_items(physPar, detPar, runPar, fname = "testMacOutput", myVer
     setMats = physPar.to_Mac_string()
     file.write(setMats + "\n\n")
 
-    file.write("/setDetector/myVerbosity {0}".format(myVerbosity) + "\n\n")
+    file.write("/setDetector/myVerbosity {0}".format(int(myVerbosity)) + "\n\n")
 
     ## Detector Properties
     setProperties = detPar.to_Mac_string()

@@ -1,15 +1,78 @@
-build*
-*/.DS_Store
-*/__pycache__/*
-*/.ipynb_checkpoints/*
-*/*/.ipynb_checkpoints*
-
-batchOutput/*
-
-*~
-
-*/zHold/
-
+# Build directories and output files
+build*/
 */build/
-
 goodB1Output/
+
+# Batch output directories (all variations)
+batchOutput*/
+*/batchOutput*/
+**/batchOutput*/
+
+# Python cache and bytecode
+__pycache__/
+*/__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# macOS system files
+.DS_Store
+*/.DS_Store
+**/.DS_Store
+.AppleDouble
+.LSOverride
+
+# ROOT files (often large and generated)
+*.root
+
+# Temporary and backup files
+*~
+*.tmp
+*.bak
+*.swp
+*.swo
+.#*
+#*#
+
+# Log files
+*.log
+*.out
+*.err
+
+# Hold/temporary directories
+*/zHold/
+**/zHold/
+*/temp/
+*/tmp/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-*
+
+# C++ compiled objects and executables
+*.o
+*.so
+*.dylib
+*.exe
+*.out
+*.app
+
+# Geant4 specific
+G4*.dat
+*.vis
+*.mac.backup
+
+# Data files (typically large)
+*.csv
+*.dat
+*.txt
+proc*/
+raw*/

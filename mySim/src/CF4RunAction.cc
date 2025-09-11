@@ -67,6 +67,14 @@ CF4RunAction::CF4RunAction(CF4PrimaryGeneratorAction * genny)
   man->SetFileName("cf4_outputStock");
   man->CreateNtuple("simOutput", "simOutput");
   // but if you don't do this, you can't name the file from the macro
+
+  // had this in BeginRunAction
+  man->CreateNtupleIColumn("fNEvent");        //0
+  man->CreateNtupleDColumn("fEdepInCyl_kev"); //1
+  man->CreateNtupleIColumn("fTouchPE");       //2 - MC photons touching Si bulk (consistent with previous fmcNPE except for reflections off window, SiO2 layer)
+  man->CreateNtupleIColumn("fNPE");           //3 - photons detected after internal PDE (consisten with previous fNPE variable)
+  man->CreateNtupleIColumn("fEnterPE");       //4 - MC photons entering Si bulk (new variable)
+  man->FinishNtuple(0);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -92,13 +100,7 @@ void CF4RunAction::BeginOfRunAction(const G4Run*)
   
   // TRandom * rand = new TRandom3();
   G4AnalysisManager *man = G4AnalysisManager::Instance();
-  
-  man->CreateNtupleIColumn("fNEvent");        //0
-  man->CreateNtupleDColumn("fEdepInCyl_kev"); //1
-  man->CreateNtupleIColumn("fTouchPE");       //2 - MC photons touching Si bulk (consistent with previous fmcNPE except for reflections off window, SiO2 layer)
-  man->CreateNtupleIColumn("fNPE");           //3 - photons detected after internal PDE (consisten with previous fNPE variable)
-  man->CreateNtupleIColumn("fEnterPE");       //4 - MC photons entering Si bulk (new variable)
-  man->FinishNtuple(0);
+  man->Reset();
 
   man->OpenFile();
 }
@@ -133,9 +135,9 @@ void CF4RunAction::EndOfRunAction(const G4Run* run)
     G4cout << (double) ftotalMCPE/ftotalFired << G4endl;
 
   }
-  
-   man->Write();
-   man->CloseFile();
+
+  man->Write();
+  man->CloseFile();
 
 }
 

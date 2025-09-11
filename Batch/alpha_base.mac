@@ -1,0 +1,26 @@
+/vis/verbose 0
+/tracking/verbose 0
+/event/verbose 0
+/run/verbose 0
+
+/process/em/verbose 0
+/process/had/verbose 0
+/particle/verbose 0
+/tracking/verbose 0
+
+/setMaterial/detectionMedium lCF4
+
+/setMaterial/mediumTemp 128 kelvin
+/setMaterial/mediumPressure 10.7 bar
+
+/setMaterial/mediumLY 0.1 keVLY
+/setMaterial/mediumLY_VisFraction 0.9
+
+/setDetector/myVerbosity 0
+
+/setDetector/alphaHeight 0.5
+
+/run/initialize
+/analysis/setFileName ../alphaTest_69
+
+/run/beamOn 1000

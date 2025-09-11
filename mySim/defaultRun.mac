@@ -32,7 +32,7 @@
 /setMaterial/mediumPressure 10.7 bar      # If pressure also set, and sim is built with REFPROP (default), 
                                           # then REFPROP is used to calculate density with T, P for pure CF4
 
-/setMaterial/mediumLY 1.0 keVLY        # these units are photons/MeV, keVLY also available
+/setMaterial/mediumLY 0.1 keVLY        # these units are photons/MeV, keVLY also available
 /setMaterial/mediumLY_VisFraction 0.8    # use this with total LY, or the two commands below
 #/setMaterial/mediumLY_UV 0 MeVLY
 #/setMaterial/mediumLY_Vis 5000 MeVLY

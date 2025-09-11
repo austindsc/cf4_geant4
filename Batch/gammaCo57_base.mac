@@ -28,4 +28,4 @@
 /run/initialize
 /analysis/setFileName ../Co57_69
 
-/run/beamOn 10000
+/run/beamOn 1000
