@@ -45,6 +45,14 @@ include_directories(${PROJECT_SOURCE_DIR}/include
                     ${ROOT_INCLUDE_DIRS}
                   )
 
+#----------------------------------------------------------------------------
+# Add the TwoDLoader library subdirectory
+#
+add_subdirectory(twoD_loader)
+
+# Include the TwoDLoader headers
+include_directories(${TWOD_LOADER_INCLUDE_DIR})
+
 message(STATUS "ROOT include directories: ${ROOT_INCLUDE_DIRS}")
 
 
@@ -68,7 +76,7 @@ if(USE_REFPROP)
 endif()
 
 add_executable(cf4Chamber cf4Chamber.cc ${sources} ${headers})
-target_link_libraries(cf4Chamber ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+target_link_libraries(cf4Chamber ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${TWOD_LOADER_LIBRARY})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
