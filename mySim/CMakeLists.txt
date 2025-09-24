@@ -46,9 +46,9 @@ include_directories(${PROJECT_SOURCE_DIR}/include
                   )
 
 #----------------------------------------------------------------------------
-# Add the TwoDLoader library subdirectory
+# Add the TwoDLoader library from parent directory
 #
-add_subdirectory(twoD_loader)
+add_subdirectory(../twoD_loader ${CMAKE_CURRENT_BINARY_DIR}/twoD_loader)
 
 # Include the TwoDLoader headers
 include_directories(${TWOD_LOADER_INCLUDE_DIR})
@@ -109,6 +109,22 @@ message(STATUS "copied ${DATA_FOLDER} folder to build directory")
 file(GLOB DATA_FOLDER "dataOptics")
 file(COPY ${DATA_FOLDER} DESTINATION ${PROJECT_BINARY_DIR})
 message(STATUS "copied ${DATA_FOLDER} folder to build directory")
+
+file(GLOB DATA_FOLDER "dataPDE")
+file(COPY ${DATA_FOLDER} DESTINATION ${PROJECT_BINARY_DIR})
+message(STATUS "copied ${DATA_FOLDER} folder to build directory")
+
+# # Copy all .mac files to build directory
+# file(GLOB MAC_FILES "*.mac")
+# foreach(MAC_FILE ${MAC_FILES})
+#   get_filename_component(MAC_FILENAME ${MAC_FILE} NAME)
+#   configure_file(
+#     ${MAC_FILE}
+#     ${PROJECT_BINARY_DIR}/${MAC_FILENAME}
+#     COPYONLY
+#     )
+# endforeach()
+# message(STATUS "copied .mac files to build directory")
 
 #----------------------------------------------------------------------------
 # For internal Geant4 use - but has no effect if you build this

@@ -45,6 +45,8 @@
 
 #include "G4SystemOfUnits.hh"
 
+#include <filesystem>
+
 //xx physics list testing
 #include "FTFP_BERT.hh"
 #include "G4EmStandardPhysics_option4.hh"
@@ -115,7 +117,9 @@ int main(int argc,char** argv)
   else {
     // interactive mode
     G4cout << "\n\n---------------------- Script Settings ----------------------\n" << G4endl;
-    UImanager->ApplyCommand("/control/execute ../mySim/defaultRun.mac");
+    // print the current path we are 'looking' from
+    G4cout << "Current working directory: " << std::filesystem::current_path() << G4endl;
+    UImanager->ApplyCommand("/control/execute ../defaultRun.mac");
 
     ui->SessionStart();
     delete ui;

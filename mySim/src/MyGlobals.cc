@@ -11,8 +11,8 @@ namespace MG{
 namespace DETECTORSETUP{
 
   // default values in here
-  static bool buildWindow = true;
-  static bool buildSurface = true; // setting this to false fully changes/breaks the SiPM effective correction
+  static bool buildWindow = false;
+  static bool buildSurface = false; // setting this to false fully changes/breaks the SiPM effective correction
   static bool turnOnQuartzAbs = false;
   static bool doOpticsDiffusion = true; // this to false also will mess up PDE by factor of Rdiffuse (0.17 nominally)
 

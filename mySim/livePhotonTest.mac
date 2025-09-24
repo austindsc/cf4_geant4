@@ -5,7 +5,7 @@
 
 /gps/ene/mono 6.2 eV # want around 22-25%
 #/gps/energy 2.48 eV # want around 35%
-/gps/number 1000
+/gps/number 1
 
 # photons at SiPM
 /gps/pos/centre 0.2 0.2 1.5 cm

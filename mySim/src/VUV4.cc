@@ -129,24 +129,25 @@ G4LogicalVolume(new G4Box("logic_sipm_container", fPackageXY/2 + fEdgeBuffer, fP
   
   G4double extraBoxMoveZ = surfaceMoveZ + fSipmSurfaceThick/2. + fExtraMediumTopThick/2.;
   G4ThreeVector moveAdditionalBox = movePackage + G4ThreeVector(0, 0, extraBoxMoveZ);
-  G4VPhysicalVolume * physExtraMedium = new G4PVPlacement(0, moveAdditionalBox, logic_additionalBox, "phys_additionalBox", logic_medium_thisBox, false, 0, checkOverlaps);
+  // G4VPhysicalVolume * physExtraMedium = new G4PVPlacement(0, moveAdditionalBox, logic_additionalBox, "phys_additionalBox", logic_medium_thisBox, false, 0, checkOverlaps);
+  // commented out because doing PDE properly now
 
 
   if(doOpticalSurfaces){
     // adding diffusion to ceramic
     G4LogicalSkinSurface * ls_package = new G4LogicalSkinSurface("opSkin_ceramic", logic_package, (G4SurfaceProperty*)detMat->opSurf_ceramic);
     
-    // dielectric_metal of Si bulk
-    new G4LogicalSkinSurface("opSurf_siBulk", logic_si_boxes, (G4SurfaceProperty*) detMat->opSurf_silicon); // silicon bulk, use metal dielectric with Transmission = 100
+    // DISABLE G4 automatic optical physics for SiPM - we handle this in ProcessHits
+    // new G4LogicalSkinSurface("opSurf_siBulk", logic_si_boxes, (G4SurfaceProperty*) detMat->opSurf_silicon); // COMMENTED OUT
     
     // can't build these without the surface, otherwise photons get absorbed between two of the same medium
     // as there is no SiO2 layer to create the correct boundary ordering
-    if(DETECTORSETUP::GetSurfaceStatus() == true){
+    if(DETECTORSETUP::GetSurfaceStatus() == true){ // set to False in MyGlobals
       // doing my PDE correction (diffusion in)
-      new G4LogicalBorderSurface("opSurf_myCorrector1_in", phys_medium_thisBox, physExtraMedium, (G4SurfaceProperty*) detMat->opSurf_myCorrector1_diffuserIn);
+      // new G4LogicalBorderSurface("opSurf_myCorrector1_in", phys_medium_thisBox, physExtraMedium, (G4SurfaceProperty*) detMat->opSurf_myCorrector1_diffuserIn);
 
-      // my PDE correction (absorption on way out)
-      new G4LogicalBorderSurface("opSurf_myCorrector2_out", physExtraMedium, phys_medium_thisBox, (G4SurfaceProperty*) detMat->opSurf_myCorrector2_absorptionOut);
+      // // my PDE correction (absorption on way out)
+      // new G4LogicalBorderSurface("opSurf_myCorrector2_out", physExtraMedium, phys_medium_thisBox, (G4SurfaceProperty*) detMat->opSurf_myCorrector2_absorptionOut);
     }
   }
 

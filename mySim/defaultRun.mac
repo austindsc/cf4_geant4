@@ -4,8 +4,8 @@
 ## Verbosities ##
 
 /vis/verbose 0
-/tracking/verbose 0
-/event/verbose 0
+/tracking/verbose 2
+/event/verbose 1
 /run/verbose 0
 
 #/run/numberOfThreads 1 # defaults to zero
@@ -16,8 +16,9 @@
 /particle/verbose 0
 /cuts/verbose 0
 
-/tracking/verbose 0
-/event/verbose 0
+# Override with higher verbosity for detailed tracking
+/tracking/verbose 2
+/event/verbose 1
 /run/verbose 0
 /vis/verbose 0
 
@@ -38,7 +39,7 @@
 #/setMaterial/mediumLY_Vis 5000 MeVLY
 
 ### detector configuration ###
-/setDetector/myVerbosity 1                # 1 outputs event level data
+/setDetector/myVerbosity 2                # 1 outputs event level data
                                           # 2 some photon level data, all data that is used
                                           # -1 means fill ntuple regardless (good for optical photon testing where eDep == 0)
 
@@ -59,7 +60,7 @@
                                         # currently gamma and alpha source have same intensity (see primary generator constructor to change)
 
 # or load anything you want here
-#/control/execute ../mySim/livePhotonTest.mac
+#/control/execute ../livePhotonTest.mac
 
 ## process toggling (some outdated?) ##
 #/process/optical/processActivation Scintillation false
@@ -68,8 +69,10 @@
 #/process/optical/processActivation OpAbsorption true
 #/process/optical/processActivation OpBoundary true
 
-#/process/optical/verbose 2
-#/process/optical/scintillation/verbose 1
+# Optical process verbosity for detailed photon tracking
+/process/optical/verbose 2
+/process/optical/scintillation/verbose 1
+/process/optical/boundary/verbose 1
 
 ### Naming Output ###
 /analysis/setFileName testNaming2                  # use either of these functions. whatever is last overrides
@@ -82,6 +85,6 @@
 /run/beamOn 1
 
 ### run visualization ###
-/control/execute ../mySim/myVis.mac
+/control/execute ../myVis.mac
 #/control/exit
-#/control/execute ../mySim/livePhotonTest.mac
+/control/execute ../livePhotonTest.mac
