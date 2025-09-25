@@ -11,13 +11,13 @@
 #/run/numberOfThreads 1 # defaults to zero
 
 
-/process/em/verbose 0
-/process/had/verbose 0
+#/process/em/verbose 0
+#/process/had/verbose 0
 /particle/verbose 0
 /cuts/verbose 0
 
 # Override with higher verbosity for detailed tracking
-/tracking/verbose 2
+/tracking/verbose 0
 /event/verbose 1
 /run/verbose 0
 /vis/verbose 0
@@ -56,7 +56,7 @@
 #/setDetector/gammaSource isoCo60
 #/setDetector/gammaSource isoCo57
 
-/setDetector/alphaHeight 4.0             # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
+#/setDetector/alphaHeight 4.0             # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
                                         # currently gamma and alpha source have same intensity (see primary generator constructor to change)
 
 # or load anything you want here
@@ -70,9 +70,9 @@
 #/process/optical/processActivation OpBoundary true
 
 # Optical process verbosity for detailed photon tracking
-/process/optical/verbose 2
-/process/optical/scintillation/verbose 1
-/process/optical/boundary/verbose 1
+#/process/optical/verbose 2
+#/process/optical/scintillation/verbose 1
+#/process/optical/boundary/verbose 1
 
 ### Naming Output ###
 /analysis/setFileName testNaming2                  # use either of these functions. whatever is last overrides
@@ -82,7 +82,7 @@
 /run/initialize
 
 ### no visualization ###
-/run/beamOn 1
+#/run/beamOn 1
 
 ### run visualization ###
 /control/execute ../myVis.mac

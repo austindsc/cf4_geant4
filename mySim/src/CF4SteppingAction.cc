@@ -37,7 +37,6 @@
 #include "G4LogicalVolume.hh"
 
 #include "G4OpticalPhoton.hh"
-#include "SensitiveSIPM.hh"
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -64,37 +63,6 @@ void CF4SteppingAction::UserSteppingAction(const G4Step* step)
     fScoringVolume = detectorConstruction->GetScoringVolume();   
   }
 
-  // ------------------------------------------
-  static G4ParticleDefinition* opticalphoton = G4OpticalPhoton::OpticalPhotonDefinition();
-
-  // Handle optical photon boundary interactions BEFORE other processes
-  if(step->GetTrack()->GetParticleDefinition() == opticalphoton){
-    
-    // Check if photon is crossing into a SiPM volume (has sensitive detector)
-    G4VPhysicalVolume* preVolume = step->GetPreStepPoint()->GetPhysicalVolume();
-    G4VPhysicalVolume* postVolume = step->GetPostStepPoint()->GetPhysicalVolume();
-    
-    if (preVolume != postVolume && postVolume) {
-      G4LogicalVolume* postLogical = postVolume->GetLogicalVolume();
-      if (postLogical && postLogical->GetSensitiveDetector()) {
-        
-        // Check if it's a SensitiveSIPM
-        SensitiveSIPM* sipmSD = dynamic_cast<SensitiveSIPM*>(postLogical->GetSensitiveDetector());
-        if (sipmSD) {
-          // Let the SensitiveSIPM handle the surface optics
-          if (sipmSD->HandlePhotonAtBoundary(step)) {
-            return; // SiPM handled the photon (reflected/transmitted/absorbed)
-          }
-        }
-      }
-    }
-    
-    return; // Don't process optical photons for energy deposition
-  }
-
-  // ------------------------------------------
-  // Handle non-optical particles for energy deposition
-  
   // get volume of the current step
   G4LogicalVolume* volume = step->GetPreStepPoint()->GetTouchableHandle()
       ->GetVolume()->GetLogicalVolume();
@@ -104,7 +72,6 @@ void CF4SteppingAction::UserSteppingAction(const G4Step* step)
 
   // collect energy deposited in this step
   G4double edepStep = step->GetTotalEnergyDeposit();
-  
   fEventAction->AddEdep(edepStep);
 }
 

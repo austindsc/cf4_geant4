@@ -118,6 +118,8 @@
 #include "G4Cerenkov.hh"
 #include "G4OpRayleigh.hh"
 
+#include "SiPMSurfaceWLS.hh"
+
 // blah
 #include "G4RadioactiveDecay.hh"
 #include "G4Radioactivation.hh"
@@ -295,6 +297,7 @@ void PhysicsList::ConstructOptical(){
   G4OpAbsorption* theAbsorptionProcess = new G4OpAbsorption();
   G4OpBoundaryProcess* theBoundaryProcess = new G4OpBoundaryProcess();
   G4OpRayleigh* theOpRayleighProc = new G4OpRayleigh();
+  SiPMSurfaceWLS* theSiPMProcess = SiPMSurfaceWLS::GetInstance();
   
   // looping and application
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
@@ -322,9 +325,10 @@ void PhysicsList::ConstructOptical(){
       
       // optical photon transport
       if (particleName == "opticalphoton"){
+        ph->RegisterProcess(theSiPMProcess, particle);
         ph->RegisterProcess(theAbsorptionProcess, particle);
         ph->RegisterProcess(theBoundaryProcess,   particle);
-        // ph->RegisterProcess(theOpRayleighProc,   particle);
+        ph->RegisterProcess(theOpRayleighProc,   particle);
         
         // pmanager->AddDiscreteProcess(theAbsorptionProcess);
         // pmanager->AddDiscreteProcess(theBoundaryProcess);
