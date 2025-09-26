@@ -477,9 +477,10 @@ void DetectorMaterials::BuildMaterials(){
   std::vector<G4double> gv = {CLHEP::c_light*0.9, CLHEP::c_light*0.9};
   mptSi->AddProperty("GROUPVEL", photonE_gv, gv);
 
-  // cheating to get photons to stop in silicon so our ProcessHits() method works only when photon is IN silicon
-  // mptSi->AddProperty("ABSLENGTH", photonE_world, {1.0*nm, 1.0*nm});
-  // mSilicon->SetMaterialPropertiesTable(mptSi);
+  // do this so photons dont step to edge of silicon. shouldnt matter because of
+  // processHits killing the track, but good to do anyways
+  mptSi->AddProperty("ABSLENGTH", photonE_world, {1.0*nm, 1.0*nm});
+  mSilicon->SetMaterialPropertiesTable(mptSi);
 
   // -- silicon optical surface --//
   opSurf_silicon = new G4OpticalSurface("silicon_opSurf", unified, polished, dielectric_metal);

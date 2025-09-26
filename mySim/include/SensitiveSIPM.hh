@@ -17,7 +17,8 @@ public:
   
   // Photon counting methods
   G4bool CountPhotonTouching(G4int trackID);
-  G4bool CountPhotonIn(const G4Step * step);
+  G4bool CountPhotonIn(G4double wavelength, G4double angleDeg);
+  G4bool CountPhotonDetected(G4double wavelength, G4double angleDeg);
   void ResetForFirstEvent(){fLastTrackID = -1;}
 
 private:

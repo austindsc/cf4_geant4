@@ -25,7 +25,7 @@ class CF4EventAction : public G4UserEventAction
 
  void AddEdep(G4double edep){ fEdep += edep; }
  void AddTouchingPE(){ftouchPE++;}
- void AddTruthPE(){fmcNPE++;}
+ void AddTransmittedPE(){fmcNPE++;}
  void AddDetPE(){fNPE++;}
     
 

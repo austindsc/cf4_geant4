@@ -5,8 +5,11 @@
 #include "G4VSensitiveDetector.hh"
 #include "G4StepPoint.hh"
 #include "G4TransportationManager.hh"
-#include "G4UniformRand.hh"
+#include "G4SDManager.hh"
+#include "Randomize.hh"
+#include "MyGlobals.hh"
 #include "CLHEP/Units/PhysicalConstants.h"
+#include "TwoDLookupTable.hh"
 #include <cmath>
 
 // Static member initialization
@@ -16,15 +19,65 @@ SiPMSurfaceWLS* SiPMSurfaceWLS::fInstance = nullptr;
 // Constructor - inherits from G4OpBoundaryProcess
 //==============================================================================
 SiPMSurfaceWLS::SiPMSurfaceWLS(const G4String& processName)
-    : G4OpBoundaryProcess(processName), fInvokeSD(true) {
-    
+    : G4OpBoundaryProcess(processName), 
+      fInvokeSD(true),
+      fTransmissionHist(nullptr),
+      fReflectionHist(nullptr),
+      fInternalPDEHist(nullptr),
+      fFillFactor(1.0),
+      fRdiffuseFraction(0.),
+      fVoltage(4.0) {  // Default 4V
+
     fInstance = this;
-    G4cout << "SiPMSurfaceWLS: Initialized as enhanced boundary process" << G4endl;
+    
+    G4cout << "SiPMSurfaceWLS: Initializing enhanced boundary process..." << G4endl;
+    
+    // Load optical data tables
+    SetupSiPMType("HPK-VUV4"); // Hardcoded for now - change as needed
+    fDoShadowing = true; // enable shadowing by default
+    if(fDoShadowing){
+        fW = W_from_FF(fFillFactor); // W = ff/p
+        fH = fResistorHeight / fPixelPitch; // H = h/p
+    }
+    G4bool mandatory;
+    LoadOpticsTable(mandatory=true);
+    LoadInternalPDETable(mandatory=true);
+
+    // G4cout << "R value:" << fReflectionHist->Interpolate(200, 20) << G4endl; // test interpolation to ensure loaded
+    // G4cout << fTransmissionHist->GetNbinsX() << " x " << fTransmissionHist->GetNbinsY() << " bins" << G4endl;
+    // G4cout << "T value:" << fTransmissionHist->Interpolate(200, 20) << G4endl;
+
 }
 
 SiPMSurfaceWLS::~SiPMSurfaceWLS() {
+    // Clean up the copied histograms
+    delete fTransmissionHist;
+    delete fReflectionHist;  
+    delete fInternalPDEHist;
+    
     if (fInstance == this) {
         fInstance = nullptr;
+    }
+}
+
+void SiPMSurfaceWLS::SetupSiPMType(G4String type) {
+    if (type == "HPK-VUV4") {
+        fOpticsDataFile = "dataPDE/optics_HPK-VUV4_noWindow_17nmOxide_defaultData_globalPar_160k.csv";
+        fInternalPDEFile = "dataPDE/internalPDE_HPK-VUV4_noWindow_17nmOxide_defaultData_globalPar_160k.csv";
+        fFillFactor = 0.6;              // Example fill factor
+        fRdiffuseFraction = 0.17;      // Example (total) diffuse reflection fraction
+
+        fResistorHeight = 2.5;
+        fPixelPitch = 50;
+
+    } else if (type == "OtherSiPM") {
+        // Set parameters for another SiPM type
+        fOpticsDataFile = "dataPDE/optics_OtherSiPM.csv";
+        fInternalPDEFile = "dataPDE/effective_internalPDE_OtherSiPM.txt";
+        fFillFactor = 0.75;           // Example fill factor
+        fRdiffuseFraction = 0.2;      // Example diffuse reflection fraction
+    } else {
+        G4cout << "SiPMSurfaceWLS: Unknown SiPM type '" << type << "'. Using default parameters." << G4endl;
     }
 }
 
@@ -43,11 +96,12 @@ G4VParticleChange* SiPMSurfaceWLS::PostStepDoIt(const G4Track& aTrack, const G4S
     //   G4cout << "Post volume: " << aStep.GetPostStepPoint()->GetPhysicalVolume()->GetName() << G4endl;
     //   G4cout << "also in sensitive detector?: " << EnteringSensitiveDetector(aTrack, aStep) <<"\n-------\n" << G4endl;
     // }
+
     // Check if we're entering a sensitive detector (SiPM)
     if (EnteringSensitiveDetector(aTrack, aStep)) {
       // this is us!
       G4cout << "SiPMSurfaceWLS: At SiPM boundary - applying custom optics" << G4endl;
-      return ApplyCustomReflection(aTrack, aStep);
+      return DoCustomOpticsAndDetection(aTrack, aStep);
     }
     
     // Not at SiPM boundary - use standard G4OpBoundaryProcess behavior
@@ -72,6 +126,173 @@ bool SiPMSurfaceWLS::EnteringSensitiveDetector(const G4Track& aTrack, const G4St
 }
 
 //==============================================================================
+// Apply custom optics and possibly detection at SiPM surface
+//==============================================================================
+G4VParticleChange* SiPMSurfaceWLS::DoCustomOpticsAndDetection(const G4Track& aTrack, const G4Step& aStep) {
+
+    aParticleChange.Initialize(aTrack);
+    if (!fSiPMDetector){fSiPMDetector = GetSiPMDetector(DETECTORSETUP::GetSiPMName());}
+
+    // Get current position and direction
+    G4ThreeVector currentPos = aTrack.GetPosition();
+    G4ThreeVector currentDir = aTrack.GetMomentumDirection().unit();
+
+    // do some math
+    G4ThreeVector normal = GetSurfaceNormal(aStep);
+
+    // Get photon energy in eV, then convert to wavelength in nm
+    G4double wlen_nm = (CLHEP::h_Planck * CLHEP::c_light / aTrack.GetDynamicParticle()->GetTotalEnergy()) / CLHEP::nanometer;
+    G4double incidentAngle_deg = std::abs(currentDir.angle(-normal)) / CLHEP::deg; // angle between incident and normal in degrees
+    G4cout << "  Current AOI: " << incidentAngle_deg << " deg" << G4endl;
+    G4cout << "  Current wavelength: " << wlen_nm << " nm" << G4endl;
+
+    G4ThreeVector specularVec = GetSpecularAngle(currentDir, normal);
+    specularVec = specularVec.unit();
+
+    // aParticleChange.ProposeMomentumDirection(specularVec);
+    // return &aParticleChange;
+    // fFillFactor = 1.0; //xx testing full transmission
+    fSiPMDetector->CountPhotonTouching(aTrack.GetTrackID());
+
+    // on active area
+    if (G4UniformRand() < fFillFactor) {
+        G4double shadowT = 1.0;
+        G4double shadowR = 1.0;
+        if (fDoShadowing){
+            shadowT = FF_theta_relative_transmission(incidentAngle_deg, fW, fH)/fFillFactor;
+            shadowR = FF_theta_relative_reflection(incidentAngle_deg, fW, fH)/fFillFactor;
+        }
+        G4double transmission = shadowT * fTransmissionHist->Interpolate(wlen_nm, incidentAngle_deg);
+        G4double reflection = shadowR * fReflectionHist->Interpolate(wlen_nm, incidentAngle_deg);
+        transmission = 1.0; // xx testing
+
+        // transmitted into SiPM
+        if (G4UniformRand() < transmission) {
+            fSiPMDetector->CountPhotonIn(wlen_nm, incidentAngle_deg);
+
+            aParticleChange.ProposeTrackStatus(fStopAndKill); // could kill photon here, or let it continue into processhits()
+
+            // do internal PDE
+            G4double internalPDE = fInternalPDEHist->Interpolate(wlen_nm, fVoltage);
+
+            // detected internally
+            if(G4UniformRand() < internalPDE){
+                fSiPMDetector->CountPhotonDetected(wlen_nm, incidentAngle_deg);
+                G4cout << "SiPMSurfaceWLS: Photon detected inside SiPM" << G4endl;
+                G4cout << "  Internal PDE: " << internalPDE << G4endl;
+                G4cout << "  voltage: " << fVoltage << G4endl;
+            }
+
+            return &aParticleChange;
+        
+        // reflected off SiPM active surface
+        } else if (G4UniformRand() < reflection) { // reflected off SiPM surface
+            // do specular reflection
+            G4cout << "SiPMSurfaceWLS: Photon specularly reflected off SiPM surface" << G4endl;
+            aParticleChange.ProposeMomentumDirection(specularVec);
+            return &aParticleChange;
+        
+        // absorbed on surface (via R + T  < 1) which *may* be the case depending on inputs
+        } else{
+            G4cout << "SiPMSurfaceWLS: Photon absorbed at SiPM surface" << G4endl;
+            aParticleChange.ProposeTrackStatus(fStopAndKill);
+            return &aParticleChange;
+        }
+
+    } else { // on inactive area (1-FF)
+        //diffuse reflectivity off inactive area
+        if (G4UniformRand() < GetFFrelativeDiffuseFraction()) { // diffuse reflection off 1-FF
+            G4cout << "SiPMSurfaceWLS: Photon hit dead area - diffusely reflecting" << G4endl;
+            G4ThreeVector diffuseVec = GetDiffuseAngle(normal);
+            aParticleChange.ProposeMomentumDirection(diffuseVec);
+            return &aParticleChange;
+        // photon dies on inactive surface    
+        } else {
+            G4cout << "SiPMSurfaceWLS: Photon hit dead area - absorbed" << G4endl;
+            aParticleChange.ProposeTrackStatus(fStopAndKill);
+            return &aParticleChange;
+        }
+    }
+
+    G4cout << "  New direction: " << specularVec << G4endl;
+    
+    return &aParticleChange;
+}
+
+//==============================================================================
+// Load transmission and reflection tables from main optics file
+//==============================================================================
+void SiPMSurfaceWLS::LoadOpticsTable(G4bool mandatory) {
+    // Load transmission data (column 2)
+    TwoDLookupTable* tempTransTable = new TwoDLookupTable("transmission");
+    bool success1 = tempTransTable->LoadFromCSV(fOpticsDataFile, 0, 1, 3, true, ',');
+    if (!success1) {
+        G4cout << "❌ Warning: Failed to load transmission data from " << fOpticsDataFile << G4endl;
+        fTransmissionHist = nullptr;
+        if (mandatory) { exit(1);}
+    } else {
+        G4cout << "✅ Transmission table loaded" << G4endl;
+        // Create a persistent copy of the histogram
+        const TH2D* originalHist = tempTransTable->GetHistogram();
+        fTransmissionHist = new TH2D(*originalHist);  // Copy constructor creates independent copy
+    }
+    
+    // Load reflection data (column 4) 
+    TwoDLookupTable* tempReflTable = new TwoDLookupTable("reflection");
+    bool success2 = tempReflTable->LoadFromCSV(fOpticsDataFile, 0, 1, 5, true, ',');
+    if (!success2) {
+        G4cout << "❌ Warning: Failed to load reflection data from " << fOpticsDataFile << G4endl;
+        fReflectionHist = nullptr;
+        if (mandatory) { exit(1);}
+    } else {
+        G4cout << "✅ Reflection table loaded" << G4endl;
+        // Create a persistent copy of the histogram
+        const TH2D* originalHist = tempReflTable->GetHistogram();
+        fReflectionHist = new TH2D(*originalHist);  // Copy constructor creates independent copy
+    }
+    
+    // Clean up temporary table objects (keeping the histograms)
+    delete tempTransTable;
+    delete tempReflTable;
+}
+void SiPMSurfaceWLS::LoadInternalPDETable(G4bool mandatory) {
+    // Load internal PDE data
+    TwoDLookupTable* tempPDETable = new TwoDLookupTable("internalPDE");
+    bool success = tempPDETable->LoadFromCSV(fInternalPDEFile, 0, 1, 2, true, ',');
+    if (!success) {
+        G4cout << "❌ Warning: Failed to load internal PDE data from " << fInternalPDEFile << G4endl;
+        fInternalPDEHist = nullptr;
+        if (mandatory) { exit(1);}
+    } else {
+        G4cout << "✅ Internal PDE table loaded" << G4endl;
+        fInternalPDEHist = new TH2D(*tempPDETable->GetHistogram()); // make a copy for persistence
+    }
+    
+    // Clean up temporary table object (keeping the histogram)
+    delete tempPDETable;
+}
+
+//==============================================================================
+// Get SensitiveSIPM detector by name from G4SDManager
+//==============================================================================
+SensitiveSIPM* SiPMSurfaceWLS::GetSiPMDetector(G4String sdName) {
+    static SensitiveSIPM* cachedDetector = nullptr;
+    
+    if (!cachedDetector) {
+        G4SDManager* sdManager = G4SDManager::GetSDMpointer();
+        G4VSensitiveDetector* sd = sdManager->FindSensitiveDetector(sdName);
+        cachedDetector = static_cast<SensitiveSIPM*>(sd);
+        
+        if (!cachedDetector) {
+            G4cout << "Warning: Could not find SensitiveSIPM detector with name " << sdName << G4endl;
+            G4cout << "Exiting..." << G4endl;
+            exit(1);
+        }
+    }
+    return cachedDetector;
+}
+
+//==============================================================================
 // doing some math
 //==============================================================================
 G4ThreeVector SiPMSurfaceWLS::GetSurfaceNormal(const G4Step& aStep) {
@@ -87,6 +308,7 @@ G4ThreeVector SiPMSurfaceWLS::GetSurfaceNormal(const G4Step& aStep) {
 G4ThreeVector SiPMSurfaceWLS::GetSpecularAngle(const G4ThreeVector& incident, const G4ThreeVector& normal) {
     return (incident - 2 * incident.dot(normal) * normal).unit();
 }
+
 G4ThreeVector SiPMSurfaceWLS::GetDiffuseAngle(const G4ThreeVector& normal) {
     // Generate random angles for isotropic distribution in hemisphere
     G4double phi = G4UniformRand() * 2.0 * CLHEP::pi;  // Azimuthal angle: 0 to 2π
@@ -111,25 +333,49 @@ G4ThreeVector SiPMSurfaceWLS::GetDiffuseAngle(const G4ThreeVector& normal) {
     return globalDir.unit();
 }
 
-//==============================================================================
-// Apply custom reflection at SiPM surface
-//==============================================================================
-G4VParticleChange* SiPMSurfaceWLS::ApplyCustomReflection(const G4Track& aTrack, const G4Step& aStep) {
-    aParticleChange.Initialize(aTrack);
+// G4double SiPMSurfaceWLS::ShadowingReduction_transmission(G4double angle) {
     
-    // Get current position and direction
-    G4ThreeVector currentPos = aTrack.GetPosition();
-    G4ThreeVector currentDir = aTrack.GetMomentumDirection().unit();
+// }
 
-    // do some math
-    G4ThreeVector normal = GetSurfaceNormal(aStep);
-    G4ThreeVector specularVec = GetSpecularAngle(currentDir, normal);
-    G4ThreeVector diffuseVec = GetDiffuseAngle(normal);
+//==============================================================================
+// Fill factor utility functions for shadowing
+//==============================================================================
+std::pair<G4double, G4double> SiPMSurfaceWLS::QuadraticSolution(G4double a, G4double b, G4double c) {
+    G4double discriminant = b*b - 4*a*c;
+    if (discriminant < 0) {
+        G4cout << "Warning: QuadraticSolution - negative discriminant!" << G4endl;
+        return std::make_pair(0.0, 0.0);
+    }
+    G4double sqrtDisc = std::sqrt(discriminant);
+    G4double sol1 = (-b + sqrtDisc) / (2*a);
+    G4double sol2 = (-b - sqrtDisc) / (2*a);
+    return std::make_pair(sol1, sol2);
+}
 
-    specularVec = specularVec.unit();
-    aParticleChange.ProposeMomentumDirection(specularVec);
-    
-    G4cout << "  New direction: " << specularVec << G4endl;
-    
-    return &aParticleChange;
+// This returns the relative size of the microstructure width wrt pitch
+G4double SiPMSurfaceWLS::W_from_FF(G4double FF) {
+    std::pair<G4double, G4double> solutions = QuadraticSolution(1.0, -1.0, (1.0-FF)/4.0);
+    return std::min(solutions.first, solutions.second);
+}
+
+G4double SiPMSurfaceWLS::FF_from_W(G4double W) {
+    return 4.0*(W*W) - 4.0*W + 1.0;
+}
+
+//==============================================================================
+// Angular fill factor functions with shadowing
+//==============================================================================
+G4double SiPMSurfaceWLS::FF_theta_relative_shadow(G4double theta, G4double W, G4double H) { // theta in degrees
+    G4double theta_rad = std::abs(theta * CLHEP::deg);  // Convert to radians
+    return (1.0 - 2.0*W) * H * std::tan(theta_rad);
+}
+
+G4double SiPMSurfaceWLS::FF_theta_relative_transmission(G4double theta, G4double W, G4double H) {
+    // W defined as ff/p
+    // H defined as h/p
+    return FF_from_W(W) - FF_theta_relative_shadow(theta, W, H);
+}
+
+G4double SiPMSurfaceWLS::FF_theta_relative_reflection(G4double theta, G4double W, G4double H) {
+    return FF_from_W(W) - 2.0*FF_theta_relative_shadow(theta, W, H);
 }

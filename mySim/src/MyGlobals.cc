@@ -19,6 +19,10 @@ namespace DETECTORSETUP{
   static bool absorbingAll = false;
   static bool makeVisible = false; // this scales up the small things
 
+  static G4String fSiPMName = "SensitiveSiPM"; // default SiPM type
+  G4String GetSiPMName(){ return fSiPMName; }
+  void SetSiPMName(G4String a){ fSiPMName = a; }
+
   bool GetWindowStatus(){ return buildWindow; }
   void SetWindowStatus(bool a){ buildWindow = a; }
 

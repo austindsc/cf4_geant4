@@ -24,25 +24,26 @@ SensitiveSIPM::~SensitiveSIPM()
 //==============================================================================
 G4bool SensitiveSIPM::ProcessHits(G4Step * step, G4TouchableHistory *) {
     
-    // Only process optical photons
-    if (step->GetTrack()->GetParticleDefinition() != G4OpticalPhoton::OpticalPhoton()) {
-        return false;
-    }
+  // none of this gets called anymore. this is just a wrapper class i guess.
+  // and it lets us double check we are in sensitive volume (from other location)
+
+    // // Only process optical photons
+    // if (step->GetTrack()->GetParticleDefinition() != G4OpticalPhoton::OpticalPhoton()) {
+    //     return false;
+    // }
+    // // Kill the photon track since it's been detected
+    // step->GetTrack()->SetTrackStatus(fStopAndKill);
+    // G4cout << "SensitiveSIPM: Photon detected and track killed." << G4endl;
+    // return true;
     
-    // Note: Surface optics (reflection/transmission) is now handled by SiPMSurfaceWLS process
-    // This ProcessHits only gets called for photons that survive surface processing
+    // // Note: Surface optics (reflection/transmission) is now handled by SiPMSurfaceWLS process
+    // // This ProcessHits only gets called for photons that survive surface processing
     
-    // Count the photon - first check for multiple hits from same track
-    if (CountPhotonTouching(step->GetTrack()->GetTrackID())) {
-        // This is a new photon track touching the SiPM
-        if (CountPhotonIn(step)) {
-            if (MG::GetVerbosity() >= 2) {
-                G4double wavelength = fhc / step->GetTrack()->GetMomentum().mag() / CLHEP::nm;
-                G4cout << "SensitiveSIPM: Counting photon (λ=" << wavelength << " nm)" << G4endl;
-            }
-            return true;
-        }
-    }
+    // // Count the photon - first check for multiple hits from same track
+    // if (CountPhotonTouching(step->GetTrack()->GetTrackID())) {
+    //     // This is a new photon track touching the SiPM
+    //     // do nothing for now - just count it
+    // }
     
     return false;
 }
@@ -53,6 +54,7 @@ G4bool SensitiveSIPM::ProcessHits(G4Step * step, G4TouchableHistory *) {
 G4bool SensitiveSIPM::CountPhotonTouching(G4int trackID) {
     if (trackID != fLastTrackID) {
         fLastTrackID = trackID;
+        fEventAction->AddTouchingPE(); // photon touching SiPM (for the first time)
         return true; // New track
     }
     return false; // Same track as last time
@@ -61,19 +63,12 @@ G4bool SensitiveSIPM::CountPhotonTouching(G4int trackID) {
 //==============================================================================
 // Count photon (placeholder for detection efficiency, PDE, etc.)
 //==============================================================================
-G4bool SensitiveSIPM::CountPhotonIn(const G4Step * step) {
-    // For now, count all photons that make it here
-    // Future: apply PDE, quantum efficiency, etc.
-    
-    G4double wavelength = fhc / step->GetTrack()->GetMomentum().mag() / CLHEP::nm;
-    
-    // Simple detection - just increment the counter
-    if (fEventAction) {
-        fEventAction->AddDetPE();
-        if (MG::GetVerbosity() >= 1) {
-            G4cout << "SensitiveSIPM: Detected photon at wavelength " << wavelength << " nm" << G4endl;
-        }
-    }
-    
+G4bool SensitiveSIPM::CountPhotonIn(G4double wavelength, G4double angleDeg) {
+    fEventAction->AddTransmittedPE(); // photon made it into SiPM    
+    return true;
+}
+
+G4bool SensitiveSIPM::CountPhotonDetected(G4double wavelength, G4double angleDeg) {
+    fEventAction->AddDetPE(); // photon detected
     return true;
 }

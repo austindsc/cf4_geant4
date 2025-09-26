@@ -53,6 +53,10 @@ private:
   // Co60 (angle biasing, not complete decay information)
   // Co57 (angle biasing, not complete decay information)
   
+  G4UIcmdWithADouble * SetVoltageCmd;
+  // /setVoltage value unit
+  // Sets SiPM bias voltage
+  
   // 0 no source
   // 1...3 different positions
   

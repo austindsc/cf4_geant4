@@ -76,7 +76,7 @@ CF4DetectorConstruction::CF4DetectorConstruction()
 
 void CF4DetectorConstruction::ConstructSDandField(){
     
-    SensitiveSIPM * ssipm = new SensitiveSIPM("SensitiveSIPM");
+    SensitiveSIPM * ssipm = new SensitiveSIPM("SensitiveSiPM");
     fsipmVolume->SetSensitiveDetector(ssipm);
 
     G4SDManager* SDman = G4SDManager::GetSDMpointer();

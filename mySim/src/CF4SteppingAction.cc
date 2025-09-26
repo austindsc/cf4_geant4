@@ -67,8 +67,8 @@ void CF4SteppingAction::UserSteppingAction(const G4Step* step)
   G4LogicalVolume* volume = step->GetPreStepPoint()->GetTouchableHandle()
       ->GetVolume()->GetLogicalVolume();
       
-  // check if we are in scoring volume
-  if (volume != fScoringVolume) return;
+  // check if not in scoring volume or if optical photon (get out)
+  if (volume != fScoringVolume || step->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) return;
 
   // collect energy deposited in this step
   G4double edepStep = step->GetTotalEnergyDeposit();
