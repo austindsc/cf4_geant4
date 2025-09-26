@@ -43,6 +43,8 @@
                                           # 2 some photon level data, all data that is used
                                           # -1 means fill ntuple regardless (good for optical photon testing where eDep == 0)
 
+/setDetector/setVoltage 4.69              # Set SiPM bias voltage in volts
+                                          # Default is 28V if not set
 #/setDetector/useLPFilter                 # just calling this makes it true, there is no argument
 
 #/setDetector/useCollimator true           # default is true
