@@ -27,14 +27,16 @@ G4bool SensitiveSIPM::ProcessHits(G4Step * step, G4TouchableHistory *) {
   // none of this gets called anymore. this is just a wrapper class i guess.
   // and it lets us double check we are in sensitive volume (from other location)
 
-    // // Only process optical photons
-    // if (step->GetTrack()->GetParticleDefinition() != G4OpticalPhoton::OpticalPhoton()) {
-    //     return false;
-    // }
-    // // Kill the photon track since it's been detected
-    // step->GetTrack()->SetTrackStatus(fStopAndKill);
-    // G4cout << "SensitiveSIPM: Photon detected and track killed." << G4endl;
-    // return true;
+    // Only process optical photons
+    if (step->GetTrack()->GetParticleDefinition() != G4OpticalPhoton::OpticalPhoton()) {
+        return false;
+    }
+    // Kill the photon track since it's been detected
+    step->GetTrack()->SetTrackStatus(fStopAndKill);
+    if(MG::GetVerbosity() >= 2) {
+        G4cout << "SensitiveSIPM::ProcessHits() Photon detected and track killed." << G4endl;
+    }
+    return true;
     
     // // Note: Surface optics (reflection/transmission) is now handled by SiPMSurfaceWLS process
     // // This ProcessHits only gets called for photons that survive surface processing
@@ -45,7 +47,7 @@ G4bool SensitiveSIPM::ProcessHits(G4Step * step, G4TouchableHistory *) {
     //     // do nothing for now - just count it
     // }
     
-    return false;
+    // return false;
 }
 
 //==============================================================================

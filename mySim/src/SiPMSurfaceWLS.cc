@@ -43,6 +43,48 @@ SiPMSurfaceWLS::SiPMSurfaceWLS(const G4String& processName)
     LoadOpticsTable(mandatory=true);
     LoadInternalPDETable(mandatory=true);
 
+    ////// Assign range variables after tables are loaded //////
+    if (fTransmissionHist && fReflectionHist) {
+        // Use bin centers instead of bin edges for proper interpolation range
+        G4int nXbins = fTransmissionHist->GetNbinsX();
+        G4int nYbins = fTransmissionHist->GetNbinsY();
+        
+        fOptics_wavelengthRange = std::make_pair(
+            fTransmissionHist->GetXaxis()->GetBinCenter(1),        // First bin center
+            fTransmissionHist->GetXaxis()->GetBinCenter(nXbins-1)    // Last bin center
+        );
+        fOptics_angleRange = std::make_pair(
+            fTransmissionHist->GetYaxis()->GetBinCenter(1),        // First bin center
+            fTransmissionHist->GetYaxis()->GetBinCenter(nYbins-1)    // Last bin center
+        );
+        if (MG::GetVerbosity() >= 1) {
+        G4cout << "Optics wavelength range: " << fOptics_wavelengthRange.first 
+               << " - " << fOptics_wavelengthRange.second << " nm" << G4endl;
+        G4cout << "Optics angle range: " << fOptics_angleRange.first 
+               << " - " << fOptics_angleRange.second << " deg" << G4endl;
+        }
+    }
+    if (fInternalPDEHist) {
+        // Use bin centers instead of bin edges for proper interpolation range
+        G4int nXbins_pde = fInternalPDEHist->GetNbinsX();
+        G4int nYbins_pde = fInternalPDEHist->GetNbinsY();
+        
+        fInternalPDE_wlenRange = std::make_pair(
+            fInternalPDEHist->GetXaxis()->GetBinCenter(1),         // First bin center
+            fInternalPDEHist->GetXaxis()->GetBinCenter(nXbins_pde-1) // Last bin center
+        );
+        fInternalPDE_voltageRange = std::make_pair(
+            fInternalPDEHist->GetYaxis()->GetBinCenter(1),         // First bin center
+            fInternalPDEHist->GetYaxis()->GetBinCenter(nYbins_pde-1) // Last bin center
+        );
+        if (MG::GetVerbosity() >= 1) {
+        G4cout << "Internal PDE wavelength range: " << fInternalPDE_wlenRange.first 
+               << " - " << fInternalPDE_wlenRange.second << " nm" << G4endl;
+        G4cout << "Internal PDE voltage range: " << fInternalPDE_voltageRange.first 
+               << " - " << fInternalPDE_voltageRange.second << " V" << G4endl;
+        }
+    }
+
     // G4cout << "R value:" << fReflectionHist->Interpolate(200, 20) << G4endl; // test interpolation to ensure loaded
     // G4cout << fTransmissionHist->GetNbinsX() << " x " << fTransmissionHist->GetNbinsY() << " bins" << G4endl;
     // G4cout << "T value:" << fTransmissionHist->Interpolate(200, 20) << G4endl;
@@ -98,10 +140,10 @@ G4VParticleChange* SiPMSurfaceWLS::PostStepDoIt(const G4Track& aTrack, const G4S
     // }
 
     // Check if we're entering a sensitive detector (SiPM)
-    if (EnteringSensitiveDetector(aTrack, aStep)) {
-      // this is us!
-      G4cout << "SiPMSurfaceWLS: At SiPM boundary - applying custom optics" << G4endl;
-      return DoCustomOpticsAndDetection(aTrack, aStep);
+    if (EnteringSensitiveDetector(aTrack, aStep)){
+        // this is us!
+        if(MG::GetVerbosity() >= 2) G4cout << "SiPMSurfaceWLS: At SiPM boundary - applying custom optics" << G4endl;
+        return DoCustomOpticsAndDetection(aTrack, aStep);
     }
     
     // Not at SiPM boundary - use standard G4OpBoundaryProcess behavior
@@ -125,97 +167,112 @@ bool SiPMSurfaceWLS::EnteringSensitiveDetector(const G4Track& aTrack, const G4St
     return false;
 }
 
+
+// void SiPMSurfaceWLS::HandleRange(G4double& wlen, G4double & aoi, G4double &voltage){
+
+// }
+
 //==============================================================================
 // Apply custom optics and possibly detection at SiPM surface
 //==============================================================================
 G4VParticleChange* SiPMSurfaceWLS::DoCustomOpticsAndDetection(const G4Track& aTrack, const G4Step& aStep) {
 
     aParticleChange.Initialize(aTrack);
-    if (!fSiPMDetector){fSiPMDetector = GetSiPMDetector(DETECTORSETUP::GetSiPMName());}
-
-    // Get current position and direction
-    G4ThreeVector currentPos = aTrack.GetPosition();
-    G4ThreeVector currentDir = aTrack.GetMomentumDirection().unit();
-
-    // do some math
-    G4ThreeVector normal = GetSurfaceNormal(aStep);
-
-    // Get photon energy in eV, then convert to wavelength in nm
-    G4double wlen_nm = (CLHEP::h_Planck * CLHEP::c_light / aTrack.GetDynamicParticle()->GetTotalEnergy()) / CLHEP::nanometer;
-    G4double incidentAngle_deg = std::abs(currentDir.angle(-normal)) / CLHEP::deg; // angle between incident and normal in degrees
-    G4cout << "  Current AOI: " << incidentAngle_deg << " deg" << G4endl;
-    G4cout << "  Current wavelength: " << wlen_nm << " nm" << G4endl;
-
-    G4ThreeVector specularVec = GetSpecularAngle(currentDir, normal);
-    specularVec = specularVec.unit();
-
-    // aParticleChange.ProposeMomentumDirection(specularVec);
-    // return &aParticleChange;
-    // fFillFactor = 1.0; //xx testing full transmission
+    
+    // Critical safety checks
+    if (!fTransmissionHist) {
+        G4cout << "ERROR: fTransmissionHist is null!" << G4endl;
+        exit(1);
+    }
+    if (!fReflectionHist) {
+        G4cout << "ERROR: fReflectionHist is null!" << G4endl;
+        exit(1);
+    }
+    if (!fInternalPDEHist) {
+        G4cout << "ERROR: fInternalPDEHist is null!" << G4endl;
+        exit(1);
+    }
+    if (!fSiPMDetector){
+        fSiPMDetector = GetSiPMDetector(DETECTORSETUP::GetSiPMName());
+        if (!fSiPMDetector) {
+          G4cout << "ERROR: Could not get SiPM detector!" << G4endl;
+          exit(1);
+        }
+    } // should only get called once (to point towards the sensitive detector)
+    
     fSiPMDetector->CountPhotonTouching(aTrack.GetTrackID());
 
-    // on active area
-    if (G4UniformRand() < fFillFactor) {
-        G4double shadowT = 1.0;
-        G4double shadowR = 1.0;
+    /////// -- doing math and setup -- ///////
+    // Get current position and direction, wlen, do some math. photon energy in eV, then convert to wavelength in nm
+    G4double wlen_nm = (CLHEP::h_Planck * CLHEP::c_light / aTrack.GetDynamicParticle()->GetTotalEnergy()) / CLHEP::nanometer;
+    G4ThreeVector currentDir = aTrack.GetMomentumDirection().unit();
+    G4ThreeVector normal = GetSurfaceNormal(aStep);
+    G4double incidentAngle_deg = std::abs(currentDir.angle(-normal)) / CLHEP::deg; // angle between incident and normal in degrees
+    if(MG::GetVerbosity() >= 2) {
+        G4cout << "  Current AOI: " << incidentAngle_deg << " deg" << G4endl;
+        G4cout << "  Current wavelength: " << wlen_nm << " nm" << G4endl;
+    }
+
+    //// -- check angle max range -- ////
+    if (incidentAngle_deg > fOptics_angleRange.second) {
+        incidentAngle_deg = fOptics_angleRange.second;
+        if(MG::GetVerbosity() >= 2) {
+            G4cout << "⚠️ SiPMSurfaceWLS: Incident angle " << incidentAngle_deg 
+                   << " deg out of optics table range (" << fOptics_angleRange.first 
+                   << " - " << fOptics_angleRange.second << " deg)." << G4endl;
+        }
+    }
+
+    //// -- doing PDE decision tree -- ////
+    if (G4UniformRand() < fFillFactor) { // on active area
+        G4double shadowT = 1.0, shadowR = 1.0;
+
         if (fDoShadowing){
             shadowT = FF_theta_relative_transmission(incidentAngle_deg, fW, fH)/fFillFactor;
             shadowR = FF_theta_relative_reflection(incidentAngle_deg, fW, fH)/fFillFactor;
         }
         G4double transmission = shadowT * fTransmissionHist->Interpolate(wlen_nm, incidentAngle_deg);
         G4double reflection = shadowR * fReflectionHist->Interpolate(wlen_nm, incidentAngle_deg);
-        transmission = 1.0; // xx testing
 
-        // transmitted into SiPM
-        if (G4UniformRand() < transmission) {
+        if (G4UniformRand() < transmission) { // transmitted into SiPM
             fSiPMDetector->CountPhotonIn(wlen_nm, incidentAngle_deg);
-
             aParticleChange.ProposeTrackStatus(fStopAndKill); // could kill photon here, or let it continue into processhits()
 
-            // do internal PDE
             G4double internalPDE = fInternalPDEHist->Interpolate(wlen_nm, fVoltage);
-
-            // detected internally
-            if(G4UniformRand() < internalPDE){
+            if(G4UniformRand() < internalPDE){ // detected internally
+                // G4cout << "DEBUG: About to call CountPhotonDetected..." << G4endl;
                 fSiPMDetector->CountPhotonDetected(wlen_nm, incidentAngle_deg);
-                G4cout << "SiPMSurfaceWLS: Photon detected inside SiPM" << G4endl;
-                G4cout << "  Internal PDE: " << internalPDE << G4endl;
-                G4cout << "  voltage: " << fVoltage << G4endl;
+                if(MG::GetVerbosity() >= 2) {
+                    G4cout << "SiPMSurfaceWLS: Photon detected inside SiPM" << G4endl;
+                    G4cout << "  Internal PDE: " << internalPDE << G4endl;
+                    G4cout << "  voltage: " << fVoltage << G4endl;
+                }
             }
-
             return &aParticleChange;
-        
-        // reflected off SiPM active surface
-        } else if (G4UniformRand() < reflection) { // reflected off SiPM surface
-            // do specular reflection
-            G4cout << "SiPMSurfaceWLS: Photon specularly reflected off SiPM surface" << G4endl;
+        } else if (G4UniformRand() < reflection) { // reflected off SiPM active surface, doing specular reflection
+            G4ThreeVector specularVec = GetSpecularAngle(currentDir, normal).unit();
             aParticleChange.ProposeMomentumDirection(specularVec);
+            if(MG::GetVerbosity() >= 2) G4cout << "SiPMSurfaceWLS: Photon specularly reflected off SiPM surface" << G4endl;
             return &aParticleChange;
-        
-        // absorbed on surface (via R + T  < 1) which *may* be the case depending on inputs
-        } else{
-            G4cout << "SiPMSurfaceWLS: Photon absorbed at SiPM surface" << G4endl;
+        } else{ // absorbed on active surface (via R + T  < 1) which *may* be the case depending on physics table inputs
+            if(MG::GetVerbosity() >= 2) G4cout << "SiPMSurfaceWLS: Photon absorbed at SiPM surface" << G4endl;
             aParticleChange.ProposeTrackStatus(fStopAndKill);
             return &aParticleChange;
         }
-
     } else { // on inactive area (1-FF)
         //diffuse reflectivity off inactive area
         if (G4UniformRand() < GetFFrelativeDiffuseFraction()) { // diffuse reflection off 1-FF
-            G4cout << "SiPMSurfaceWLS: Photon hit dead area - diffusely reflecting" << G4endl;
+            if(MG::GetVerbosity() >= 2) G4cout << "SiPMSurfaceWLS: Photon hit dead area - diffusely reflecting" << G4endl;
             G4ThreeVector diffuseVec = GetDiffuseAngle(normal);
             aParticleChange.ProposeMomentumDirection(diffuseVec);
             return &aParticleChange;
-        // photon dies on inactive surface    
+        // photon dies on inactive surface (1-FF)    
         } else {
-            G4cout << "SiPMSurfaceWLS: Photon hit dead area - absorbed" << G4endl;
+            if(MG::GetVerbosity() >= 2) G4cout << "SiPMSurfaceWLS: Photon hit dead area - absorbed" << G4endl;
             aParticleChange.ProposeTrackStatus(fStopAndKill);
             return &aParticleChange;
         }
-    }
-
-    G4cout << "  New direction: " << specularVec << G4endl;
-    
+    }    
     return &aParticleChange;
 }
 

@@ -2,25 +2,19 @@
 # in interactive session
 
 ## Verbosities ##
-
 /vis/verbose 0
-/tracking/verbose 2
-/event/verbose 1
+/tracking/verbose 0
+/event/verbose 0
 /run/verbose 0
 
 #/run/numberOfThreads 1 # defaults to zero
-
 
 #/process/em/verbose 0
 #/process/had/verbose 0
 /particle/verbose 0
 /cuts/verbose 0
 
-# Override with higher verbosity for detailed tracking
-/tracking/verbose 0
-/event/verbose 1
-/run/verbose 0
-/vis/verbose 0
+
 
 ### Material Properties ###
 #/setMaterial/detectionMedium gCF4        # default is gas
@@ -39,7 +33,7 @@
 #/setMaterial/mediumLY_Vis 5000 MeVLY
 
 ### detector configuration ###
-/setDetector/myVerbosity 2                # 1 outputs event level data
+/setDetector/myVerbosity 1                # 1 outputs event level data
                                           # 2 some photon level data, all data that is used
                                           # -1 means fill ntuple regardless (good for optical photon testing where eDep == 0)
 
@@ -58,7 +52,7 @@
 #/setDetector/gammaSource isoCo60
 #/setDetector/gammaSource isoCo57
 
-#/setDetector/alphaHeight 4.0             # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
+/setDetector/alphaHeight 4.0             # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
                                         # currently gamma and alpha source have same intensity (see primary generator constructor to change)
 
 # or load anything you want here
@@ -84,9 +78,9 @@
 /run/initialize
 
 ### no visualization ###
-#/run/beamOn 1
+/run/beamOn 1
 
 ### run visualization ###
 /control/execute ../myVis.mac
 #/control/exit
-/control/execute ../livePhotonTest.mac
+#/control/execute ../livePhotonTest.mac

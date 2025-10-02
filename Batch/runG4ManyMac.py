@@ -13,6 +13,7 @@ the verbosities are NOT copied from the base macro file, they are done explicitl
 """
 
 import sys
+import os
 import subprocess # to call mkdir and build .mac files we need
 from multiprocessing import Pool
 from tqdm import tqdm
@@ -20,8 +21,10 @@ from tqdm import tqdm
 from helpers.G4_runClasses import *
 from helpers.G4_macHelpers import *
 
-path = "/Users/austindestcroix/Desktop/school_holders/projects/sbc/g4_cf4_updated/"
-pBatch = path+"batchOutput_aug25/"
+# path = "/Users/austindestcroix/Desktop/school_holders/projects/sbc/g4cf4_newOptics/"
+path = os.getenv("CF4G4")
+# print("hello world")
+pBatch = path+"batchOutput/alpha_sept25/"
 pBuild = path+"build/"
 
 TESTING = False
@@ -33,15 +36,16 @@ class RunControl:
 ## -- controls -- ###
 rc = RunControl()
 rc.verbose = True
-rc.eventVerbose = True
+rc.eventVerbose = 0 # 0 is silent, 1 is a little, 2 is a lot
 rc.nbeam_end = 1e5 # gammas of maximum ly value.
 rc.execName = "cf4Chamber"
 # rc.lyList = np.arange(0.1, 5, 0.5).tolist()
 rc.lyList = [0.1]
 rc.heightList = [0.5]
-rc.fvisList = np.arange(0.5, 1.0, 0.1)
+# rc.fvisList = np.arange(0.5, 1.0, 0.1)
+rc.fvisList = np.array([0.5])
 
-rc.baseMacro = "alpha_base.mac" # this should be in same directory
+rc.baseMacro = "alpha_base.mac" # this should be in same directory as this script
 rc.baseName = "Alpha"
 loopSelect = "alpha"
 
@@ -148,7 +152,7 @@ if __name__ == "__main__":
       subprocess.run(f"cd {pBatch} ; mkdir {folderID}", shell = True)
       parDirID = str(folderID)
 
-      vfStr = str(visFrac).replace(".", "d")
+      vfStr = str(round(visFrac, 3)).replace(".", "d")
       ## bare run
       runPars.lpFilter = False
       runPars.fname = pBatch + f"{parDirID}/" + rc.baseName + "_vf_" + vfStr + "_bare"

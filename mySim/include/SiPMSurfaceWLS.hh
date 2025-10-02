@@ -66,7 +66,11 @@ private:
     // 2D Histograms for SiPM optics (extracted from TwoDLookupTable)
     const TH2D* fTransmissionHist;
     const TH2D* fReflectionHist;  
+    std::pair<G4double, G4double> fOptics_angleRange; // min/max for wavelength and angle
+    std::pair<G4double, G4double> fOptics_wavelengthRange; // min/max for wavelength and angle
     const TH2D* fInternalPDEHist;
+    std::pair<G4double, G4double> fInternalPDE_wlenRange; // min/max for wavelength and angle
+    std::pair<G4double, G4double> fInternalPDE_voltageRange; // min/max for voltage
     
     // Optical parameters
     G4double fFillFactor;        // FF - geometric fill factor
