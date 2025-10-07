@@ -119,6 +119,8 @@
 #include "G4Cerenkov.hh"
 #include "G4OpRayleigh.hh"
 
+#include "G4StepLimiter.hh"
+
 #include "SiPMSurfaceWLS.hh"
 
 // blah

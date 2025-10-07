@@ -36,6 +36,8 @@
 #include "G4RunManager.hh"
 #include "G4LogicalVolume.hh"
 
+#include "MyGlobals.hh"
+
 #include "G4OpticalPhoton.hh"
 
 
@@ -62,6 +64,15 @@ void CF4SteppingAction::UserSteppingAction(const G4Step* step)
         (G4RunManager::GetRunManager()->GetUserDetectorConstruction());
     fScoringVolume = detectorConstruction->GetScoringVolume();   
   }
+
+    G4Track* track = step->GetTrack();
+    // Only apply to optical photons
+    if (track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
+        if (track->GetCurrentStepNumber() >= 100) {
+            if(MG::GetVerbosity() >= 2) G4cout << "Killing optical photon after" << track->GetCurrentStepNumber() << " steps to prevent infinite bouncing" << G4endl;
+            track->SetTrackStatus(fStopAndKill);
+        }
+    }
 
   // get volume of the current step
   G4LogicalVolume* volume = step->GetPreStepPoint()->GetTouchableHandle()

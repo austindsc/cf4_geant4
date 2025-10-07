@@ -21,6 +21,12 @@ public:
         }
         return fInstance;
     }
+    
+    // Override PostStepDoIt to add custom SiPM logic
+    G4VParticleChange* PostStepDoIt(const G4Track& aTrack, const G4Step& aStep) override;
+    
+    // Implement required virtual methods from G4OpBoundaryProcess
+    void SetInvokeSD(G4bool flag) override { fInvokeSD = flag; }
 
     void SetupSiPMType(G4String type); // hardcode this for now. In future, this can 
     // take in whatever you like to select SiPM type, and then you can check the SiPM type in the 
@@ -31,12 +37,6 @@ public:
     // Voltage setting
     void SetVoltage(G4double voltage) { fVoltage = voltage; }
     G4double GetVoltage() const { return fVoltage; }
-    
-    // Override PostStepDoIt to add custom SiPM logic
-    virtual G4VParticleChange* PostStepDoIt(const G4Track& aTrack, const G4Step& aStep) override;
-    
-    // Implement required virtual methods from G4OpBoundaryProcess
-    virtual void SetInvokeSD(G4bool flag) override { fInvokeSD = flag; }
 
     G4double GetFFrelativeDiffuseFraction() const { return fRdiffuseFraction/(1-fFillFactor); } // this is the number to sample from for diffusion when a photon already hits the inactive area
 

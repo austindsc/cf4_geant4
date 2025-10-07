@@ -139,15 +139,21 @@ G4VParticleChange* SiPMSurfaceWLS::PostStepDoIt(const G4Track& aTrack, const G4S
     //   G4cout << "also in sensitive detector?: " << EnteringSensitiveDetector(aTrack, aStep) <<"\n-------\n" << G4endl;
     // }
 
+    // EXTREME TEST: Don't even call G4OpBoundaryProcess - just kill photon
+    // aParticleChange.Initialize(aTrack);
+    // aParticleChange.ProposeTrackStatus(fStopAndKill);
+    // return &aParticleChange;
+    // G4cout << "SiPMSurfaceWLS: PostStepDoIt called" << G4endl;
+
+    // this is us!
     // Check if we're entering a sensitive detector (SiPM)
     if (EnteringSensitiveDetector(aTrack, aStep)){
-        // this is us!
         if(MG::GetVerbosity() >= 2) G4cout << "SiPMSurfaceWLS: At SiPM boundary - applying custom optics" << G4endl;
         return DoCustomOpticsAndDetection(aTrack, aStep);
     }
-    
+
     // Not at SiPM boundary - use standard G4OpBoundaryProcess behavior
-    return G4OpBoundaryProcess::PostStepDoIt(aTrack, aStep);
+    return G4OpBoundaryProcess::PostStepDoIt(aTrack, aStep); // going straight to here still gave seg fault
 }
 
 //==============================================================================
@@ -156,12 +162,30 @@ bool SiPMSurfaceWLS::EnteringSensitiveDetector(const G4Track& aTrack, const G4St
     G4StepPoint* postStepPoint = aStep.GetPostStepPoint();
     G4VPhysicalVolume* nextVolume = postStepPoint->GetPhysicalVolume();
 
+    const G4ParticleDefinition* particleType = aTrack.GetParticleDefinition();
+    if (particleType != G4OpticalPhoton::OpticalPhoton()) {
+        return false;
+    } // Only care about optical photons
+
+    if(!fSiPMDetector){
+        fSiPMDetector = GetSiPMDetector(DETECTORSETUP::GetSiPMName());
+    }
+
     G4bool boundaryStatus = (aStep.GetPreStepPoint()->GetStepStatus() == fGeomBoundary);
     
-    if (nextVolume && boundaryStatus == fGeomBoundary) {
+    if (nextVolume && boundaryStatus == fGeomBoundary) { // xx check this
         G4LogicalVolume* logicalVol = nextVolume->GetLogicalVolume();
         if (logicalVol && logicalVol->GetSensitiveDetector()) {
-            return true;
+
+            // last check: is this the SiPM sensitive detector?
+            G4String sdName = logicalVol->GetSensitiveDetector()->GetName();
+            // G4cout << "DEBUG: Sensitive detector name: " << sdName << G4endl;
+            // G4cout << "DEBUG: fSiPMDetector name: " << fSiPMDetector->GetName() << G4endl;
+
+            if (sdName == (G4String)fSiPMDetector->GetName()) {
+                // G4cout << "SiPMSurfaceWLS: Photon entering sensitive detector volume: " << sdName << G4endl;
+                return true;
+            }
         }
     }
     return false;
@@ -237,14 +261,18 @@ G4VParticleChange* SiPMSurfaceWLS::DoCustomOpticsAndDetection(const G4Track& aTr
         if (G4UniformRand() < transmission) { // transmitted into SiPM
             fSiPMDetector->CountPhotonIn(wlen_nm, incidentAngle_deg);
             aParticleChange.ProposeTrackStatus(fStopAndKill); // could kill photon here, or let it continue into processhits()
-
             G4double internalPDE = fInternalPDEHist->Interpolate(wlen_nm, fVoltage);
+
+            if(MG::GetVerbosity() >= 2) {
+                G4cout << "SiPMSurfaceWLS: Photon transmitted into SiPM active area" << G4endl;
+                G4cout << "  Transmission: " << transmission << G4endl;
+                G4cout << "  Internal PDE: " << internalPDE << G4endl;
+            }
             if(G4UniformRand() < internalPDE){ // detected internally
                 // G4cout << "DEBUG: About to call CountPhotonDetected..." << G4endl;
                 fSiPMDetector->CountPhotonDetected(wlen_nm, incidentAngle_deg);
                 if(MG::GetVerbosity() >= 2) {
                     G4cout << "SiPMSurfaceWLS: Photon detected inside SiPM" << G4endl;
-                    G4cout << "  Internal PDE: " << internalPDE << G4endl;
                     G4cout << "  voltage: " << fVoltage << G4endl;
                 }
             }
@@ -357,8 +385,8 @@ G4ThreeVector SiPMSurfaceWLS::GetSurfaceNormal(const G4Step& aStep) {
     
     // GetGlobalExitNormal typically needs these parameters:
     G4ThreeVector localPoint = G4ThreeVector(0,0,0); // local point
-    G4bool* valid = new G4bool(false);               // validity flag
-    G4ThreeVector normal = -1*navigator->GetGlobalExitNormal(localPoint, valid); // idk dont ask too much about G4 geometry
+    G4bool valid = false;               // validity flag
+    G4ThreeVector normal = -1*navigator->GetGlobalExitNormal(localPoint, &valid); // idk dont ask too much about G4 geometry
     return normal.unit();
 }
 

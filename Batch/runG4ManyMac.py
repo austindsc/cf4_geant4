@@ -37,13 +37,13 @@ class RunControl:
 rc = RunControl()
 rc.verbose = True
 rc.eventVerbose = 0 # 0 is silent, 1 is a little, 2 is a lot
-rc.nbeam_end = 1e5 # gammas of maximum ly value.
+rc.nbeam_end = 5e5 # gammas of maximum ly value.
 rc.execName = "cf4Chamber"
 # rc.lyList = np.arange(0.1, 5, 0.5).tolist()
 rc.lyList = [0.1]
 rc.heightList = [0.5]
-# rc.fvisList = np.arange(0.5, 1.0, 0.1)
-rc.fvisList = np.array([0.5])
+rc.fvisList = np.arange(0.5, 1.0, 0.1)
+# rc.fvisList = np.array([0.5])
 
 rc.baseMacro = "alpha_base.mac" # this should be in same directory as this script
 rc.baseName = "Alpha"
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     sys.exit(1)
     
   ## now doing the commands
-  nProc = 4
+  nProc = 1  # TESTING: Force sequential execution to avoid conflicts
   with Pool(nProc) as pool:   # Create a pool of worker processes
     progress_bar = tqdm(total=len(geantCommandList))       # Create a tqdm progress bar
 

@@ -1,0 +1,32 @@
+/vis/verbose 0
+/tracking/verbose 0
+/event/verbose 0
+/run/verbose 0
+
+/particle/verbose 1
+/tracking/verbose 1
+#/process/optical/verbose 0
+
+/setMaterial/detectionMedium lCF4
+
+/setMaterial/mediumTemp 128 kelvin
+/setMaterial/mediumPressure 10.7 bar
+
+/setMaterial/mediumLY 0.1 keVLY
+/setMaterial/mediumLY_VisFraction 0.8
+
+/setDetector/setVoltage 4.0
+
+/setDetector/myVerbosity 1
+
+/setDetector/alphaHeight 0.5
+/analysis/setFileName alphaTest_1M
+
+/run/initialize
+
+# Check for geometry overlaps before running physics
+/geometry/test/verbosity 1
+/geometry/test/resolution 1000
+/geometry/test/run
+
+/run/beamOn 1000000
