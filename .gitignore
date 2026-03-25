@@ -71,8 +71,8 @@ G4*.dat
 *.mac.backup
 
 # Data files (typically large)
-*.csv
-*.dat
-*.txt
+# *.csv
+# *.dat
+# *.txt
 proc*/
 raw*/
