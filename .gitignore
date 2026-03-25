@@ -30,7 +30,7 @@ __pycache__/
 .LSOverride
 
 # ROOT files (often large and generated)
-*.root
+# *.root
 
 # Temporary and backup files
 *~
