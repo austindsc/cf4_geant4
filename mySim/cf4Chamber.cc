@@ -45,6 +45,8 @@
 
 #include "G4SystemOfUnits.hh"
 
+#include <filesystem>
+
 //xx physics list testing
 #include "FTFP_BERT.hh"
 #include "G4EmStandardPhysics_option4.hh"
@@ -78,17 +80,16 @@ int main(int argc,char** argv)
   // Detector construction
   runManager->SetUserInitialization(new CF4DetectorConstruction());
 
-  // Physics list - from Optical/LXe example
-  G4VModularPhysicsList* physicsList = new FTFP_BERT;
-  physicsList->ReplacePhysics(new G4EmStandardPhysics_option4());
-  G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
-  G4OpticalParameters * opticalParams = G4OpticalParameters::Instance();
+  //// Physics list - from Optical/LXe example
+//   G4VModularPhysicsList* physicsList = new FTFP_BERT;
+//   physicsList->ReplacePhysics(new G4EmStandardPhysics_option4());
+//   G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
+//   G4OpticalParameters * opticalParams = G4OpticalParameters::Instance();
+//   physicsList->RegisterPhysics(opticalPhysics);
+//   runManager->SetUserInitialization(physicsList);
 
-  physicsList->RegisterPhysics(opticalPhysics);
-  runManager->SetUserInitialization(physicsList);
-
-  // // Physics list - from UDX example
-  // runManager->SetUserInitialization(new PhysicsList());
+  //// Physics list - from UDX example
+  runManager->SetUserInitialization(new PhysicsList());
 
   // User action initialization
   runManager->SetUserInitialization(new CF4ActionInitialization());
@@ -115,6 +116,8 @@ int main(int argc,char** argv)
   else {
     // interactive mode
     G4cout << "\n\n---------------------- Script Settings ----------------------\n" << G4endl;
+    // print the current path we are 'looking' from
+    G4cout << "Current working directory: " << std::filesystem::current_path() << G4endl;
     UImanager->ApplyCommand("/control/execute ../mySim/defaultRun.mac");
 
     ui->SessionStart();

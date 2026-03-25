@@ -1,9 +1,11 @@
 # this produces 100 photons from a single random location on a disk
 
+/setDetector/myVerbosity 2
+
 /gps/particle opticalphoton
 /gps/pos/type Point
 
-/gps/ene/mono 6.2 eV # want around 22-25%
+/gps/ene/mono 2.2 eV # want around 22-25%
 #/gps/energy 2.48 eV # want around 35%
 /gps/number 1000
 

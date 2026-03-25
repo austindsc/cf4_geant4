@@ -46,6 +46,9 @@ namespace DETECTORSETUP{
   bool GetAbsorbingStatus();
   void SetAbsorbingStatus(bool a);
 
+  G4String GetSiPMName();
+  void SetSiPMName(G4String a);
+
 }
 
 // ---- not doing singleton setup although it is sexier ----//

@@ -3,8 +3,6 @@
 /event/verbose 0
 /run/verbose 0
 
-/process/em/verbose 0
-/process/had/verbose 0
 /particle/verbose 0
 /tracking/verbose 0
 
@@ -14,13 +12,15 @@
 /setMaterial/mediumPressure 10.7 bar
 
 /setMaterial/mediumLY 0.1 keVLY
-/setMaterial/mediumLY_VisFraction 0.9
+/setMaterial/mediumLY_VisFraction 0.6
 
-/setDetector/myVerbosity 0
+/setDetector/setVoltage 4.0
+
+/setDetector/myVerbosity 1
 
 /setDetector/alphaHeight 0.5
 
+/analysis/setFileName testNaming10k
 /run/initialize
-/analysis/setFileName ../alphaTest_69
 
-/run/beamOn 1000
+/run/beamOn 10000

@@ -2,7 +2,6 @@
 # in interactive session
 
 ## Verbosities ##
-
 /vis/verbose 0
 /tracking/verbose 0
 /event/verbose 0
@@ -10,16 +9,12 @@
 
 #/run/numberOfThreads 1 # defaults to zero
 
-
-/process/em/verbose 0
-/process/had/verbose 0
+#/process/em/verbose 0
+#/process/had/verbose 0
 /particle/verbose 0
 /cuts/verbose 0
 
-/tracking/verbose 0
-/event/verbose 0
-/run/verbose 0
-/vis/verbose 0
+
 
 ### Material Properties ###
 #/setMaterial/detectionMedium gCF4        # default is gas
@@ -42,6 +37,8 @@
                                           # 2 some photon level data, all data that is used
                                           # -1 means fill ntuple regardless (good for optical photon testing where eDep == 0)
 
+/setDetector/setVoltage 4.69              # Set SiPM bias voltage in volts
+                                          # Default is 28V if not set
 #/setDetector/useLPFilter                 # just calling this makes it true, there is no argument
 
 #/setDetector/useCollimator true           # default is true
@@ -55,11 +52,11 @@
 #/setDetector/gammaSource isoCo60
 #/setDetector/gammaSource isoCo57
 
-/setDetector/alphaHeight 4.0             # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
+#/setDetector/alphaHeight 4.0             # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
                                         # currently gamma and alpha source have same intensity (see primary generator constructor to change)
 
 # or load anything you want here
-#/control/execute ../mySim/livePhotonTest.mac
+/control/execute ../mySim/livePhotonTest.mac
 
 ## process toggling (some outdated?) ##
 #/process/optical/processActivation Scintillation false
@@ -68,8 +65,10 @@
 #/process/optical/processActivation OpAbsorption true
 #/process/optical/processActivation OpBoundary true
 
+# Optical process verbosity for detailed photon tracking
 #/process/optical/verbose 2
 #/process/optical/scintillation/verbose 1
+#/process/optical/boundary/verbose 1
 
 ### Naming Output ###
 /analysis/setFileName testNaming2                  # use either of these functions. whatever is last overrides

@@ -1,0 +1,14 @@
+notes
+
+# Option 1: Stream directly to a rotating log (keeps only last 1000 lines)
+/usr/bin/time -l ./cf4Chamber ../mySim/alpha_base.mac 2>&1 | tail -n 1000 > run_last1000.log
+
+# Option 2: Use a named pipe to avoid huge intermediate files
+mkfifo run_pipe.log
+tail -f run_pipe.log | tail -n 1000 > run_last1000.log &
+/usr/bin/time -l ./cf4Chamber mySim/alpha_base.mac > run_pipe.log 2>&1
+rm run_pipe.log
+
+# Option 3: Original approach (creates large intermediate file)
+# /usr/bin/time -l ./cf4Chamber mySim/alpha_base.mac > run.log 2>&1
+# tail -n 1000 run.log > run_last1000.log

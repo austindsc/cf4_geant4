@@ -11,13 +11,17 @@ namespace MG{
 namespace DETECTORSETUP{
 
   // default values in here
-  static bool buildWindow = true;
-  static bool buildSurface = true; // setting this to false fully changes/breaks the SiPM effective correction
+  static bool buildWindow = false;
+  static bool buildSurface = false; // setting this to false fully changes/breaks the SiPM effective correction
   static bool turnOnQuartzAbs = false;
   static bool doOpticsDiffusion = true; // this to false also will mess up PDE by factor of Rdiffuse (0.17 nominally)
 
   static bool absorbingAll = false;
   static bool makeVisible = false; // this scales up the small things
+
+  static G4String fSiPMName = "SensitiveSiPM"; // default SiPM type
+  G4String GetSiPMName(){ return fSiPMName; }
+  void SetSiPMName(G4String a){ fSiPMName = a; }
 
   bool GetWindowStatus(){ return buildWindow; }
   void SetWindowStatus(bool a){ buildWindow = a; }

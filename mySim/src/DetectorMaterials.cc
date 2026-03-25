@@ -219,14 +219,36 @@ void DetectorMaterials::BuildMaterials(){
 
   // -- generic plastic -- //
   mGenericPlastic = nist->FindOrBuildMaterial("G4_POLYSTYRENE");
+  G4MaterialPropertiesTable *mptPlastic = new G4MaterialPropertiesTable();
+  mptPlastic->AddProperty("RINDEX", photonE_world, {1.6, 1.6}); // typical polystyrene
+  mptPlastic->AddProperty("ABSLENGTH", photonE_world, {1.0*nm, 1.0*nm}); // absorb quickly
+  mGenericPlastic->SetMaterialPropertiesTable(mptPlastic);
   
   // -- Lead -- //
   mLead = nist->FindOrBuildMaterial("G4_Pb");
+  G4MaterialPropertiesTable *mptLead = new G4MaterialPropertiesTable();
+  mptLead->AddProperty("RINDEX", photonE_world, {3.5, 3.5}); // high index metal
+  mptLead->AddProperty("ABSLENGTH", photonE_world, {1.0*nm, 1.0*nm}); // absorb immediately
+  mLead->SetMaterialPropertiesTable(mptLead);
 
   // -------------------- Smoke Detector --------------------//
   mSilver = nist->FindOrBuildMaterial("G4_Ag");
+  G4MaterialPropertiesTable *mptSilver = new G4MaterialPropertiesTable();
+  mptSilver->AddProperty("RINDEX", photonE_world, {3.0, 3.0}); // metal index
+  mptSilver->AddProperty("ABSLENGTH", photonE_world, {1.0*nm, 1.0*nm}); // absorb immediately
+  mSilver->SetMaterialPropertiesTable(mptSilver);
+  
   mPalladium = nist->FindOrBuildMaterial("G4_Pd");
+  G4MaterialPropertiesTable *mptPalladium = new G4MaterialPropertiesTable();
+  mptPalladium->AddProperty("RINDEX", photonE_world, {3.0, 3.0}); // metal index
+  mptPalladium->AddProperty("ABSLENGTH", photonE_world, {1.0*nm, 1.0*nm}); // absorb immediately
+  mPalladium->SetMaterialPropertiesTable(mptPalladium);
+  
   mGold = nist->FindOrBuildMaterial("G4_Au");
+  G4MaterialPropertiesTable *mptGold = new G4MaterialPropertiesTable();
+  mptGold->AddProperty("RINDEX", photonE_world, {3.0, 3.0}); // metal index
+  mptGold->AddProperty("ABSLENGTH", photonE_world, {1.0*nm, 1.0*nm}); // absorb immediately
+  mGold->SetMaterialPropertiesTable(mptGold);
 
   // -- active matrix -- //
   G4double goldFrac = 0.5;
@@ -240,6 +262,12 @@ void DetectorMaterials::BuildMaterials(){
   mAmActiveMatrix = new G4Material("mSource", sourceDensity, 2);
   mAmActiveMatrix->AddMaterial(mGold, goldFrac);
   mAmActiveMatrix->AddMaterial(mAmOxide, 1-goldFrac);
+  
+  // Add optical properties to Am active matrix
+  G4MaterialPropertiesTable *mptAmMatrix = new G4MaterialPropertiesTable();
+  mptAmMatrix->AddProperty("RINDEX", photonE_world, {3.0, 3.0}); // metal-like index
+  mptAmMatrix->AddProperty("ABSLENGTH", photonE_world, {1.0*nm, 1.0*nm}); // absorb immediately
+  mAmActiveMatrix->SetMaterialPropertiesTable(mptAmMatrix);
 
   // -------------------- Generic CF4 stuff --------------------//
   // -- Elements in CF4 -- //
@@ -395,6 +423,11 @@ void DetectorMaterials::BuildMaterials(){
   mCeramic->AddElement(nist->FindOrBuildElement("Al"),2);
   mCeramic->AddElement(nist->FindOrBuildElement("O"),3);
   
+  // Add optical properties to ceramic
+  G4MaterialPropertiesTable *mptCeramic = new G4MaterialPropertiesTable();
+  mptCeramic->AddProperty("RINDEX", photonE_world, {1.8, 1.8}); // ceramic index
+  mCeramic->SetMaterialPropertiesTable(mptCeramic);
+  
   // add diffuse reflection here
   G4OpticalSurface * opSurf_ceramic = new G4OpticalSurface("opSurf_ceramicDiffuser", unified, groundfrontpainted, dielectric_dielectric);
   // from a quick google search, it looks like *most* ceramics go from 20% ish below 400ish nm
@@ -457,6 +490,7 @@ void DetectorMaterials::BuildMaterials(){
   G4MaterialPropertiesTable* mpt_perfectAbsorber = new G4MaterialPropertiesTable();
   mpt_perfectAbsorber->AddProperty("TRANSMITTANCE", photonE_world, noRef);
   mpt_perfectAbsorber->AddProperty("REFLECTIVITY", photonE_world, {paperRef, paperRef});
+  mpt_perfectAbsorber->AddProperty("ABSLENGTH", photonE_world, {1.0*nm, 1.0*nm});
   opSurf_perfectAbsorber->SetMaterialPropertiesTable(mpt_perfectAbsorber);
 
   // -------------------- Silicon -------------------- //
@@ -470,14 +504,15 @@ void DetectorMaterials::BuildMaterials(){
   OH::ReadAndFillArray(silicon_kFile, photonE_kSilicon, kSilicon, verb = MG::GetVerbosity() , scaleX = nm, 1., flipWL = true); // scale um to nm, flip wavelengths to eV
 
   G4MaterialPropertiesTable *mptSi = new G4MaterialPropertiesTable();
-  mptSi->AddProperty("RINDEX", photonE_nSilicon, nSi);
+//   mptSi->AddProperty("RINDEX", photonE_nSilicon, nSi);
 
   // cheating to fix group velocities, because n<1 is not allowed by G4
   std::vector<G4double> photonE_gv = {1.0*eV, 12*eV};
   std::vector<G4double> gv = {CLHEP::c_light*0.9, CLHEP::c_light*0.9};
   mptSi->AddProperty("GROUPVEL", photonE_gv, gv);
 
-  // cheating to get photons to stop in silicon so our ProcessHits() method works only when photon is IN silicon
+  // do this so photons dont step to edge of silicon. shouldnt matter because of
+  // processHits killing the track, but good to do anyways
   mptSi->AddProperty("ABSLENGTH", photonE_world, {1.0*nm, 1.0*nm});
   mSilicon->SetMaterialPropertiesTable(mptSi);
 
@@ -486,41 +521,14 @@ void DetectorMaterials::BuildMaterials(){
   opSurf_silicon->SetSigmaAlpha(0.);
 
   G4MaterialPropertiesTable *mpt_siliconSurf = new G4MaterialPropertiesTable();
-  mpt_siliconSurf->AddProperty("REALRINDEX", photonE_nSilicon, nSi);
+//   mpt_siliconSurf->AddProperty("REALRINDEX", photonE_nSilicon, nSi);
   // mpt_siliconSurf->AddProperty("REALRINDEX", photonE_world, {20, 20}); // xx
-  mpt_siliconSurf->AddProperty("IMAGINARYRINDEX", photonE_kSilicon, kSilicon);
+//   mpt_siliconSurf->AddProperty("IMAGINARYRINDEX", photonE_kSilicon, kSilicon);
   // mpt_siliconSurf->AddProperty("IMAGINARYRINDEX", photonE_world, {20, 20}); // xx
   // mpt_siliconSurf->AddProperty("REFLECTIVITY", photonE_world, {0, 0}); // you can't do the absorptive scaling here. it won't calculate with index values
-  mpt_siliconSurf->AddProperty("TRANSMITTANCE", photonE_world, transPerfect); // needed to get the nonR photons inside the bulk
+    mpt_siliconSurf->AddProperty("TRANSMITTANCE", photonE_world, transPerfect); // needed to get the nonR photons inside the bulk
   opSurf_silicon->SetMaterialPropertiesTable(mpt_siliconSurf);
 
-  // ------ correction surfaces ------ //
-  G4double Rdiffuse = 0.17; // should be 0.17, from nEXO vacuum paper  
-  opSurf_myCorrector1_diffuserIn = new G4OpticalSurface("opSurf_myCorrector1_diffuserIn", unified, groundfrontpainted, dielectric_dielectric);
-  // groundfrontpainted is only diffuse reflection. set by REFLECTIVITY
-  // absorption then is 1 - TRANSMITTANCE, default is T = 0
-
-  G4MaterialPropertiesTable *mpt_myCorrector1_diffuseIn = new G4MaterialPropertiesTable();  
-  if(DETECTORSETUP::GetDiffusionStatus() == false){
-    mpt_myCorrector1_diffuseIn->AddProperty("REFLECTIVITY", photonE_world, {0, 0}); // how much diffusion do we want  
-    mpt_myCorrector1_diffuseIn->AddProperty("TRANSMITTANCE", photonE_world, {1 - Rdiffuse, 1-Rdiffuse}); // get everything in (after doing diffu
-  }else{
-    mpt_myCorrector1_diffuseIn->AddProperty("REFLECTIVITY", photonE_world, {Rdiffuse, Rdiffuse}); // how much diffusion do we want
-    mpt_myCorrector1_diffuseIn->AddProperty("TRANSMITTANCE", photonE_world, transPerfect); // get everything in (after doing diffuse reflection), ABS = 1 - TRANSMITTANCE = 0
-  }
-  opSurf_myCorrector1_diffuserIn->SetMaterialPropertiesTable(mpt_myCorrector1_diffuseIn);
-
-
-  opSurf_myCorrector2_absorptionOut = new G4OpticalSurface("opSurf_myCorrector2_absorptionOut", unified, polishedfrontpainted, dielectric_dielectric);
-  // std::vector<G4double> correctRwithAbs_transmission = {0., 0.}; // load in these values from my calculations
-  std::vector<G4double> xphotonE_TransCorrection, y_TransCorrection;
-  OH::ReadAndFillArray("dataOptics/effective_correction_transmission.txt", xphotonE_TransCorrection, y_TransCorrection, verb = MG::GetVerbosity(), scaleX = nm, scaleY = 1., flipWL = true); // scale um to nm, flip wavelengths to eV
-
-  G4MaterialPropertiesTable *mpt_myCorrector2_absorptionOut = new G4MaterialPropertiesTable();
-  mpt_myCorrector2_absorptionOut->AddProperty("TRANSMITTANCE", xphotonE_TransCorrection, y_TransCorrection); // absorb certain amount of SiPM reflections if T < 1 
-  // mpt_myCorrector2_absorptionOut->AddProperty("TRANSMITTANCE", photonE_world, {0.0, 0.0}); // xx kill all exiting photons
-  mpt_myCorrector2_absorptionOut->AddProperty("REFLECTIVITY", photonE_world, {0, 0}); // no reflections
-  opSurf_myCorrector2_absorptionOut->SetMaterialPropertiesTable(mpt_myCorrector2_absorptionOut);
   
   // -------------------- Longpass Filter --------------------//
   std::vector<G4double> rindexFilterTop = {1.74, 1.74}; // effective index for surface but not for glass body (which is quartz)
