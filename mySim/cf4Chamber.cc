@@ -118,7 +118,7 @@ int main(int argc,char** argv)
     G4cout << "\n\n---------------------- Script Settings ----------------------\n" << G4endl;
     // print the current path we are 'looking' from
     G4cout << "Current working directory: " << std::filesystem::current_path() << G4endl;
-    UImanager->ApplyCommand("/control/execute ../defaultRun.mac");
+    UImanager->ApplyCommand("/control/execute ../mySim/defaultRun.mac");
 
     ui->SessionStart();
     delete ui;

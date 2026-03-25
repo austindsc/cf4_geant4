@@ -32,7 +32,7 @@ G4bool SensitiveSIPM::ProcessHits(G4Step * step, G4TouchableHistory *) {
         return false;
     }
     // Kill the photon track since it's been detected
-    step->GetTrack()->SetTrackStatus(fStopAndKill);
+    // step->GetTrack()->SetTrackStatus(fStopAndKill); // doing this will prevent reflectivity (this gets called after SiPMSurfaceWLS because its behind boundary)
     if(MG::GetVerbosity() >= 2) {
         G4cout << "SensitiveSIPM::ProcessHits() called" << G4endl;
     }

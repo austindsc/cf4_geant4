@@ -56,7 +56,7 @@
                                         # currently gamma and alpha source have same intensity (see primary generator constructor to change)
 
 # or load anything you want here
-/control/execute ../livePhotonTest.mac
+/control/execute ../mySim/livePhotonTest.mac
 
 ## process toggling (some outdated?) ##
 #/process/optical/processActivation Scintillation false
@@ -81,6 +81,6 @@
 /run/beamOn 1
 
 ### run visualization ###
-/control/execute ../myVis.mac
+/control/execute ../mySim/myVis.mac
 #/control/exit
-#/control/execute ../livePhotonTest.mac
+#/control/execute ../mySim/livePhotonTest.mac

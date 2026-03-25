@@ -29,12 +29,12 @@ SiPMSurfaceWLS::SiPMSurfaceWLS(const G4String& processName)
       fVoltage(4.0) {  // Default 4V
 
     fInstance = this;
+    fDoShadowing = false; // disable shadowing by default
     
     G4cout << "SiPMSurfaceWLS: Initializing enhanced boundary process..." << G4endl;
     
     // Load optical data tables
     SetupSiPMType("HPK-VUV4"); // Hardcoded for now - change as needed
-    fDoShadowing = true; // enable shadowing by default
     if(fDoShadowing){
         fW = W_from_FF(fFillFactor); // W = ff/p
         fH = fResistorHeight / fPixelPitch; // H = h/p
@@ -109,6 +109,7 @@ void SiPMSurfaceWLS::SetupSiPMType(G4String type) {
         fFillFactor = 0.6;              // Example fill factor
         fRdiffuseFraction = 0.17;      // Example (total) diffuse reflection fraction
 
+        fDoShadowing = true;
         fResistorHeight = 2.5;
         fPixelPitch = 50;
 
@@ -239,12 +240,30 @@ G4VParticleChange* SiPMSurfaceWLS::DoCustomOpticsAndDetection(const G4Track& aTr
 
     //// -- check angle max range -- ////
     if (incidentAngle_deg > fOptics_angleRange.second) {
-        incidentAngle_deg = fOptics_angleRange.second;
+        // aParticleChange.ProposeTrackStatus(fStopAndKill); // realistically this might diffuse reflect but for now just kill it
+        incidentAngle_deg = fOptics_angleRange.second+0.1;
         if(MG::GetVerbosity() >= 2) {
             G4cout << "⚠️ SiPMSurfaceWLS: Incident angle " << incidentAngle_deg 
-                   << " deg out of optics table range (" << fOptics_angleRange.first 
-                   << " - " << fOptics_angleRange.second << " deg)." << G4endl;
+            << " deg out of optics table range (" << fOptics_angleRange.first 
+            << " - " << fOptics_angleRange.second << " deg)." << G4endl;
         }
+    }
+    if (wlen_nm < fOptics_wavelengthRange.first || wlen_nm > fOptics_wavelengthRange.second) {
+        aParticleChange.ProposeTrackStatus(fStopAndKill); // wont be detected anyways
+        if(MG::GetVerbosity() >= 2){
+            G4cout << "⚠️ SiPMSurfaceWLS: Wavelength " << wlen_nm 
+            << " nm below optics table range (" << fOptics_wavelengthRange.first 
+            << " - " << fOptics_wavelengthRange.second << " nm)." << G4endl;
+        }
+        // cerenkov was creating some IR photons. had to check
+        // const G4VProcess* creatorProcess = aTrack.GetCreatorProcess();
+        // if (creatorProcess) {
+        //     G4String processName = creatorProcess->GetProcessName();
+        //     G4cout << "Photon created by: " << processName << G4endl;
+        // } else {
+        //     G4cout << "Photon is a primary particle" << G4endl;
+        // }
+        return &aParticleChange;
     }
 
     //// -- doing PDE decision tree -- ////

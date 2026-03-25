@@ -20,19 +20,27 @@ import os
 class FullMCRun(object):
 
   # pass the full path to the mac and root files
-  def __init__(self, macName, verbose = 1):
+  def __init__(self, macName, skipRootHeights = [], verbose = 1):
     fullMac = macName+".mac"
     
     # expand the mac file
     self.mRunPars = RunParameters(macPath=fullMac)
     self.mDetPars = DetectorParameters(macPath=fullMac)
     self.mPhysPars = PhysicsParameters(macPath=fullMac)
-
+    self.SKIPTHIS = False
+    
+    if self.mRunPars.gammaHeight is not None:
+      if np.isclose(self.mRunPars.gammaHeight, np.array(skipRootHeights)).any():
+        print("Skipping root file read for height:", self.mRunPars.gammaHeight) if verbose > 0 else None
+        self.SKIPTHIS = True
+        return
+      
     file, ttree = FG.openMyROOT_2(sfile = macName, verbose=verbose) # get just the file name with no suffix
     self.file = file
     self.mTtree = ttree # using the uproot ttree object
     NPE = self.mTtree["fNPE"].array()
     self.mNPE = np.array(NPE[NPE > 0])
+    self.mNPE = np.array(self.mNPE) # keep a copy of the original
 
     self.MtotalMeasured = len(self.mNPE)
     self.Nbeam = self.mRunPars.Nbeam
@@ -56,16 +64,49 @@ class FullMCRun(object):
   # do a bunch of stuff to get some bins. moving to ROOT agnostic approach
   def setup_forComparison(self, Nbins = 100, lowRange=0.5, maxRange=100.5, variable = "mNPE"):
     npe = getattr(self, variable)
-    Raw_counts, edges = np.histogram(npe, bins = int(Nbins), range=(lowRange, maxRange))
-    self.mBin_Edges = np.array(edges)
-    self.mRaw_Counts = np.array(Raw_counts)
-    self.mBinX = self.mBin_Edges[:-1]
+    
+    self.mBin_Edges = np.linspace(lowRange, maxRange, Nbins+1)
+    self.mRaw_Counts, _ = np.histogram(npe, bins = self.mBin_Edges, range=(self.mBin_Edges[0], self.mBin_Edges[-1]))
+    self.mBinX = self.mBin_Edges[:-1] + np.diff(self.mBin_Edges)/2.
+    
+    ## normalize counts by Nbeam
+    # self.mRaw_Counts = self.mRaw_Counts / self.Nbeam
+    
     return True
   
   def getPEMean(self):
     return np.mean(self.mNPE), np.mean(self.mNPE_corrGeo)
+  
+  def mpl_errorbar(self, ax, scale=1, hshift=0, label=None, marker="o", linestyle="None", **kwargs):
+    y = self.mRaw_Counts * scale
+    x = self.mBinX - hshift
+    yerr = np.sqrt(self.mRaw_Counts) * scale
+    ax.errorbar(x, y, yerr=yerr, label=label, marker=marker, linestyle=linestyle)
+    return ax
+  
+  def mpl_hist(self, ax, scale=1, hshift=0, label=None, **kwargs):
+    y = self.mRaw_Counts * scale
+    x = self.mBinX - hshift
+    ax.hist(x, weights=y, bins=self.mBin_Edges, label=label, **kwargs)
+    return ax
 
-  # def getScaledPE(self, scaling = 1):
+  ## for alpha analysis. dont use cause get empty bins. integer x float --> integer
+  ## this will be a fairly expensive call
+  # def RescaleLY(self, scale):
+  #   # scaled = np.array(self.mNPE_original * scale, dtype=float)
+  #   # ints = np.floor(scaled).astype(int)
+  #   # frac = scaled - ints
+  #   # self.mNPE = ints + (np.random.random(len(frac)) < frac)
+  #   self.mNPE = np.array(self.mNPE_original * scale, dtype=float)
+    
+  #   self.MtotalMeasured = len(self.mNPE)
+  #   if hasattr(self, "mNPE_corrGeo"):
+  #     self.doCAcorrection_BinomialMC(self.mCA)
+  #   if hasattr(self, "mNPE_corrBinomial"):
+  #     self.doCAcorrection_GeometricMC(self.mCA)
+    
+  #   self.setup_forComparison(Nbins = len(self.mBin_Edges)-1, lowRange = self.mBin_Edges[0], maxRange = self.mBin_Edges[-1], variable = "mNPE")
+  #   return
     
 
   # def scale(self, scaleFactor):
@@ -83,7 +124,7 @@ class FullMCRun(object):
 class RunParameters(object):
 
   def __init__(self, gammaHeight:'cm above SiPM' = None, fname = None, macPath = None,
-               gammaSrc = None, alphaHeight = None, gammaAngle = 2.5, Nbeam = 1e6, gammaCollimator = True, LPfilter = False) -> None:
+               gammaSrc = None, alphaHeight = None, gammaAngle = 2.5, Nbeam = 1e6, gammaCollimator = True, LPfilter = False, voltage=4) -> None:
 
     self.str_gammaHeight = "/setDetector/gammaHeight "
     self.str_gammaAngle = "/setDetector/GammaThetaMax "
@@ -91,9 +132,9 @@ class RunParameters(object):
     self.str_gammaColl = "/setDetector/useCollimator "
     self.str_alphaHeight = "/setDetector/alphaHeight "
     self.str_beamOn = "/run/beamOn "
+    self.str_voltage = "/setDetector/setVoltage "
 
     self.str_lpFilter = "/setDetector/useLPFilter "
-
     self.str_fname="/analysis/setFileName "
 
     if macPath is None:
@@ -105,23 +146,27 @@ class RunParameters(object):
       self.gammaAngle = gammaAngle
       self.fname = fname
       self.lpFilter = LPfilter
+      self.voltage = voltage
 
     elif macPath is not None:
-      self.gammaHeight = extract_words_after_string(macPath, self.str_gammaHeight)
+      gh = extract_words_after_string(macPath, self.str_gammaHeight)
+      self.gammaHeight = float(gh) if gh is not None else None
       self.gammaSrc = extract_words_after_string(macPath, self.str_gammaSrc)
       self.gammaColl = extract_words_after_string(macPath, self.str_gammaColl)
       self.alphaHeight = extract_words_after_string(macPath, self.str_alphaHeight)
       self.Nbeam = extract_words_after_string(macPath, self.str_beamOn)
       self.gammaAngle = extract_words_after_string(macPath, self.str_gammaAngle)
       self.fname = macPath.rstrip(".mac")
+      vh = extract_words_after_string(macPath, self.str_voltage)
+      self.voltage = float(vh) if vh is not None else None
 
       # check if LP filter command exists in macro (it has no arguments)
-      lpFilter_line = extract_words_after_string(macPath, self.str_lpFilter)
-      self.lpFilter = lpFilter_line is not None
+      lpFilter_line = extract_words_after_string(macPath, self.str_lpFilter[:-2]) # remove the space and get the line
+      self.lpFilter = True if lpFilter_line is not None else False
     return None
   
   def __str__(self):
-    return f"RunParams print: {self.gammaSrc}, h:{self.gammaHeight}, id: {id(self)}"
+    return f"RunParams print: {self.gammaSrc}, h:{self.gammaHeight}, filter:{self.lpFilter}, id: {id(self)}"
   
   # this returns a string with everything we need to build the mac file
   def to_Mac_string(self):
@@ -138,6 +183,9 @@ class RunParameters(object):
     
     if self.alphaHeight is not None:
       outStr += self.str_alphaHeight + str(self.alphaHeight) + "\n"
+
+    if self.voltage is not None:
+      outStr += self.str_voltage + str(self.voltage) + "\n"
 
     if self.lpFilter is not None and self.lpFilter == True:
       outStr += self.str_lpFilter.rstrip() + "\n"
