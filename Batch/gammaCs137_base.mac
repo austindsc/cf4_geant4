@@ -3,8 +3,6 @@
 /event/verbose 0
 /run/verbose 0
 
-/process/em/verbose 0
-/process/had/verbose 0
 /particle/verbose 0
 /tracking/verbose 0
 
@@ -13,7 +11,7 @@
 /setMaterial/mediumTemp 128 kelvin
 /setMaterial/mediumPressure 10.7 bar
 
-/setMaterial/mediumLY 5000.0 MeVLY
+/setMaterial/mediumLY 5 keVLY
 /setMaterial/mediumLY_VisFraction 0.9
 
 /setDetector/myVerbosity 1
@@ -28,4 +26,4 @@
 /run/initialize
 /analysis/setFileName ../Cs137_69
 
-/run/beamOn 1000
+/run/beamOn 100000

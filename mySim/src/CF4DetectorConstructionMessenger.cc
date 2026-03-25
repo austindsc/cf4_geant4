@@ -11,6 +11,7 @@
 
 #include "CF4DetectorConstruction.hh"
 #include "CF4DetectorConstructionMessenger.hh"
+#include "SiPMSurfaceWLS.hh"
 
 #include "MyGlobals.hh"
 
@@ -58,6 +59,12 @@ CF4DetectorConstructionMessenger::CF4DetectorConstructionMessenger(CF4DetectorCo
   SetGammaThetaMaxCmd->SetParameterName("GammaThetaMax", false, true);
   SetGammaThetaMaxCmd->SetDefaultValue(det->GetGammaThetaMax());
   SetGammaThetaMaxCmd->AvailableForStates(G4State_PreInit);
+  
+  SetVoltageCmd = new G4UIcmdWithADouble("/setDetector/setVoltage", this);
+  SetVoltageCmd->SetGuidance("Set SiPM bias voltage");
+  SetVoltageCmd->SetParameterName("setVoltage", false);
+  SetVoltageCmd->SetDefaultValue(4.0);
+  SetVoltageCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 
 CF4DetectorConstructionMessenger::~CF4DetectorConstructionMessenger(){
@@ -67,6 +74,7 @@ CF4DetectorConstructionMessenger::~CF4DetectorConstructionMessenger(){
   delete SetAlphaDistanceCmd;
   delete SetGammaHeightCmd;
   delete SetGammaSourceCmd;
+  delete SetVoltageCmd;
 }
 
 void CF4DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4String newVal){
@@ -93,6 +101,14 @@ void CF4DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4Strin
   }
   if(command == SetGammaThetaMaxCmd){
     Detector->SetGammaThetaMax(SetGammaThetaMaxCmd->GetNewDoubleValue(newVal) * deg);
+  }
+  if(command == SetVoltageCmd){
+    G4double voltage = SetVoltageCmd->GetNewDoubleValue(newVal);
+    G4cout << "Setting SiPM voltage to " << voltage << " V" << G4endl;
+    // Make voltage available to SiPMSurfaceWLS
+    if (SiPMSurfaceWLS::GetInstance()) {
+      SiPMSurfaceWLS::GetInstance()->SetVoltage(voltage);
+    }
   }
 
 }

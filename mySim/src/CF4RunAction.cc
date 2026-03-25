@@ -132,7 +132,7 @@ void CF4RunAction::EndOfRunAction(const G4Run* run)
   if(MG::GetVerbosity() > 0) {
     
     G4cout << ftotalFired << " particles fired, " << ftotalMCPE << " photons entered sipm" << G4endl;
-    G4cout << (double) ftotalMCPE/ftotalFired << G4endl;
+    G4cout << "pde test:" <<(double) ftotalMCPE/ftotalFired << G4endl;
 
   }
 

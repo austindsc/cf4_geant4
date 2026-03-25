@@ -3,8 +3,6 @@
 /event/verbose 0
 /run/verbose 0
 
-/process/em/verbose 0
-/process/had/verbose 0
 /particle/verbose 0
 /tracking/verbose 0
 
@@ -13,10 +11,10 @@
 /setMaterial/mediumTemp 128 kelvin
 /setMaterial/mediumPressure 10.7 bar
 
-/setMaterial/mediumLY 5000.0 MeVLY
-/setMaterial/mediumLY_VisFraction 0.9
+/setMaterial/mediumLY 5 keVLY
+/setMaterial/mediumLY_VisFraction 0.5
 
-/setDetector/myVerbosity 1
+/setDetector/myVerbosity 0
 
 /setDetector/useCollimator true
 /setDetector/GammaThetaMax 1.5

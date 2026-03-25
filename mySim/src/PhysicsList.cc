@@ -28,6 +28,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "PhysicsList.hh"
+#include "MyGlobals.hh"
 // #include "PhysicsListMessenger.hh"
 
 // #include "PhysListEmStandard.hh"
@@ -118,6 +119,10 @@
 #include "G4Cerenkov.hh"
 #include "G4OpRayleigh.hh"
 
+#include "G4StepLimiter.hh"
+
+#include "SiPMSurfaceWLS.hh"
+
 // blah
 #include "G4RadioactiveDecay.hh"
 #include "G4Radioactivation.hh"
@@ -137,14 +142,15 @@
 PhysicsList::PhysicsList() : G4VUserPhysicsList()
 {
   // pMessenger = new PhysicsListMessenger(this);
-  SetVerboseLevel(1);
+  SetVerboseLevel(0);  // Allow some output but not too verbose
 
   // EM physics
   // emName = G4String("local");
   // emPhysicsList = new PhysListEmStandard(emName);
   
   SetDefaultCutValue(1*mm);
-  G4LossTableManager::Instance();
+  G4LossTableManager* man = G4LossTableManager::Instance();
+  man->SetVerbose(0);  // Suppress loss table messages
   
   defaultCutValue     = 1.0*micrometer; //
   cutForGamma         = defaultCutValue;
@@ -160,6 +166,7 @@ PhysicsList::PhysicsList() : G4VUserPhysicsList()
   param->SetFluo(true);
   param->SetPixe(true);
   param->SetAuger(true);
+  param->SetVerbose(0);  // Suppress EM parameter messages
   
   G4NuclideTable::GetInstance()->SetThresholdOfHalfLife(0.1*picosecond);
   G4NuclideTable::GetInstance()->SetLevelTolerance(1.0*eV);
@@ -236,12 +243,14 @@ void PhysicsList::ConstructGeneral(){
   
   // Add Decay Process
   G4Radioactivation* radioactiveDecay = new G4Radioactivation();
+  radioactiveDecay->SetVerboseLevel(0);  // Suppress decay messages
   
   // //test
   // G4Decay* fDecayProcess = new G4Decay();
 
   // need to initialize atomic deexcitation
   G4LossTableManager* man = G4LossTableManager::Instance();
+  man->SetVerbose(0);  // Suppress table messages
   G4VAtomDeexcitation* deex = man->AtomDeexcitation();
   if (!deex) {
      G4EmParameters::Instance()->SetFluo(true); 
@@ -251,6 +260,7 @@ void PhysicsList::ConstructGeneral(){
   }
   
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+  ph->SetVerboseLevel(0);  // Suppress process registration
   ph->RegisterProcess(radioactiveDecay, G4GenericIon::GenericIon());
   // don't do in loop below (it doesn't make all daughters properly and gives an error)
   
@@ -287,17 +297,21 @@ void PhysicsList::ConstructOptical(){
   
   // Scintillation
   G4Scintillation* theScintProcessDef = new G4Scintillation("Scintillation");
+  theScintProcessDef->SetVerboseLevel(0);
   
   // Cerenkov
   G4Cerenkov * theCerenkov = new G4Cerenkov("Cerenkov");
+  theCerenkov->SetVerboseLevel(0);
   
   // optical transport processes
   G4OpAbsorption* theAbsorptionProcess = new G4OpAbsorption();
   G4OpBoundaryProcess* theBoundaryProcess = new G4OpBoundaryProcess();
   G4OpRayleigh* theOpRayleighProc = new G4OpRayleigh();
+  SiPMSurfaceWLS* theSiPMProcess = SiPMSurfaceWLS::GetInstance();
   
   // looping and application
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+  ph->SetVerboseLevel(0);  // Suppress process registration messages
   auto particleIterator=GetParticleIterator();
   particleIterator->reset();
   while( (*particleIterator)() ){
@@ -322,9 +336,10 @@ void PhysicsList::ConstructOptical(){
       
       // optical photon transport
       if (particleName == "opticalphoton"){
+        ph->RegisterProcess(theSiPMProcess, particle);
         ph->RegisterProcess(theAbsorptionProcess, particle);
         ph->RegisterProcess(theBoundaryProcess,   particle);
-        // ph->RegisterProcess(theOpRayleighProc,   particle);
+        ph->RegisterProcess(theOpRayleighProc,   particle);
         
         // pmanager->AddDiscreteProcess(theAbsorptionProcess);
         // pmanager->AddDiscreteProcess(theBoundaryProcess);
@@ -340,8 +355,10 @@ void PhysicsList::ConstructEM(){
   
   G4LossTableManager* man = G4LossTableManager::Instance();
   man->SetAtomDeexcitation(new G4UAtomicDeexcitation());
+  man->SetVerbose(0);  // Suppress EM table construction messages
   
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+  ph->SetVerboseLevel(0);  // Suppress process registration messages
   
   // Add DMX EM Processes
   auto particleIterator=GetParticleIterator();

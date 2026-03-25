@@ -36,6 +36,8 @@
 #include "G4RunManager.hh"
 #include "G4LogicalVolume.hh"
 
+#include "MyGlobals.hh"
+
 #include "G4OpticalPhoton.hh"
 
 
@@ -63,39 +65,25 @@ void CF4SteppingAction::UserSteppingAction(const G4Step* step)
     fScoringVolume = detectorConstruction->GetScoringVolume();   
   }
 
+    G4Track* track = step->GetTrack();
+    // Only apply to optical photons
+    if (track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
+        if (track->GetCurrentStepNumber() >= 100) {
+            if(MG::GetVerbosity() >= 2) G4cout << "Killing optical photon after" << track->GetCurrentStepNumber() << " steps to prevent infinite bouncing" << G4endl;
+            track->SetTrackStatus(fStopAndKill);
+        }
+    }
+
   // get volume of the current step
   G4LogicalVolume* volume = step->GetPreStepPoint()->GetTouchableHandle()
       ->GetVolume()->GetLogicalVolume();
       
-  // check if we are in scoring volume
-  if (volume != fScoringVolume) return;
+  // check if not in scoring volume or if optical photon (get out)
+  if (volume != fScoringVolume || step->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) return;
 
-  // ------------------------------------------
-  static G4ParticleDefinition* opticalphoton = G4OpticalPhoton::OpticalPhotonDefinition();
-
-  // G4AnalysisManager* analysisMan = G4AnalysisManager::Instance();
-  // Run* run =
-  // static_cast<Run*>(G4RunManager::GetRunManager()->GetNonConstCurrentRun());
-
-  // G4Track* track          = step->GetTrack();
-  // G4StepPoint* endPoint   = step->GetPostStepPoint();
-  // G4StepPoint* startPoint = step->GetPreStepPoint();
-
-  // const G4DynamicParticle* theParticle = track->GetDynamicParticle();
-  // const G4ParticleDefinition* particleDef = theParticle->GetParticleDefinition();
-
-  // TrackInformation* trackInfo =
-  // (TrackInformation*) (track->GetUserInformation());
-
-  if(step->GetTrack()->GetParticleDefinition() != opticalphoton){
-    // ------------------------------------------
-    // collect energy deposited in this step
-    G4double edepStep = step->GetTotalEnergyDeposit();
-    
-    fEventAction->AddEdep(edepStep);
-  }
-  
- 
+  // collect energy deposited in this step
+  G4double edepStep = step->GetTotalEnergyDeposit();
+  fEventAction->AddEdep(edepStep);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

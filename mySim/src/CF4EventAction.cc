@@ -50,7 +50,7 @@ void CF4EventAction::BeginOfEventAction(const G4Event*)
 
   if(fSingleSensitiveSiPM == nullptr){
     G4SDManager* SDman = G4SDManager::GetSDMpointer();
-    fSingleSensitiveSiPM = (SensitiveSIPM*) SDman->FindSensitiveDetector("SensitiveSIPM");
+    fSingleSensitiveSiPM = (SensitiveSIPM*) SDman->FindSensitiveDetector(DETECTORSETUP::GetSiPMName());
   }
   if(evt == 0){ // only for manual, single event at a time testing
     fSingleSensitiveSiPM->ResetForFirstEvent();

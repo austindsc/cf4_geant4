@@ -13,6 +13,7 @@ the verbosities are NOT copied from the base macro file, they are done explicitl
 """
 
 import sys
+import os
 import subprocess # to call mkdir and build .mac files we need
 from multiprocessing import Pool
 from tqdm import tqdm
@@ -20,8 +21,10 @@ from tqdm import tqdm
 from helpers.G4_runClasses import *
 from helpers.G4_macHelpers import *
 
-path = "/Users/austindestcroix/Desktop/school_holders/projects/sbc/g4_cf4_updated/"
-pBatch = path+"batchOutput_aug25/"
+# path = "/Users/austindestcroix/Desktop/school_holders/projects/sbc/g4cf4_newOptics/"
+path = os.getenv("CF4G4")
+# print("hello world")
+pBatch = path+"batchOutput/gamma_sept25/"
 pBuild = path+"build/"
 
 TESTING = False
@@ -33,23 +36,25 @@ class RunControl:
 ## -- controls -- ###
 rc = RunControl()
 rc.verbose = True
-rc.eventVerbose = True
-rc.nbeam_end = 1e5 # gammas of maximum ly value.
+rc.eventVerbose = 0 # 0 is silent, 1 is a little, 2 is a lot
+rc.nbeam_end = 1e4 # gammas of maximum ly value.
 rc.execName = "cf4Chamber"
 # rc.lyList = np.arange(0.1, 5, 0.5).tolist()
-rc.lyList = [0.1]
-rc.heightList = [0.5]
-rc.fvisList = np.arange(0.5, 1.0, 0.1)
+rc.lyList = [2, 2.5, 3, 3.5, 4, 5, 6]
+rc.heightList = [1.5, 4]
+# rc.fvisList = np.arange(0.1, 0.5, 0.1)
+# rc.fvisList = np.array([0.5])
 
-rc.baseMacro = "alpha_base.mac" # this should be in same directory
-rc.baseName = "Alpha"
-loopSelect = "alpha"
+rc.baseMacro = "gammaCo57_base.mac" # this should be in same directory as this script
+# options are gammaCs137_base.mac or gammaCo57_base.mac
+rc.baseName = "gammaCo57"
+loopSelect = "gamma" # "gamma" or "alpha"
 
 # unique for runG4ManyMac
 if TESTING:
   rc.lyList = rc.lyList[:2]
   rc.heightList = rc.heightList[:2]
-  rc.nbeam_end = 1e4
+  rc.nbeam_end = 2e6
 ## -- Done Controls -- ##
 
 # should improve the wrapping or ownership of the 'build_from_mac_items" function
@@ -61,7 +66,9 @@ def parseStringMyWay(sin, first = "cf4", second="geant4_cf4"):
 
 def run_process(command, verbose = rc.verbose):
   if verbose == False:
-    subprocess.run(command, shell = True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    # Fix: Use DEVNULL to prevent buffer overflow
+    with open(os.devnull, 'w') as devnull:
+      subprocess.run(command, shell = True, stdout=devnull, stderr=devnull)
   else:
     subprocess.run(command, shell = True)
   # mac = somehow build macro file from info
@@ -95,6 +102,7 @@ if __name__ == "__main__":
     for iID, ly in enumerate(rc.lyList):
 
       NBEAM = rc.nbeam_end * max(rc.lyList) / ly
+      # NBEAM = rc.nbeam_end
       # set the physics parameters
       physPars.ly = ly
 
@@ -148,7 +156,7 @@ if __name__ == "__main__":
       subprocess.run(f"cd {pBatch} ; mkdir {folderID}", shell = True)
       parDirID = str(folderID)
 
-      vfStr = str(visFrac).replace(".", "d")
+      vfStr = str(round(visFrac, 3)).replace(".", "d")
       ## bare run
       runPars.lpFilter = False
       runPars.fname = pBatch + f"{parDirID}/" + rc.baseName + "_vf_" + vfStr + "_bare"
@@ -174,22 +182,32 @@ if __name__ == "__main__":
     sys.exit(1)
     
   ## now doing the commands
-  nProc = 4
-  with Pool(nProc) as pool:   # Create a pool of worker processes
-    progress_bar = tqdm(total=len(geantCommandList))       # Create a tqdm progress bar
+  nProc = 4  # TESTING: Force sequential execution to avoid conflicts
+  
+  try:
+    with Pool(nProc) as pool:   # Create a pool of worker processes
+      progress_bar = tqdm(total=len(geantCommandList))       # Create a tqdm progress bar
 
-    # Use pool.imap() to execute the function in parallel and update progress bar
-    for result in pool.imap(run_process, geantCommandList):
-        print(f"finished: {result}") # put something here to write about what physics run was done
-        progress_bar.update(1)
+      # Use pool.imap() to execute the function in parallel and update progress bar
+      for result in pool.imap(run_process, geantCommandList):
+          print(f"finished: {result}") # put something here to write about what physics run was done
+          progress_bar.update(1)
+        
+      # Close the progress bar
+      progress_bar.close()
       
-    # results = pool.imap(run_process, geantCommandList)
-    # for result in results:
-    #   print(type(result), end="\r")
-    #   progress_bar.update(1)
-      
-    # Close the progress bar
+  except KeyboardInterrupt:
+    print("\n⚠️  Interrupted by user (Ctrl+C)")
+    pool.terminate()  # Forcefully terminate worker processes
+    pool.join()       # Wait for termination
     progress_bar.close()
+    sys.exit(1)
+  except Exception as e:
+    print(f"\n❌ Error during execution: {e}")
+    pool.terminate()
+    pool.join()
+    progress_bar.close()
+    sys.exit(1)
 
   # pool = Pool(processes = 4)
   # results = pool.imap_unordered(run_process, geantCommandList)
