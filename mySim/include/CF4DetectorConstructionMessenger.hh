@@ -56,6 +56,10 @@ private:
   G4UIcmdWithADouble * SetVoltageCmd;
   // /setVoltage value unit
   // Sets SiPM bias voltage
+
+  G4UIcmdWithABool * SetAbsorbingWallsCmd;
+  // /setDetector/useAbsorbingWalls true/false
+  // Apply absorbing surface to CF4 cylinder walls
   
   // 0 no source
   // 1...3 different positions

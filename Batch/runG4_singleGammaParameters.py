@@ -40,8 +40,17 @@ from helpers.G4_macHelpers import *
 # import batchFunctions as BF
 
 path = os.getenv("CF4G4")
-pBatch = path+"batchOutput/gammaLP_Jan26_moreStats/"
+
 pBuild = path+"build/"
+# pBatch = path+"batchOutput/gammaBare_may22_nominal/"
+# pBatch = path+"batchOutput/gammaLP_refined_lowDensity_june11/"
+# pBatch = path+"2batchOutput/gammaLP_jun12_128K/"
+
+# pBatch = path+"2batchOutput/gammaBare_june17_145K/"
+pBatch = path+"2batchOutput/gammaLP_june17_145K/"
+
+# pBatch = path+"batchOutput/gammaMods/runB_shiny/"
+# pBuild = path+"buildHighRef/"
 
 ## -- controls -- ###
 # Import RunControl class (or you could define it here)
@@ -54,17 +63,23 @@ rcGlobal.eventVerbose = 0 # 0 is silent, 1 is a little, 2 is a lot
 rcGlobal.execName = "cf4Chamber"
 
 ## gamma run parameters
-rcGlobal.visFrac = 1.0
-rcGlobal.lyList = np.round([1, 2, 3, 4, 5, 6, 7], 2) # avoid weird float things
+rcGlobal.lyList = np.round([2.25, 2.6], 2) # avoid weird float things // for shiny test
+# rcGlobal.lyList = np.round([0.75, 1.0, 1.25, 1.5, 2], 2) # avoid weird float things
+# rcGlobal.lyList = np.round([1.1], 2) # avoid weird float things
 
-rcGlobal.nbeam_end = 5e6  # gammas of maximum ly value.
+## fixed vis LY (from previous LP analysis).
+rcGlobal.otherLY = 0
+rcGlobal.onlyVis = True
+
+rcGlobal.nbeam_end = 2.0e6  # gammas of maximum ly value
+rcGlobal.coFactor = 4 # multiply Co57 nbeam by this factor to get Cs137 nbeam
+rcGlobal.heightScale = 4 # multiply 6cm job by this
 shiftHeight = 32.0
-voltage = 4.4
+voltage = 4.3
 skipG4command = False
 
-factorN = 10000
-Func_ScaleN = lambda ly:  int(math.ceil(rcGlobal.nbeam_end * (0.75 + 0.25*max(rcGlobal.lyList) / ly)/ factorN)) * factorN  # scale nbeam with ly
-
+roundingN = 10000
+Func_ScaleN = lambda ly:  int(math.ceil(rcGlobal.nbeam_end * (0.5 + 0.5*(max(rcGlobal.lyList) + rcGlobal.otherLY) / ly)/ roundingN)) * roundingN  # scale nbeam with ly
 
 ## loops are
 #1 ly loop
@@ -72,15 +87,16 @@ Func_ScaleN = lambda ly:  int(math.ceil(rcGlobal.nbeam_end * (0.75 + 0.25*max(rc
 #3 source specific height loop
 #4 LP or bare
 #5 voltage loop (optional)
-
-
+ 
 ## experimental setup
 rc1 = RunControl()
 rc1.voltageList = np.round([voltage], 2) # avoid weird float things
 rc1.baseMacro = "gammaCo57_base"
 rc1.doLP = True
 rc1.doBare = False
-rc1Heights = [30.5, 28.5, 26.]
+rc1Heights = [30.5, 28.5, 26.] # LP
+# rc1Heights = [30.5, 28.5, 27.]
+# rc1Heights = [28, 30.5, 33] # for Co Bare
 rc1.heightList = [round(shiftHeight - h, 2) for h in rc1Heights] # avoid weird float things
 
 rc2 = RunControl()
@@ -88,9 +104,10 @@ rc2.voltageList = np.round([voltage], 2) # avoid weird float things
 rc2.baseMacro = "gammaCs137_base"
 rc2.doLP = True
 rc2.doBare = False
-rc2Heights = [32, 30.5, 28.5, 26.0]
+rc2Heights = [30.5, 28.5, 26.0] # for LP
+# rc2Heights = [30.5, 28.5, 27.]
+# rc2Heights = [26.5, 28, 30.5, 32] # for Cs Bare
 rc2.heightList = [round(shiftHeight - h, 2) for h in rc2Heights] # avoid weird float things
-
 
 rcList = [rc1, rc2]
 # rcList = [rc2]
@@ -141,9 +158,22 @@ if __name__ == "__main__":
       runPars = RunParameters(macPath= rc.baseMacro + ".mac")
       
       ## run physics parameters
-      runPars.Nbeam = Func_ScaleN(ly)
-      physPars.vf = rcGlobal.visFrac
-      physPars.ly = ly
+      # runPars.Nbeam = Func_ScaleN(ly)
+      
+      ## ly here is VUV ly
+      totalLY = rcGlobal.otherLY + ly
+      physPars.ly = totalLY # total ly (Ly here is VUV)
+      localNbeam = Func_ScaleN(totalLY)
+      
+      if rc == rc1 and "co" in rc.baseMacro.lower(): # this is Co loop
+        localNbeam = int(localNbeam * rcGlobal.coFactor) # scale up co nbeam
+      
+      print(f"Total LY for this run: {totalLY}, nbeam: {runPars.Nbeam}")
+      if rcGlobal.onlyVis:
+        physPars.vf = 1.0
+      else:
+        physPars.vf = np.round(rcGlobal.otherLY / totalLY, 2) # vf is set by the total ly and the LP ly (which is fixed by previous analysis)
+      
       
       for voltage in rc.voltageList: ## voltage loop
         # detPars.voltage = voltage # set the detector parameters ## this is wrong, set voltage is implemented in RunParameters
@@ -153,6 +183,11 @@ if __name__ == "__main__":
           runPars.gammaHeight = h # set the run parameters
           hstr = str(h).replace(".", "d")
           vstr = str(voltage).replace(".", "d")
+          
+          if h > 4.5:
+            runPars.Nbeam = int(localNbeam * rcGlobal.heightScale)
+          else:
+            runPars.Nbeam = localNbeam
         
           #### bare run
           if rc.doBare:

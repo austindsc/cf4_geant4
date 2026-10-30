@@ -20,7 +20,7 @@
 
 /setDetector/alphaHeight 0.5
 
-/analysis/setFileName testNaming10k
+/analysis/setFileName testNaming1k_ALPHAWHAT
 /run/initialize
 
-/run/beamOn 10000
+/run/beamOn 1000

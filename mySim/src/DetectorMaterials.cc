@@ -479,18 +479,18 @@ void DetectorMaterials::BuildMaterials(){
   opSurf_perfectRef->SetSigmaAlpha(0.); // perfectly smooth.  //could also use dielectric_dielectric -> polishedfrontpainted
   G4MaterialPropertiesTable* mpt_perfectRef = new G4MaterialPropertiesTable();
   mpt_perfectRef->AddProperty("TRANSMITTANCE", photonE_world, noRef);
-  mpt_perfectRef->AddProperty("REFLECTIVITY", photonE_world, transPerfect);
+  mpt_perfectRef->AddProperty("REFLECTIVITY", photonE_world, {0.95, 0.95}); // was transPerfect
   opSurf_perfectRef->SetMaterialPropertiesTable(mpt_perfectRef);
 
   //-- perfect absorber --//
-  G4double paperRef = 0.05; // 5% reflection, 95% absorption
+  G4double paperRef = 0.05; // was 5% reflection, 95% absorption, modify this for different paper types. 0.05 is low reflectivity, 0.2 is higher.
   opSurf_perfectAbsorber = new G4OpticalSurface("absorber_opSurf", unified, polished, dielectric_metal);
   opSurf_perfectAbsorber->SetSigmaAlpha(0.); // perfectly smooth.  //could also use dielectric_dielectric -> polishedfrontpainted
   
   G4MaterialPropertiesTable* mpt_perfectAbsorber = new G4MaterialPropertiesTable();
-  mpt_perfectAbsorber->AddProperty("TRANSMITTANCE", photonE_world, noRef);
   mpt_perfectAbsorber->AddProperty("REFLECTIVITY", photonE_world, {paperRef, paperRef});
-  mpt_perfectAbsorber->AddProperty("ABSLENGTH", photonE_world, {1.0*nm, 1.0*nm});
+  mpt_perfectAbsorber->AddProperty("TRANSMITTANCE", photonE_world, {0., 0.});
+//   mpt_perfectAbsorber->AddProperty("ABSLENGTH", photonE_world, {1.0*nm, 1.0*nm}); // dont need this
   opSurf_perfectAbsorber->SetMaterialPropertiesTable(mpt_perfectAbsorber);
 
   // -------------------- Silicon -------------------- //

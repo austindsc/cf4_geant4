@@ -35,6 +35,8 @@
 #/setDetector/gammaSource isoCo57
 #/setDetector/alphaHeight 2. #currently gamma and alpha source have same intensity (see primary generator constructor)
 
+/setDetector/useAbsorbingWalls true
+
 ## process toggling ##
 #/process/optical/processActivation Scintillation false
 #/process/optical/processActivation Cerenkov false

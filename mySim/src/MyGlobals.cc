@@ -16,7 +16,7 @@ namespace DETECTORSETUP{
   static bool turnOnQuartzAbs = false;
   static bool doOpticsDiffusion = true; // this to false also will mess up PDE by factor of Rdiffuse (0.17 nominally)
 
-  static bool absorbingAll = false;
+  static bool absorbingAll = true;
   static bool makeVisible = false; // this scales up the small things
 
   static G4String fSiPMName = "SensitiveSiPM"; // default SiPM type

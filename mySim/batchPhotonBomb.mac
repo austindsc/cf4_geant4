@@ -1,0 +1,34 @@
+# batchPhotonBomb.mac
+# Run with: ./cf4Chamber ../mySim/batchPhotonBomb.mac
+
+## Verbosities ##
+/vis/verbose 0
+/tracking/verbose 0
+/event/verbose 0
+/run/verbose 0
+/particle/verbose 0
+
+## Material / detector setup ##
+/setMaterial/detectionMedium lCF4
+/setMaterial/mediumTemp 145 kelvin
+/setMaterial/mediumPressure 10.7 bar
+/setMaterial/mediumLY 0.1 keVLY
+/setMaterial/mediumLY_VisFraction 0.8
+/setDetector/setVoltage 4.4
+/setDetector/myVerbosity -1 # to save
+
+/run/initialize
+
+## GPS: isotropic optical photons from a disk ##
+/gps/particle opticalphoton
+/gps/ene/mono 2.0 eV
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/radius 1.5 cm
+/gps/pos/centre 0.0 0.0 5 cm
+/gps/ang/type iso
+/gps/number 10000
+
+/analysis/setFileName ../2batchOutput/sys_heights/photonBomb_p10k_N100k_5cm
+
+/run/beamOn 100000

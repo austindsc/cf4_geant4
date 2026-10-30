@@ -1,0 +1,29 @@
+
+/vis/verbose 0
+/tracking/verbose 0
+/event/verbose 0
+/run/verbose 0
+
+/particle/verbose 0
+/tracking/verbose 0
+
+
+/setMaterial/detectionMedium lCF4 
+/setMaterial/mediumTemp 145.0 kelvin 
+/setMaterial/mediumPressure 10.3 bar 
+/setMaterial/mediumLY 3.5 keVLY
+/setMaterial/mediumLY_VisFraction 0.79 
+
+
+/setDetector/myVerbosity 0
+
+/setDetector/useCollimator true
+/setDetector/GammaThetaMax 1.5
+/setDetector/gammaHeight 4.0
+/setDetector/gammaSource Cs137
+/setDetector/setVoltage 4.3
+/analysis/setFileName /Users/austindestcroix/Desktop/school_holders/projects/sbc/g4cf4_newOptics/2batchOutput/gammaBare_june17_145K/0/gammaCs137_base_bare_4d3V_h4d0
+
+
+/run/initialize
+/run/beamOn 1180000

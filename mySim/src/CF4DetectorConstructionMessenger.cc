@@ -65,6 +65,12 @@ CF4DetectorConstructionMessenger::CF4DetectorConstructionMessenger(CF4DetectorCo
   SetVoltageCmd->SetParameterName("setVoltage", false);
   SetVoltageCmd->SetDefaultValue(4.0);
   SetVoltageCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  SetAbsorbingWallsCmd = new G4UIcmdWithABool("/setDetector/useAbsorbingWalls", this);
+  SetAbsorbingWallsCmd->SetGuidance("Apply absorbing surface (paper) to CF4 cylinder walls");
+  SetAbsorbingWallsCmd->SetParameterName("useAbsorbingWalls", false, true);
+  SetAbsorbingWallsCmd->SetDefaultValue(true);
+  SetAbsorbingWallsCmd->AvailableForStates(G4State_PreInit);
 }
 
 CF4DetectorConstructionMessenger::~CF4DetectorConstructionMessenger(){
@@ -75,6 +81,7 @@ CF4DetectorConstructionMessenger::~CF4DetectorConstructionMessenger(){
   delete SetGammaHeightCmd;
   delete SetGammaSourceCmd;
   delete SetVoltageCmd;
+  delete SetAbsorbingWallsCmd;
 }
 
 void CF4DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4String newVal){
@@ -109,6 +116,10 @@ void CF4DetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4Strin
     if (SiPMSurfaceWLS::GetInstance()) {
       SiPMSurfaceWLS::GetInstance()->SetVoltage(voltage);
     }
+  }
+  if(command == SetAbsorbingWallsCmd){
+    DETECTORSETUP::SetAbsorbingStatus(SetAbsorbingWallsCmd->GetNewBoolValue(newVal));
+    G4cout << "Setting absorbing walls to " << newVal << G4endl;
   }
 
 }

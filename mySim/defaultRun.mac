@@ -15,7 +15,6 @@
 /cuts/verbose 0
 
 
-
 ### Material Properties ###
 #/setMaterial/detectionMedium gCF4        # default is gas
 #/setMaterial/detectionMedium gAr         # currently undefined
@@ -23,9 +22,11 @@
 #/setMaterial/detectionMedium vacuum
 
 #/setMaterial/mediumDensity 1.69 g/cm3  # use this to set density directly. Takes precendece over density calculated by SetTemp. default densities given in DetectorMaterials.cc
-/setMaterial/mediumTemp 128 kelvin        # this alone sets density based on saturation curve data (gas or liquid CF4)
-/setMaterial/mediumPressure 10.7 bar      # If pressure also set, and sim is built with REFPROP (default), 
+/setMaterial/mediumTemp 145 kelvin        # this alone sets density based on saturation curve data (gas or liquid CF4)
+/setMaterial/mediumPressure 10.3 bar      # If pressure also set, and sim is built with REFPROP (default), 
                                           # then REFPROP is used to calculate density with T, P for pure CF4
+#/setMaterial/mediumTemp 203 kelvin
+#/setMaterial/mediumPressure 1.7 bar
 
 /setMaterial/mediumLY 0.1 keVLY        # these units are photons/MeV, keVLY also available
 /setMaterial/mediumLY_VisFraction 0.8    # use this with total LY, or the two commands below
@@ -33,11 +34,11 @@
 #/setMaterial/mediumLY_Vis 5000 MeVLY
 
 ### detector configuration ###
-/setDetector/myVerbosity 1                # 1 outputs event level data
+/setDetector/myVerbosity -1                # 1 outputs event level data
                                           # 2 some photon level data, all data that is used
                                           # -1 means fill ntuple regardless (good for optical photon testing where eDep == 0)
 
-/setDetector/setVoltage 4.69              # Set SiPM bias voltage in volts
+/setDetector/setVoltage 4.4              # Set SiPM bias voltage in volts
                                           # Default is 28V if not set
 #/setDetector/useLPFilter                 # just calling this makes it true, there is no argument
 
@@ -55,9 +56,6 @@
 #/setDetector/alphaHeight 4.0             # this sets alphaStatus to true, at height in cm. 4.5 is roughly max height possible (non-physical?)
                                         # currently gamma and alpha source have same intensity (see primary generator constructor to change)
 
-# or load anything you want here
-/control/execute ../mySim/livePhotonTest.mac
-
 ## process toggling (some outdated?) ##
 #/process/optical/processActivation Scintillation false
 #/process/optical/processActivation Cerenkov false
@@ -71,16 +69,17 @@
 #/process/optical/boundary/verbose 1
 
 ### Naming Output ###
-/analysis/setFileName testNaming2                  # use either of these functions. whatever is last overrides
-#/analysis/ntuple/setFileName 0 anotherNameIWant   # this doesn't work anymore bc ntuple is made in BeginRunAction
+/analysis/setFileName GODFUCKIGNDAMN                  # use either of these functions. whatever is last overrides
 
 ### Initialize kernel (build detector) ###
 /run/initialize
 
-### no visualization ###
-/run/beamOn 1
 
 ### run visualization ###
 /control/execute ../mySim/myVis.mac
-#/control/exit
-#/control/execute ../mySim/livePhotonTest.mac
+
+### set your photon sources if you want ###
+/control/execute ../mySim/photonBomb.mac
+
+### run wahtever is above? ###
+/run/beamOn 1

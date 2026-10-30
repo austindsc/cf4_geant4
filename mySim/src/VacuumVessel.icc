@@ -13,15 +13,22 @@ G4Tubs * solid_med_upperFlange = new G4Tubs("solid_med_upperFlange", mediumR + o
 G4LogicalVolume * logic_med_upperFlange = new G4LogicalVolume(solid_med_upperFlange, detMat->mSteel_walls, "logic_med_upperFlange");
 new G4PVPlacement(0, moveMediumUP + G4ThreeVector(0, 0, mediumZ/2 - upperFlange_thick/2), logic_med_upperFlange, "phys_med_upperFlange", logicWorld, false, 0, checkOverlaps);
 
-// !!upper flange has no paper on it!!
-// list_VacuumVessel.push_back(logic_med_upperFlange);
-
 // solid upper flange
 G4Tubs * solid_med_solidupperFlange = new G4Tubs("solid_med_solidupperFlange", 0, flange_r, 0.5*upperFlange_solid_thick, 0, 360*deg);
 G4LogicalVolume * logic_med_solidupperFlange = new G4LogicalVolume(solid_med_solidupperFlange, detMat->mSteel_walls, "logic_med_solidupperFlange");
 new G4PVPlacement(0, moveMediumUP + G4ThreeVector(0, 0, mediumZ/2 + upperFlange_solid_thick/2), logic_med_solidupperFlange, "phys_med_solidupperFlange", logicWorld, false, 0, checkOverlaps);
-// !!upper flange has no paper on it!!
+
+// !!upper flange has no paper on it!! otherwise add these to list
+// list_VacuumVessel.push_back(logic_med_upperFlange);
 // list_VacuumVessel.push_back(logic_med_solidupperFlange);
+
+// uncomment to give upper flange and ring stainless steel reflective surface
+// new G4LogicalSkinSurface("skinSurface_upperFlange", logic_med_upperFlange, detMat->opSteel_rodSurface);
+// new G4LogicalSkinSurface("skinSurface_solidUpperFlange", logic_med_solidupperFlange, detMat->opSteel_rodSurface);
+
+// instead apply perfect reflector to top
+new G4LogicalSkinSurface("skinSurface_upperFlange", logic_med_upperFlange, detMat->opSurf_perfectRef);
+new G4LogicalSkinSurface("skinSurface_solidUpperFlange", logic_med_solidupperFlange, detMat->opSurf_perfectRef);
 
 // lower flanges of CF4 cylinder
 G4double lowerFlange_thick = 3.8*cm;
@@ -57,6 +64,14 @@ new G4PVPlacement(0, can1PlateOffset + G4ThreeVector(0, 0, -outercanZ/2 + outerc
 list_VacuumVessel.push_back(logic_outercan);
 
 // Add logical skin to everything in list_VacuumVessel
+// if(DETECTORSETUP::GetAbsorbingStatus() == true){
+//   for (auto volume : list_VacuumVessel) { new G4LogicalSkinSurface("skinSurface", volume, detMat->opSurf_perfectAbsorber); }
+// }
+
+// Apply absorbing surface only to the main CF4 cylinder walls
 if(DETECTORSETUP::GetAbsorbingStatus() == true){
-  for (auto volume : list_VacuumVessel) { new G4LogicalSkinSurface("skinSurface", volume, detMat->opSurf_perfectAbsorber); }
+  new G4LogicalSkinSurface("skinSurface_mediumCyl", logic_mediumCyl, detMat->opSurf_perfectAbsorber);
+}
+else{
+  new G4LogicalSkinSurface("skinSurface_mediumCyl", logic_mediumCyl, detMat->opSteel_rodSurface);
 }

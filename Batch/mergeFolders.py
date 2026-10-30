@@ -39,9 +39,9 @@ if path is None:
     path = "/Users/austindestcroix/Desktop/school_holders/projects/sbc/g4cf4_newOptics/"
 
 # SET THESE TO THE FOLDERS TO MERGE (for full hierarchy mode)
-folderA = path + "batchOutput/gammaLP_Jan26/"
-folderB = path + "batchOutput/gammaLP_Jan26_moreStats/"
-folderC = path + "batchOutput/gammaLP_Jan26_merged/"
+folderA = path + "batchOutput/gammaLP_apr17_rerunAgain_moreStats/"
+folderB = path + "batchOutput/gammaMods/rerun6cm/"
+folderC = path + "batchOutput/gammaLP_ap17_added6cm/" # output folder for merged results
 
 verbose = True
 

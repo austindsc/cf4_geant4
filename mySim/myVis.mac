@@ -21,14 +21,14 @@
 #/vis/geometry/set/forceWireframe logic_med_solidupperFlange 0 1
 #/vis/geometry/set/forceWireframe logic_med_lowerFlange 0 1
 #/vis/geometry/set/forceWireframe logic_outercan 0 1
-/vis/geometry/set/colour logic_mediumCyl 1 0.33 0.33 0.33 0.5
-/vis/geometry/set/colour logic_med_upperFlange 1 0.33 0.33 0.33 0.5
-/vis/geometry/set/colour logic_med_solidupperFlange 1 0.33 0.33 0.33 0.5
-/vis/geometry/set/colour logic_med_lowerFlange 1 0.33 0.33 0.33 0.5
+/vis/geometry/set/colour logic_mediumCyl 1 0.4 0.7 1.0 0.5
+/vis/geometry/set/colour logic_med_upperFlange 1 0.4 0.7 1.0 0.7
+/vis/geometry/set/colour logic_med_solidupperFlange 1 0.4 0.7 1.0 0.7
+/vis/geometry/set/colour logic_med_lowerFlange 1 0.4 0.7 1.0 0.7
 /vis/geometry/set/colour logic_can1Plate 1 0.87 0.87 0.87 2
-/vis/geometry/set/colour logic_can1 1 0.2 0.2 0.2 0.2
-/vis/geometry/set/colour logic_can1_bottom 1 0.2 0.2 0.2 0.2
-/vis/geometry/set/colour logic_outercan 1 0.2 0.2 0.2 0.2
+/vis/geometry/set/colour logic_can1 1 0.6 0.6 0.6 0.35
+/vis/geometry/set/colour logic_can1_bottom 1 0.6 0.6 0.6 0.35
+/vis/geometry/set/colour logic_outercan 1 0.6 0.6 0.6 0.35
 
 ## drawing the gammma stuff ##
 /vis/geometry/set/forceWireframe logic_collWorld 0 1
@@ -92,8 +92,3 @@
 #/vis/scene/endOfRunAction refresh
 
 /vis/ogl/set/displayListLimit 20000
-
-# for testing XX
-#/control/execute ../mySim/photonTest.mac
-#/control/execute ../mySim/livePhotonTest.mac
-#/control/execute ../mySim/photonBomb.mac

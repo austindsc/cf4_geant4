@@ -8,8 +8,8 @@
 
 /setMaterial/detectionMedium lCF4
 
-/setMaterial/mediumTemp 128 kelvin
-/setMaterial/mediumPressure 10.7 bar
+/setMaterial/mediumTemp 145 kelvin
+/setMaterial/mediumPressure 10.3 bar
 
 /setMaterial/mediumLY 5 keVLY
 /setMaterial/mediumLY_VisFraction 0.9

@@ -212,11 +212,9 @@ G4VPhysicalVolume* CF4DetectorConstruction::Construct()
   new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod2", logic_medium, false, 0, checkOverlaps);
   new G4PVPlacement(0, rodp1.rotateZ(120*deg), logic_rods, "phys_rod3", logic_medium, false, 0, checkOverlaps);
 
-  if(DETECTORSETUP::GetAbsorbingStatus() == true){
-    new G4LogicalSkinSurface("rodSurface", logic_rods, detMat->opSurf_perfectAbsorber);
-  } else {
-    new G4LogicalSkinSurface("rodSurface", logic_rods, detMat->opSteel_rodSurface);
-  }
+  // always make the rods stainless
+  new G4LogicalSkinSurface("rodSurface", logic_rods, detMat->opSteel_rodSurface);
+
 
   //------------- Doing SiPM -------------//
   // put the SiPM surface at the world origin

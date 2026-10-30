@@ -47,8 +47,12 @@ class FullMCRun(object):
     self.eff = self.MtotalMeasured/self.Nbeam
     return
   
+  ## 1- p / p = mean
+  ## m p = 1-p
+  ## (m + 1) p = 1
+  ## p = 1/(m+1)
   def doCAcorrection_GeometricMC(self, nCA, rand = np.random.default_rng(seed = int(time.time()))):
-    pGeo = 1./(1 + nCA)
+    pGeo = 1./(1 + nCA) # this is the success probability for the geometric distribution, not the success of a CA happening.
     self.mCA = nCA
     self.mNPE_corrGeo = np.array([np.sum(rand.geometric(p = pGeo, size = pe)) for pe in self.mNPE])
     self.mNPE_corr = self.mNPE_corrGeo
@@ -56,7 +60,8 @@ class FullMCRun(object):
 
   def doCAcorrection_BinomialMC(self, nCA):
     self.mCA = nCA
-    self.mNPE_corrBinomial = self.mNPE + np.random.binomial(self.mNPE, nCA)
+    rng = np.random.default_rng(seed=69)
+    self.mNPE_corrBinomial = self.mNPE + rng.binomial(self.mNPE, nCA)
     self.mNPE_corr = self.mNPE_corrBinomial
     return self.mNPE_corrBinomial
   
@@ -81,7 +86,7 @@ class FullMCRun(object):
     y = self.mRaw_Counts * scale
     x = self.mBinX - hshift
     yerr = np.sqrt(self.mRaw_Counts) * scale
-    ax.errorbar(x, y, yerr=yerr, label=label, marker=marker, linestyle=linestyle)
+    ax.errorbar(x, y, yerr=yerr, label=label, marker=marker, linestyle=linestyle, **kwargs)
     return ax
   
   def mpl_hist(self, ax, scale=1, hshift=0, label=None, **kwargs):

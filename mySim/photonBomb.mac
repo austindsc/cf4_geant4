@@ -1,29 +1,11 @@
-# this produces many photons from all over a disk
-
-/vis/verbose 0
-/event/verbose 0
-/run/verbose 0
-
-#/process/em/verbose 0
-#/process/had/deex/verbose 0
-/particle/verbose 0
-/tracking/verbose 0
-
+## GPS settings ##
 /gps/particle opticalphoton
-/gps/energy 2 eV
+/gps/ene/mono 2.0 eV
 /gps/pos/type Plane
 /gps/pos/shape Circle
-/gps/pos/radius 5 mm
+/gps/pos/radius 1.5 cm
 
+/gps/pos/centre 0.0 0.0 5 cm
 /gps/ang/type iso
-#/gps/ang/mintheta 0
-#/gps/ang/maxtheta 0.785
 
-/gps/number 100
-
-/analysis/setFileName photonBomb2
-#/analysis/ntuple/setFileName 0 anotherNameIWant3
-
-#/run/initialize
-
-/run/beamOn 1
+/gps/number 20
